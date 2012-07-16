@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+     <BizExpenses desc="事業費率の設定">
+           <formula name="alphaE">
+             if(insuranceCode==931||insuranceCode==933){0}else{0.017}
+           </formula>
+           <formula name="gamma2" value="0.01"/>
+     </BizExpenses>
+     
+     <Common desc="商品内部の共通公式">
+     	<formula name="xx">
+     		x+n
+     	</formula>
+     	<formula name="tt">
+        	t-n
+        </formula>
+        <formula name="g">
+        	if(insuranceCode==931||insuranceCode==932){g1}
+        	else{g2}
+        </formula>
+        <formula name="theta">
+        	if(annuityType==50){0}else{5}
+        </formula>
+     	<formula name="a_g" paras="x" fraction="5">
+			(1-v^x)/(1-v)
+		</formula>
+        <formula name="Iag" fraction="5">
+            sum(0,g-1){v^index*(1+theta/100*index)}
+        </formula>
+        <formula name="Iay" paras="x" fraction="5">
+            (1/D[x])*sum(g,omega-x){D[x+index]*(1+theta/100*index)}
+        </formula>
+        <formula name="sum_Ia" paras="t" fraction="5">
+            if(t&gt;=g){0}
+            else{
+               sum(t,g-1){v^(index-t)*(1+theta/100*index)}
+            }
+        </formula>
+        <formula name="sum_yt" paras="x,t" fraction="5">
+            (1/D[x+t])*sum(max(t,g),omega-x){D[x+index]*(1+theta/100*index)}
+        </formula>         	 
+     </Common>
+     
+     <Premium desc="保険料">
+        <formula name="sPrate" fraction="5" pvh="P" accessable="true" desc="１.保険料レート">
+            (1+alphaE)*Fy
+            <formula name="Fy" fraction="3">
+                if(insuranceCode==934||insuranceCode==933){(1+gamma2)*(Iag+Iay(xx))}
+                else{(1+gamma2)*a_g(g)}
+            </formula>
+        </formula>        
+        <formula name="Premium" pvh="P" accessable="true" desc="２．保険料/保険金額">
+			if(sptate==1){
+				roundUp(roundDown(SA/sPrate,0)/1000,0)*1000
+			}else{
+				round(SA*sPrate,0)
+			}
+		</formula> 
+    </Premium>
+    
+    <ReserveFund desc="保険積立金">
+        <formula name="lifePension" paras="x,t" desc="終身年金">
+			<!--if(t&lt;g||benefitRequest==50){(1+gamma2)*sum_yt(x,t)}-->
+			(1+gamma2)*(sum_Ia(t)+sum_yt(x,t))
+        </formula>
+        
+        <formula name="certainAnnuity" paras="t" desc="確定年金">
+            (1+gamma2)*a_g(max(g-t,0))
+        </formula>
+        
+        <formula name="Vrate_accu" paras="tt" desc="保険年度末rate">
+             if(insuranceCode==934||insuranceCode==933){lifePension(xx,tt)}
+             else{certainAnnuity(tt)}
+        </formula>
+        <formula name="Vrate" accessable="true" fraction="3" pvh="H" desc="１.保険年度末Ｖレート">
+             if(insuranceCode==934||insuranceCode==933){lifePension(xx,tt)}
+             else{certainAnnuity(tt)}
+        </formula>
+
+        <formula name="ContractorYearV" paras="x,t" pvh="P" fraction="3" desc="保険年度契約者VTレート">
+            if(insuranceCode==934||insuranceCode==933){lifePension(x,t)}else{certainAnnuity(t)}
+        </formula>
+        
+		<formula name="ContractorVrate" pvh="P" fraction="3" accessable="true" desc="３.契約者用Ｖレート">
+			if(f==0){
+				ContractorYearV(xx,tt)
+			}else{
+				v^((12-f)/12)*ContractorYearV(xx,tt+1)
+			}
+		</formula>
+		
+		<formula name="BizYearV" paras="t" fraction="3" accessable="false" desc="事業末Vレート">
+             if(insuranceCode==934||insuranceCode==933){lifePension(xx,tt)}
+             else{certainAnnuity(tt)}
+        </formula>
+        
+		<formula name="VrateValuation" pvh="H" fraction="0" accessable="true" desc="４．保険年度末実額">
+			SA*Vrate
+		</formula>
+		<formula name="Valuation" pvh="P" fraction="0" accessable="true" desc="５．契約者責任準備金実額">
+			SA*ContractorVrate
+		</formula>
+		<formula name="BizYearValuation" pvh="if(kisoritsu==0){P}elseIf(kisoritsu==1){V}else{H}" fraction="0" accessable="true" desc="６．事業年度末実額">
+			SA*BizYearV
+		</formula>
+		
+	</ReserveFund>
+    
+    <SurrenderFee desc="解約返戻金">
+         <formula name="CashValue" pvh="P" fraction="0" accessable="true" desc="解約返戻金実額">
+		     <!-- 取扱なし -->
+			 0
+	     </formula>
+    </SurrenderFee>
+</Formula-definition>

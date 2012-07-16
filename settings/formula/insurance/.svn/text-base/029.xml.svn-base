@@ -1,0 +1,326 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+	<BizExpenses desc="事業費率の設定">
+		<formula name="alpha" paras="n">
+			roundDown(0.006*min(n/10,1),8)
+		</formula>
+		<formula name="delta" paras="n" fraction="8">
+			max{0.06-0.01/5*max(x+n-55,0),0}
+		</formula>
+		<formula name="gamma" value="0.00105"/>
+		<formula name="gamma1" value="0.001"/>
+		<formula name="beta" value="0.03"/>
+		<formula name="zeta" value="0.025"/>
+		<formula name="epsilon" paras="m" desc="払込免除">
+			if(m&lt;=5){
+				0.0005
+			}elseIf(m&gt;5 &amp;&amp; m&lt;=10){
+				0.001
+			}else{
+				0.002
+			}
+		</formula>
+		<formula name="ht" paras="t" desc="解約返戻金割合">
+			if(t&gt;=0 &amp;&amp; t&lt;u){
+				wt
+			}elseIf(t&gt;=u &amp;&amp; t&lt;omega-x){
+				1
+			}else{0}
+		</formula>
+		<formula name="wt" desc="低解約返戻金割合" value="0.7"/>
+	</BizExpenses>
+	
+	<Common desc="商品内部の共通公式">
+		<formula name="d" paras="xtime" desc="高額割引率">
+			if(xtime&gt;0){
+				0
+			}else{
+				if(gen==3||gen==4){
+					if(SA&lt;20000000){
+						d1
+					}elseIf(SA&gt;=20000000 &amp;&amp; SA&lt;50000000){
+						0.00002
+					}else{
+						0.00004
+					}
+				}else{
+					0
+				}
+			}
+			<formula name="d1" value="-0.000015"/>
+		</formula>
+		
+		<formula name="PrateByPaymode" paras="stdPrate,d" fraction="6" desc="払込方法別Prate">
+			<!-- 基準Prateと高額割引dより、払込方法別Prateを求める -->
+			<formula name="Discount" paras="d" desc="高額割引">
+				if(kaisu==1){0}
+				elseIf(kaisu==2){12*d}
+				elseIf(kaisu==3){6*d}
+				else{d}
+			</formula>
+			stdPrate*PayFactor(kaisu,gen,keiro)-Discount(d)
+		</formula>
+		
+		<formula name="S2P" paras="SBasePrate" desc="S基準からP基準に変換する">
+			<!-- 普通の場合 -->
+			if(kaisu==1){
+				round(1/SBasePrate,4)
+			}else{
+				round(1/SBasePrate,2)
+			}
+		</formula>
+		
+		<!-- 給付現価　ここから -->
+		
+		<formula name="AT_x_n_D" paras="x,n" fraction="6" desc="給付現価ATx:n">
+			AT_xt_nt_D(x,n,0)
+		</formula>
+		<formula name="AT_xt_nt_D" paras="x,n,t" fraction="6" desc="給付現価ATx+t:n-t">
+			(MD[x+t]-MD[x+n])/DT[x+t]
+		</formula>
+		
+		<formula name="Wt_x_n" paras="x,n,t,m" desc="死亡保障解約給付現価">
+			<!-- 現行SYSTEMの算式  -->
+			if(t&gt;=0 &amp;&amp; t&lt;m){
+				(M[x+t]-M[x+n]+gamma1*(N[x+m]-N[x+n])
+					-
+				(A_x_n_D(x,n)+gamma1*f_a_x_n(m,x,n))/a_x_n(x,m)*(N[x+t]-N[x+m])
+					-
+				alphaz(n)/a_x_n(x,m)*(N[x+t]-N[x+m]))/D[x+t]
+			}elseIf(m&lt;n &amp;&amp; t&gt;=m &amp;&amp; t&lt;n){
+				((M[x+t]-M[x+n])+gamma1*(N[x+t]-N[x+n]))/D[x+t]
+			}else{0}
+			<formula name="alphaz" paras="n">
+				0.008*min(n/10,1)
+			</formula>
+		</formula>
+		<formula name="Wt_x_n1" pvh="P" paras="x,n,t,m,u">
+			<!-- 現行SYSTEMの算式 -->
+			(Wt_x_n(x,n,t,m)+Wt_x_n(x,n,t+1,m))/2*ht(t)
+		</formula>
+		
+		<formula name="W_x_n" paras="x,n,m,u" desc="解約給付現価">
+			<!-- 現行SYSTEMの算式  -->
+			sum(0,n-1){CW[x+index]*Wt_x_n1(x,n,index,m,u)}/DT[x]
+		</formula>
+		
+		<formula name="W_x_n_t" paras="x,n,m,t,u" desc="解約給付現価（経過年あり）">
+			<!-- 現行SYSTEMの算式  -->
+			sum(t,n-1){CW[x+index]*Wt_x_n1(x,n,index,m,u)}/DT[x+t]
+		</formula>
+		
+		<formula name="ContractorV002" paras="t" pvh="P" desc="契約者保険年度Vrate">
+			if(state==4||state==2){
+				<!-- 払済 -->
+				SingleV002(t)
+			}else{
+				MultiV002(t,0)
+			}
+		</formula>
+		<formula name="SingleV002" paras="t" fraction="4" desc="一時払/払済/払込期間終了後のVTレート">
+			A_xt_nt_D(x,t,n)+gamma1*a_x_n(x+t,n-t)
+		</formula>
+		<formula name="MultiV002" paras="t,z" fraction="4" desc="払込中（免除）VTレート">
+			 max{subVrate1002(t,z)-subVrate2002(t)*a_x_n(x+t,m-t)+0.000000000001,0}
+		</formula>
+		<formula name="subVrate1002" paras="t,z">
+			 A_xt_nt_D(x,t,n)+gamma1*ft_a_xt_n(m,t,x,n)
+			 -
+			 if(z==0){0}else{0.008*min(n/10,1)/a_x_n(x,z)*a_x_n(x+t,z-t)}
+		</formula>
+		<formula name="subVrate2002" paras="t">
+			 (A_x_n_D(x,n)+gamma1*f_a_x_n(m,x,n))/a_x_n(x,m)
+		</formula>
+		
+	</Common>
+	
+	<Premium desc="保険料">
+		<formula name="stdPrate" pvh="P" fundCode="029" desc="基準Ｐレート">
+			<!-- 当該商品には分割払いしかない -->
+			if(kaisu==1){0}else{MultiPrate}
+			<formula name="MultiPrate" fraction="6" desc="分割払Pレート">
+				if(m&lt;n){
+					(MultiPrateCompare(x,n,m,u)+gamma1*f_aT_x_n(m,x,n))/warusu(x,n,m)+0.000000000001
+				}elseIf(m==n){
+					if(x+n&lt;90){
+						set(t_Prate=(MultiPrateCompare(x,n,n,u)/warusu(x,n,n)))
+						set(i=n)
+						while(i&lt;90-x){
+							t_Prate=min(t_Prate,(MultiPrateCompare(x,i,i,u)/warusu(x,i,i)))
+							set(i=i+1)
+						}
+					}else{
+						MultiPrateCompare(x,n,n,u)/warusu(x,n,n)
+					}
+				}else{0}
+			</formula>
+			<formula name="warusu" paras="x,n,m">
+				12*(1-beta-zeta-delta(n)-epsilon(m))*aT12_x_n(x,m)
+			</formula>
+			<formula name="MultiPrateCompare" paras="x,n,m,u">
+				AT_x_n_D(x,n)+W_x_n(x,n,m,u)+alpha(n)+gamma*aT12_x_n(x,m)
+			</formula>
+		</formula>
+		
+		<formula name="Prate" accessable="true" fundCode="029" pvh="P" desc="１．保険料レート">
+			PrateByPaymode(stdPrate,d)
+		</formula>
+
+		<formula name="Premium" pvh="P" fundCode="029" accessable="true" desc="２．保険料・保険金">
+			<!-- 高額割引がゼロ 100円の位を切り上げ-->
+			if(sptate==0){
+				roundDown(SA*PrateByPaymode(stdPrate,d),0)
+			}else{
+				roundUp(
+						roundDown(
+							SA*S2P(PrateByPaymode(stdPrate,d))
+							,0)/1000
+					,0)*1000
+			}
+		</formula>
+	</Premium>
+
+	<!-- 責任準備金　ここから -->
+	<ReserveFund desc="責任準備金">
+		<!-- 年金支払開始前 -->
+		<formula name="Single1V" paras="t" desc="払込期間終了後のVTレート">
+			AT_xt_nt_D(x,n,t)+W_x_n_t(x,n,m,t,u)+gamma1*aT_xt_nt(x,n,t)
+		</formula>
+		<formula name="Single2V" paras="t" fraction="4" desc="払済のVTレート">
+			A_xt_nt_D(x,t,n)+gamma1*a_x_n(x+t,n-t)
+		</formula>
+		<formula name="MultiV" paras="t,z" desc="払込中（免除）VTレート">
+			max{subVrate1(t,z)-subVrate2(t)*aT_xt_nt(x,m,t)+0.000000000001,0}
+		</formula>
+		<formula name="subVrate1" paras="t,z">
+			 AT_xt_nt_D(x,n,t)+W_x_n_t(x,n,m,t,u)+gamma1*ft_aT_xt_n(m,t,x,n)
+			 	-
+			 if(z==0){0}else{0.008*min(n/10,1)/aT_x_n(x,z)*aT_xt_nt(x,z,t)}
+		</formula>
+		<formula name="subVrate2" paras="t">
+			 {AT_x_n_D(x,n)+W_x_n(x,n,m)+gamma1*f_aT_x_n(m,x,n)}/aT_x_n(x,m)
+		</formula>
+		
+		<formula name="Vrate_accu" paras="t,z" fundCode="029" accessable="false" desc="保険年度末rate">
+			if(state==2){
+				<!-- 払込期間終了後 -->
+				Single1V(t)
+			}elseIf(state==1||state==6){
+				<!-- 払込期間中　または　免除 -->
+				MultiV(t,z)
+			}elseIf(state==4)(
+				Single2V(t)
+			)else{0}
+		</formula>
+		<formula name="Vrate" pvh="H" fundCode="029" fraction="6" accessable="true" desc="１．保険年度末Vレート">
+			Vrate_accu(t,0)
+		</formula>
+
+		<!-- 契約者保険年度Vrate　ここから -->
+		<formula name="ContractorYearV" pvh="P" paras="t,z" fraction="6" desc="契約者保険年度Vrate">
+			Vrate_accu(t,z)
+		</formula>
+
+		<formula name="ContractorVrate" fundCode="029" pvh="P" accessable="true" desc="３．契約者用Vレート">
+			if(state==4||state==2){
+				<!-- 払済 -->
+				if(f==0){
+					ContractorYearV(t,z)
+				}else{
+					round((1-f_12(f))*ContractorYearV(t,z)+f_12(f)*ContractorYearV(t+1,z),4)
+				}
+			}else{
+				<!-- 払込期間中または　免除 -->
+				if(f1==0){
+					ContractorYearV(t1,z)
+				}else{
+					round((1-f_12(f1))*ContractorYearV(t1,z)+f_12(f1)*ContractorYearV(t1+1,z),4)
+				}
+			}
+		</formula>
+		
+		<formula name="PrateByYear" pvh="P" fraction="6" desc="年払Prate">
+			stdPrate*PayFactor(2,gen,1)-12*d(xtime)
+		</formula>
+		<formula name="BizYearV" paras="t,z" accessable="false" desc="事業末Vレート">
+			if(state==1){
+				<!-- 払込期間中 -->
+				if(round(subVrate2(t),6)&lt;=PrateByYear){
+					max(subVrate1(t,z)-subVrate2(t)*aT_xt_nt(x,m,t)+0.000000000001,0)
+				}else{
+					max(subVrate1(t,z)-PrateByYear*aT_xt_nt(x,m,t)+0.000000000001,0)
+				}
+			}elseIf(state==2){
+				Single1V(t)
+			}else{
+				<!-- Vrateと同じ -->
+				Single2V(t)
+			}
+		</formula>
+		
+		<formula name="calBizYearV" fraction="6" desc="事業末用Vレート">
+			BizYearV(t,z)
+		</formula>
+
+	</ReserveFund>
+	
+	<!-- 解約返戻金　ここから -->
+	<SurrenderFee desc="解約返戻金">
+		<formula name="htWrate" paras="t" desc="解約返戻金期間中、免除の割合">
+			if(t&gt;=0 &amp;&amp; t&lt;u || (t==u &amp;&amp; f==0)){
+				wt
+			}else{1}
+		</formula>
+		<formula name="tWrate" paras="t">
+			<formula name="sigma" paras="t">
+				0.006*min(n/10,1)*max(1-t/min(m,10),0)
+			</formula>
+			round{
+				if(state==1 || state==6){
+					<!-- 払込期間中　または　免除 -->
+					max{ContractorV002(t)-sigma(t),0}
+				}else{
+					ContractorV002(t)
+				}
+			,4}
+		</formula>
+		<formula name="Wrate" pvh="P" fraction="4" fundCode="002" accessable="true" desc="１．解約返戻金Wレート">
+			<formula name="Wrate_Overbar1">
+				if(12*t1+f1-12*t-f&lt;0){
+					<!-- 払込年月数-経過年月数<0の場合、t,fをt1,f1に読み替え -->
+					round(round{(1-f_12(f1)),5}*tWrate(t1)+round{f_12(f1),5}*tWrate(t1+1),4)*htWrate(t1)
+				}else{
+					round(round{(1-f_12(f)),5}*tWrate(t)+round{f_12(f),5}*tWrate(t+1),4)*htWrate(t)
+				}			
+			</formula>
+			<formula name="Wrate_Overbar2">
+				round(v^ve*
+				{round((1-f_12(f1))*tWrate(t1)+f_12(f1)*tWrate(t1+1),4)},4)*htWrate(t)
+			</formula>
+			if(state==1 || state==6){
+				<!-- 払込期間中　または　免除-->
+				if(PremiumAbolishSign==1){
+					Wrate_Overbar1
+				}elseIf(contractDate&gt;=20080202){
+					Wrate_Overbar2
+				}else{
+					round(v^ve*
+						round((1-f_12(f1))*min{tWrate(t1),MultiV_V(t1,min(m,5))}
+							+
+						f_12(f1)*min{tWrate(t1+1),MultiV_V(t1+1,min(m,5))},4)
+					,4)*htWrate(t1)
+				}
+			}elseIf(state==2){
+				<!-- 払込期間終了後 -->
+				round(round{(1-f_12(f)),5}*tWrate(t)+round{f_12(f),5}*tWrate(t+1),4)*ht(t)
+			}else{
+				round{(1-f_12(f)),5}*tWrate(t)+round{f_12(f),5}*tWrate(t+1)
+			}
+		</formula>
+		<formula name="MultiV_V" pvh="V" paras="t,z" fraction="4" desc="払込中（免除）VTレート">
+			 max{subVrate1002(t,z)-subVrate2002(t)*a_x_n(x+t,m-t),0}
+		</formula>
+	</SurrenderFee>
+</Formula-definition>

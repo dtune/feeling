@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE DataLayout-definition SYSTEM "DataLayout-definition.dtd">
+<DataLayout-definition>
+	<!-- ☆レートキー生成ツールのdat定義　計算ツールに関係ない☆ -->
+	<!-- レートキーの属性 -->
+	<Category name="Premium" label="保険料Pレート">
+		<key name="p1" pos="1" len="2" desc="タリフレイアウトID" initValue="01"/>
+		<key name="p2" pos="3" len="8" desc="タリフ作成年月日" initValue="20100401"/>
+		<key name="sex" pos="11" len="1" desc="被保性別CN" initValue="1"/>
+		<key name="p4" pos="12" len="1" desc="契約者性別CN" initValue="1"/>
+		<key name="p3" pos="13" len="8" desc="始期年月日" initValue="20110420"/>
+		<key name="p5" pos="21" len="1" desc="ボーナス払倍数" initValue="1" />
+		<key name="insuranceCode" pos="22" len="3" desc="料率保種CN" initValue="104"/>
+		<key name="p7" pos="25" len="2" desc="料率識別区分CN" initValue="01"/>
+		<key name="p8" pos="27" len="1" desc="予定利率識別CN" initValue="3"/>
+		<key name="p9" pos="28" len="1" desc="余白（１）" initValue="3"/>
+		<key name="kaisu" pos="29" len="1" desc="払方CN" initValue="2"/>
+		<key name="keiro" pos="30" len="1" desc="P扱方法CN" initValue="3"/>
+		<key name="periodKbn" pos="31" len="1" desc="保期区分CN" initValue="0"/>
+		<key name="n"  pos="32" len="2" desc="保期年" initValue="3"/>
+		<key name="a12" pos="34" len="2" desc="保期月" initValue="42"/>
+		<key name="paymentKbn" pos="36" len="1" desc="払期区分CN" initValue="1"/>
+		<key name="m"  pos="37" len="2" desc="払期年" initValue="10"/>
+		<key name="a13" pos="39" len="2" desc="払期月" initValue="02"/>
+		<key name="x"  pos="41" len="2" desc="X年齢" initValue="11"/>
+		<key name="y"  pos="43" len="3" desc="Y年齢" initValue="000"/>
+		<key name="sptate" pos="46" len="1" desc="P建サイン" initValue="6"/>
+		<key name="deatIndex" pos="47" len="3" desc="特体死亡指数" initValue="000"/>
+		<key name="p15" pos="50" len="2" desc="年金支払年" initValue="20"/>
+		<key name="p16" pos="52" len="2" desc="年金支払月" initValue="10"/>
+		<key name="h17" pos="54" len="2" desc="年金支払保証年" initValue="04"/>
+		<key name="p18" pos="56" len="2" desc="年金支払保証月" initValue="01"/>
+		<key name="step" pos="58" len="2" desc="修正払込軽減期間" initValue="01"/>
+		<key name="p22" pos="60" len="6" desc="修正払込Pアップ率" initValue="000000"/>
+		<key name="p23" pos="66" len="2" desc="余白（２）" initValue="00"/>
+		<key name="Sy" pos="68" len="4" desc="ファミリー配偶者保障割合" initValue="0000"/>
+		<key name="Sz" pos="72" len="4" desc="ファミリー子保障割合" initValue="0000"/>
+		<key name="p26" pos="76" len="6" desc="災疾保障期間" initValue="000000"/>
+		<key name="p28" pos="83" len="1" desc="ボーナス払サイン" initValue="0"/>
+		<key name="p29" pos="84" len="1" desc="ボーナス払端数月数" initValue="0"/>
+		<key name="p31" pos="85" len="2" desc="ボーナス月１" initValue="00"/>
+		<key name="p32" pos="87" len="2" desc="ボーナス月２" initValue="00"/>
+		<key name="p33" pos="89" len="1" desc="初回ボーナス月間隔" initValue="0"/>
+		<key name="p34" pos="90" len="1" desc="給付タイプCN" initValue="0"/>
+		<key name="p35" pos="91" len="8" desc="P計算基準年月日" initValue="00000000"/>
+		<key name="SA" pos="111" len="12" desc="基準S" initValue="00010000010"/>
+		<key name="Premium" pos="123" len="12" desc="営業P" initValue="000000000000"/>
+		<key name="p37" pos="135" len="12" desc="特別取扱P" initValue="000000000000"/>
+		<key name="p38" pos="147" len="12" desc="合計保険料" initValue="000000000000" />
+		<key name="p39" pos="159" len="12" desc="主契約ボーナス払部分営業P" initValue="000000000000"/>
+		<key name="p41" pos="171" len="12" desc="主契約ボーナス払部分特別取扱P"   initValue="000000000000"/>
+		<key name="p42" pos="183" len="12" desc="タリフ基準S" initValue="100000000000"/>
+		<key name="p45" pos="195" len="2" desc="基礎契約X年齢" initValue="00" />
+		<key name="p43" pos="197" len="1" desc="基礎契約払期区分CN" initValue="0" />
+		<key name="p44" pos="198" len="2" desc="基礎契約払期年" initValue="1" />
+		<key name="p46" pos="200" len="2" desc="基礎契約払期月" initValue="00" />
+		<key name="p47" pos="202" len="2" desc="計算世代CN" initValue="00" />
+		<key name="p48" pos="204" len="2" desc="低解返区分CN" initValue="00" />
+		<key name="p49" pos="206" len="1" desc="不担保特約CN" initValue="0" />
+		<key name="u51" pos="207" len="2" desc="低解返期間" initValue="00" />
+		<key name="k52" pos="209" len="2" desc="年金支払満了期間" initValue="00" />
+		<key name="p54" pos="237" len="4" desc="サブモジュール復帰CN" initValue="0000" />
+		<key name="p55" pos="241" len="8" desc="発生元モジュールID" initValue="00010000" />
+		<key name="p56" pos="249" len="8" desc="基礎契約繰返し数" initValue="00000000" />
+		<key name="p57" pos="257" len="10" desc="Ｐレート" initValue="0000000000" />
+		<key name="p58" pos="267" len="10" desc="Ｐレート単位" initValue="0000000000" />
+		<key name="p59" pos="277" len="10" desc="特体Ｐレート" initValue="0000000000" />
+		<key name="p61" pos="287" len="1" desc="更新契約サイン" initValue="0" />
+		<key name="p62" pos="288" len="1" desc="利率変動年金額計算区分ＣＮ" initValue="0" />
+		<key name="p63" pos="289" len="6" desc="契約時積立利率" initValue="000000" />
+		<key name="p64" pos="295" len="1" desc="ユニット追加区分ＣＮ" initValue="0" />
+		<key name="p65" pos="296" len="10" desc="調整Ｐレート" initValue="0000000000" />
+	</Category>
+	
+	<Category name="ReserveFund" label="保険料積立金Vレート">
+			<key name="v1"  pos="1" len="1" desc="Vレート計算不能サイン" initValue="0"/>
+		<key name="v2" pos="2" len="5" desc="テストカウンタ" initValue="00000"/>
+		<key name="insuranceCode" pos="11" len="1" desc="計算種類ＣＮ" initValue="01" />
+		<key name="v4" pos="12" len="1" desc="事業年度末サイン" initValue="0" />
+		<key name="sex" pos="13" len="1" desc="被保性別ＣＮ" initValue="1" />
+		<key name="v7" pos="14" len="1" desc="契約者性別ＣＮ" initValue="1" />
+		<key name="v8" pos="15" len="6" desc="約款未収年月" initValue="000000" />
+		<key name="v9" pos="21" len="6" desc="適用未収年月" initValue="201004" />
+		<key name="v10" pos="27" len="6" desc="払込未収年月" initValue="000000" />
+		<key name="v11" pos="33" len="2" desc="契約現況ＣＮ" initValue="00" />
+		<key name="v12" pos="35" len="8" desc="ＶＴ計算基準年月日" initValue="20100401" />
+		<key name="v13" pos="43" len="2" desc="給付金支払前後区分ＣＮ" initValue="00" />
+		<key name="v14" pos="45" len="8" desc="被保生年月日" initValue="00000000" />
+		<key name="v15" pos="53" len="2" desc="チルメル期間" initValue="00" />
+		<key name="v16" pos="55" len="1" desc="ボーナス払サイン" initValue="0" />
+		<key name="v17" pos="56" len="1" desc="ボーナス払端数月数" initValue="0" />
+		<key name="v18" pos="57" len="2" desc="ボーナス月１" initValue="00" />
+		<key name="v19" pos="59" len="2" desc="ボーナス月２" initValue="00" />
+		<key name="v20" pos="61" len="1" desc="ボーナス払倍数" initValue="0" />
+		<key name="v21" pos="62" len="1" desc="初回ボーナス月間隔" initValue="0" />
+		<key name="v23" pos="105" len="1" desc="Ｐ免事由ＣＮ" initValue="0" />
+		<key name="v24" pos="106" len="1" desc="経過年月読替区分ＣＮ" initValue="0" />
+		<key name="v25" pos="107" len="1" desc="事業年度末計算処理区分ＣＮ" initValue="0" />
+		<key name="v26" pos="108" len="3" desc="主契約保種ＣＮ" initValue="000" />
+		<key name="v27" pos="111" len="1" desc="介護給付金支払区分ＣＮ" initValue="0" />
+		<key name="v28" pos="112" len="1" desc="無事故給付金不払決定サイン" initValue="0" />
+		<key name="v30" pos="146" len="3" desc="料率保種ＣＮ" initValue="003" />
+		<key name="v31" pos="149" len="2" desc="料率識別区分ＣＮ" initValue="00" />
+		<key name="v100" pos="151" len="1" desc="予定利率識別ＣＮ" initValue="3" />
+		<key name="kaisu" pos="153" len="1" desc="払方ＣＮ" initValue="4" />
+		<key name="periodKbn" pos="154" len="1" desc="保期区分ＣＮ" initValue="1" />
+		<key name="n" pos="155" len="2" desc="保期年" initValue="20" />
+		<key name="v101" pos="157" len="2" desc="保期月" initValue="00" />
+		<key name="paymentKbn" pos="159" len="1" desc="払期区分ＣＮ" initValue="1" />
+		<key name="m" pos="160" len="2" desc="払期年" initValue="20" />
+		<key name="v102" pos="162" len="2" desc="払期月" initValue="00" />
+		<key name="x" pos="164" len="2" desc="Ｘ年齢" initValue="50" />
+		<key name="v32" pos="166" len="3" desc="Ｙ年齢" initValue="000" />
+		<key name="SA" pos="169" len="12" desc="基準Ｓ" initValue="000001000000" />
+		<key name="aliveS" pos="181" len="12" desc="延長生存Ｓ" initValue="000000000000" />
+		<key name="contractDate" pos="193" len="8" desc="始期年月日" initValue="20100401" />
+		<key name="v33" pos="201" len="8" desc="料率基準年月日" initValue="20100401" />
+		<key name="deathIndex" pos="209" len="3" desc="特体死亡指数" initValue="100" />
+		<key name="v35" pos="212" len="6" desc="終期契約応当年月" initValue="203004" />
+		<key name="payupKbn" pos="218" len="1" desc="払込済種類ＣＮ" initValue="0" />
+		<key name="paymentSts" pos="219" len="1" desc="払込状態ＣＮ" initValue="1" />
+		<key name="v38" pos="220" len="2" desc="基礎契約Ｘ年齢" initValue="00" />
+		<key name="v39" pos="222" len="1" desc="基礎契約払期区分ＣＮ" initValue="0" />
+		<key name="v40" pos="223" len="2" desc="基礎契約払期年" initValue="00" />
+		<key name="v41" pos="225" len="2" desc="基礎契約払期月" initValue="00" />
+		<key name="v42" pos="227" len="1" desc="診断給付区分Ｃｎ" initValue="0" />
+		<key name="v43" pos="228" len="1" desc="通院給付区分ＣＮ" initValue="0" />
+		<key name="v44" pos="229" len="1" desc="退院後療養給付区分ＣＮ" initValue="0" />
+		<key name="v45" pos="230" len="1" desc="重度一時金給付区分ＣＮ" initValue="0" />
+		<key name="v103" pos="240" len="2" desc="年金支払年" initValue="00" />
+		<key name="v47" pos="242" len="2" desc="年金支払月" initValue="00" />
+		<key name="v48" pos="244" len="2" desc="年金支払保証年" initValue="00" />
+		<key name="v49" pos="246" len="2" desc="年金支払保証月" initValue="00" />
+		<key name="v104" pos="248" len="12" desc="払済時死亡給付金額" initValue="000000000000" />
+		<key name="step" pos="260" len="2" desc="修正払込軽減期間" initValue="00" />
+		<key name="v50" pos="262" len="6" desc="修正払込Ｐアップ率" initValue="000000" />
+		<key name="v51" pos="268" len="1" desc="中途一部一時払ＣＮ" initValue="0" />
+		<key name="v52" pos="269" len="6" desc="災疾保障期間" initValue="000000" />
+		<key name="Sy" pos="275" len="4" desc="ファミリー配偶者保障割合" initValue="0000" />
+		<key name="Sz" pos="279" len="4" desc="ファミリー子保障割合" initValue="0000" />
+		<key name="v55" pos="283" len="2" desc="終身保障開始年齢" initValue="00" />
+		<key name="v56" pos="285" len="8" desc="本社受付日" initValue="20100401" />
+		<key name="v57" pos="293" len="4" desc="入院保障期間" initValue="0000" />
+		<key name="v58" pos="297" len="8" desc="給付金日額" initValue="00000000" />
+		<key name="v59" pos="305" len="12" desc="最低保証Ｓ" initValue="000000000000" />
+		<key name="v60" pos="317" len="3" desc="特体入院指数" initValue="000" />
+		<key name="v61" pos="320" len="12" desc="給付金支払合計" initValue="000000000000" />
+		<key name="v62" pos="332" len="1" desc="給付タイプＣＮ" initValue="0" />
+		<key name="v63" pos="333" len="10" desc="経過払済Ｓ" initValue="0000000000" />
+		<key name="v64" pos="343" len="2" desc="低解返区分ＣＮ" initValue="00" />
+		<key name="v65" pos="345" len="8" desc="年金支払開始年月日" initValue="00000000" />
+		<key name="v66" pos="353" len="2" desc="繰り下げ年数" initValue="00" />
+		<key name="v67" pos="355" len="2" desc="選択年数" initValue="00" />
+		<key name="v69" pos="357" len="1" desc="年金支払状況ＣＮ" initValue="0" />
+		<key name="v68" pos="358" len="1" desc="不担保特約ＣＮ" initValue="0" />
+		<key name="v70" pos="359" len="1" desc="事業費適用区分ＣＮ" initValue="0" />
+		<key name="v71" pos="360" len="1" desc="保険料払込完了特則ＣＮ" initValue="0" />
+		<key name="v72" pos="361" len="1" desc="更新契約サイン" initValue="0" />
+		<key name="Vrate" pos="362" len="9" desc="当年ＶＴレート" initValue="000000000" />
+		<key name="v73" pos="371" len="9" desc="翌年ＶＴレート" initValue="000042200" />
+		<key name="VrateUnit" pos="380" len="9" desc="VTレート単位" initValue="000010000" />
+		<key name="t" pos="391" len="2" desc="当月経過年" initValue="00" />
+		<key name="f" pos="393" len="2" desc="当月経過月" initValue="00" />
+		<key name="v74" pos="395" len="1" desc="適用未収年月使用サイン" initValue="1" />
+		<key name="v75" pos="396" len="8" desc="当年VTレート倍精度" initValue="00000000" />
+		<key name="v76" pos="404" len="8" desc="翌年VTレート倍精度" initValue="00000000" />
+		<key name="v78" pos="424" len="2" desc="低解返期間" initValue="00" />
+		<key name="v79" pos="426" len="2" desc="年金支払満了期間" initValue="00" />
+		<key name="v80" pos="428" len="4" desc="サブモジュール復帰ＣＮ" initValue="0000" />
+		<key name="v81" pos="432" len="8" desc="発生元モジュールＩＤ" initValue="00000000" />
+		<key name="v82" pos="440" len="12" desc="タリフ営業Ｐ" initValue="000000000000" />
+		<key name="v83" pos="452" len="10" desc="ＶＴレート単位２" initValue="00001000000" />
+		<key name="v84" pos="462" len="6" desc="契約時積立利率" initValue="000000" />
+		<key name="v85" pos="468" len="1" desc="生存死亡計算処理区分ＣＮ" initValue="0" />
+		<key name="v86" pos="469" len="1" desc="当年ＶＴレートネガティブサイン" initValue="0" />
+		<key name="v87" pos="470" len="1" desc="翌年ＶＴレートネガティブサイン" initValue="0" />
+		<key name="v88" pos="471" len="1" desc="ユニット追加区分ＣＮ" initValue="0" />
+	</Category>
+	<Category name="SurrenderFee" label="解約返戻金Wレート">
+		<key name="w1" pos="1" len="2" desc="タリフレイアウトＩＤ" initValue="01" />
+		<key name="w2" pos="3" len="8" desc="タリフ作成年月日" initValue="20100401" />
+		<key name="sex" pos="11" len="1" desc="被保性別ＣＮ" initValue="1" />
+		<key name="w3" pos="12" len="1" desc="契約者性別ＣＮ" initValue="0" />
+		<key name="w4" pos="13" len="6" desc="適用未収年月" initValue="201104" />
+		<key name="w5" pos="19" len="8" desc="解約受付年月日" initValue="20110401" />
+		<key name="insuranceCode" pos="27" len="3" desc="料率保種ＣＮ" initValue="332" />
+		<key name="w7" pos="30" len="2" desc="料率識別区分ＣＮ" initValue="30" />
+		<key name="w8" pos="32" len="1" desc="予定利率識別ＣＮ" initValue="3" />
+		<key name="kaisu" pos="34" len="1" desc="払方ＣＮ" initValue="4" />
+		<key name="periodKbn" pos="35" len="1" desc="保期区分ＣＮ" initValue="1" />
+		<key name="n" pos="36" len="2" desc="保期年" initValue="11" />
+		<key name="h10" pos="38" len="2" desc="保期月" initValue="00" />
+		<key name="paymentKbn" pos="40" len="1" desc="払期区分ＣＮ" initValue="1" />
+		<key name="m" pos="41" len="2" desc="払期年" initValue="11" />
+		<key name="h11" pos="43" len="2" desc="払期月" initValue="00" />
+		<key name="x" pos="45" len="2" desc="Ｘ年齢" initValue="06" />
+		<key name="y" pos="47" len="3" desc="Ｙ年齢" initValue="000" />
+		<key name="contractDate" pos="50" len="8" desc="始期年月日" initValue="20100401" />
+		<key name="payupKbn" pos="58" len="1" desc="払込済種類ＣＮ" initValue="0" />
+		<key name="paymentSts" pos="59" len="1" desc="払込状態ＣＮ" initValue="1" />
+		<key name="w12" pos="60" len="2" desc="年金支払年" initValue="00" />
+		<key name="w13" pos="62" len="2" desc="年金支払月" initValue="00" />
+		<key name="w14" pos="64" len="2" desc="年金支払保証年" initValue="00" />
+		<key name="w15" pos="66" len="2" desc="年金支払保証月" initValue="00" />
+		<key name="step" pos="68" len="2" desc="修正払込軽減期間" initValue="00" />
+		<key name="w16" pos="70" len="6" desc="修正払込Ｐアップ率" initValue="00000" />
+		<key name="Sy" pos="78" len="4" desc="ファミリー配偶者保障割合" initValue="000" />
+		<key name="Sz" pos="82" len="4" desc="ファミリー子保障割合" initValue="000" />
+		<key name="w17" pos="86" len="6" desc="災疾保障期間" initValue="00000" />
+		<key name="w18" pos="93" len="1" desc="年歳区分" initValue="0" />
+		<key name="w19" pos="94" len="1" desc="ボーナス払サイン" initValue="0" />
+		<key name="w20" pos="95" len="1" desc="ボーナス払端数月数" initValue="0" />
+		<key name="w21" pos="96" len="2" desc="ボーナス月１" initValue="00" />
+		<key name="w22" pos="98" len="2" desc="ボーナス月２" initValue="00" />
+		<key name="w23" pos="100" len="1" desc="初回ボーナス月間隔" initValue="0" />
+		<key name="w24" pos="101" len="1" desc="ボーナス払倍数" initValue="0" />
+		<key name="w25" pos="102" len="1" desc="給付タイプＣＮ" initValue="0" />
+		<key name="w26" pos="103" len="2" desc="給付金支払前後区分ＣＮ" initValue="0" />
+		<key name="t" pos="109" len="2" desc="当月経過年月" initValue="000100" />
+		<key name="f" pos="111" len="2" desc="当月経過年月" initValue="000100" />
+		<key name="sex" pos="117" len="12" desc="基準Ｓ" initValue="00010000000" />
+		<key name="w27" pos="129" len="10" desc="共通当月ＳＴ金額" initValue="000000000" />
+		<key name="w28" pos="139" len="6" desc="ＳＴ延長生存当月経過年月" initValue="000000" />
+		<key name="alives" pos="145" len="12" desc="延長生存Ｓ" initValue="00000000000" />
+		<key name="w29" pos="157" len="10" desc="延長生存当月ＳＴ金額" initValue="000000000" />
+		<key name="w30" pos="167" len="8" desc="被保生年月日" initValue="00000000" />
+		<key name="w31" pos="175" len="1" desc="Ｐ免事由ＣＮ" initValue="0"/>
+		<key name="w32" pos="176" len="12" desc="タリフ基準Ｓ" initValue="00000010000" />
+		<key name="w33" pos="188" len="2" desc="基礎契約Ｘ年齢" initValue="00" />
+		<key name="w34" pos="190" len="1" desc="基礎契約払期区分ＣＮ" initValue="0" />
+		<key name="w35" pos="191" len="2" desc="基礎契約払期年" initValue="00" />
+		<key name="w36" pos="193" len="2" desc="基礎契約払期月" initValue="00" />
+		<key name="w37" pos="195" len="2" desc="低解返区分ＣＮ" initValue="0" />
+		<key name="w38" pos="197" len="1" desc="無事故給付金不払決定サイン" initValue="0" />
+		<key name="w39" pos="198" len="1" desc="不担保特約ＣＮ" initValue="0"/>
+		<key name="deathIndex" pos="199" len="3" desc="特体死亡指数" initValue="100" />
+		<key name="w40" pos="202" len="10" desc="特体当月ＳＴ金額" initValue="000000000" />
+		<key name="w41" pos="212" len="1" desc="介護給付金支払区分ＣＮ" initValue="0" />
+		<key name="w42" pos="213" len="1" desc="保険料払込完了特則ＣＮ" initValue="0" />
+		<key name="w43" pos="214" len="2" desc="繰り下げ年数" initValue="00" />
+		<key name="w44" pos="216" len="2" desc="低解返期間" initValue="00" />
+		<key name="w45" pos="218" len="2" desc="年金支払満了期間" initValue="00" />
+		<key name="w46" pos="220" len="12" desc="タリフ営業Ｐ" initValue="00000000000" />
+		<key name="Wrate" pos="232" len="10" desc="Ｗレート" initValue="000000000" />
+		<key name="WrateUnit" pos="242" len="10" desc="Ｗレート単位" initValue="010000000" />
+		<key name="w47" pos="252" len="10" desc="特体Ｗレート" initValue="000000000" />
+		<key name="w48" pos="262" len="1" desc="更新契約サイン" initValue="0"/>
+		<key name="w49" pos="263" len="6" desc="契約時積立利率" initValue="000000"/>
+		<key name="w50" pos="269" len="1" desc="解約時積立利率－サイン" initValue="0"/>
+		<key name="w51" pos="270" len="6" desc="解約時積立利率" initValue="000000"/>
+		<key name="w52" pos="276" len="8" desc="解約時積立利率基準年月日" initValue="00000000"/>
+		<key name="w53" pos="284" len="8" desc="本社受付年月日" initValue="00000000"/>
+		<key name="w54" pos="292" len="1" desc="解返金率計算種類ＣＮ" initValue="0"/>
+		<key name="w55" pos="293" len="1" desc="ユニット追加区分ＣＮ" initValue="0"/>
+		<key name="w56" pos="331" len="4" desc="サブモジュール復帰ＣＮ" initValue="0000"/>
+		<key name="w57" pos="335" len="8" desc="発生元モジュールＩＤ" initValue="00000000"/>
+		<key name="w58" pos="343" len="8" desc="基礎契約繰返し数" initValue="0000000" />
+	</Category>
+
+</DataLayout-definition>

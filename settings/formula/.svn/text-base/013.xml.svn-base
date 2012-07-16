@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+
+<additional>
+		<xml fileName="common/Common.xml" delimiterParsingDisabled="true"/>
+		<xml fileName="common/LifePension.xml" delimiterParsingDisabled="true"/>
+        <xml fileName="common/Benefit.xml" delimiterParsingDisabled="true"/>
+        <xml fileName="insurance/013.xml" delimiterParsingDisabled="true"/>
+        <xml fileName="special/013.xml" at="special" delimiterParsingDisabled="true"/>
+        <xml fileName="extend/013.xml" at="extend" delimiterParsingDisabled="true"/>
+        <xml fileName="paidup/013.xml" at="paidup" delimiterParsingDisabled="true"/>
+        <xml fileName="dividend/dividend.xml" delimiterParsingDisabled="true"/>
+</additional>
+</configuration>

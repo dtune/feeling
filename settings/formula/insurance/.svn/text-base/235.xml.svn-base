@@ -1,0 +1,742 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+	<BizExpenses desc="事業費率の設定">
+		<formula name="gamma_z" value="0.025"/>
+		<formula name="gamma_b" value="0.040"/>
+		<formula name="beta">
+			if(kaisu==1){0.07}
+			else{0.10}
+		</formula>
+		<formula name="zeta">
+			if(gen==2){0.03}
+			else(0.025)
+		</formula>
+		<formula name="epsilon" value="0.003"/>
+		
+	</BizExpenses>
+	<Common desc="商品内部の共通公式">
+		<!-- 予定発生率-->
+		<!-- 予定災害退院後療養発生率 -->
+		<!-- 世帯7の発生率の追加（11/8/2） -->
+		<formula name="tau_x_z" desc="予定災害退院後療養発生率(本人)">
+			if(gen==7){0.005585}
+			else{0.008953}
+		</formula>
+		<formula name="tau_y_z" desc="予定災害退院後療養発生率(配偶)">
+			tau_x_z*1/2
+		</formula>
+		<formula name="tau_z_z" desc="予定災害退院後療養発生率(子とも)">
+			if(gen==7){0.005585}
+			else{0.008953}
+		</formula>
+
+		<!-- 予定疾病退院後療養発生率 -->	
+		<formula name="tau_x_b" paras="x" desc="予定疾病退院後療養発生率 (本人)">
+			tau[x]
+		</formula>
+		<formula name="tau_y_b" paras="y" desc="予定疾病退院後療養発生率 (配偶)">
+			tau[y]
+		</formula>
+		<!-- 世帯7の発生率の追加（11/8/2） -->
+		<formula name="tau_z_b" desc="予定疾病退院後療養発生率 (子とも)">
+			if(gen==7){0.002968}
+			else{0.008950}
+		</formula>
+		<!-- 予定災害入院給付日数-->
+		<formula name="Ti_z" paras="i" desc="予定災害入院給付日数">
+			if(i==60){26.6}
+			elseIf(i==120){33.6}
+			elseIf{i==1095}{41.9}
+			else{0}
+		</formula>
+		<!-- 予定疾病入院給付日数-->
+		<formula name="Ti_x_h" paras="i,x" desc="予定疾病入院給付日数（本人）">
+			if(i==60){T1[x]}
+			elseIf(i==120){T2[x]}
+			elseIf{i==1095}{T3[x]}
+			else{0}
+		</formula>
+		<formula name="Ti_y_h" paras="i,y" desc="予定疾病入院給付日数（配偶者）">
+			if(i==60){T1[y]}
+			elseIf(i==120){T2[y]}
+			elseIf{i==1095}{T3[y]}
+			else{0}
+		</formula>
+		<formula name="Ti_z_h" paras="i" desc="予定疾病入院給付日数（子とも)）">
+			if(i==60){13.9}
+			elseIf(i==120){15.7}
+			elseIf{i==1095}{18.4}
+			else{0}
+		</formula>
+		<!-- 保険期間  -->
+		<formula name="n1" desc="保険期間(編集後)">
+			if(n==99){
+				omega-x+1
+		    }else{n}
+		</formula>
+		<!-- 払込期間  -->
+		<formula name="m1" desc="払込期間(編集後)">
+			if(m==99){
+				omega-x+1
+		    }else{m}
+		</formula>
+		<formula name="k_z" value="10" desc="災害退院療養給付金の給付倍率"/>
+		<formula name="k_b" value="10" desc="疾病退院療養給付金の給付倍率"/>
+		<formula name="Sy1">
+			Sy/100
+		</formula>
+		<formula name="Sz1">
+			Sz/100
+		</formula>
+
+		<!-- 年金現価公式　ここから -->		
+		<formula name="a_x_n_nashu" paras="x,n,m" fraction="5">
+			aT_x_n(x,m)+DT[x+m]/DT[x]*a_x_n(x+m,n-m)
+		</formula>
+		<formula name="a_xt_nt_nashu" paras="x,n,m,t" fraction="5">
+			if((n-t)&lt;=0){0}
+			else{aT_x_n(x+t,m-t)+DT[x+m]/DT[x+t]*a_x_n(x+m,n-m)}
+		</formula>
+		<formula name="m_a_x_n_nashu" paras="m,x,n" fraction="5">
+			if(kaiyakuUmu==0){
+				if(n==m){0}
+				else{
+					DT[x+m]/DT[x]*(N[x+m]-N[x+n])/D[x+m]
+				}
+			}else{
+				(N[x+m]-N[x+n])/D[x]
+			}
+		</formula>
+		<formula name="mt_a_xt_n_nashu" paras="m,t,x,n" fraction="5">
+			if(kaiyakuUmu==0){
+				if(n==m){0}
+				elseIf(n&gt;m&amp;&amp;t&lt;m){
+					DT[x+m]/DT[x+t]*(N[x+m]-N[x+n])/D[x+m]
+				}else{0}
+			}else{
+				(N[x+m]-N[x+n])/D[x+t]
+			}
+		</formula>
+
+		<!-- 給付現価　ここから -->
+		<formula name="A_x_1_z">
+			v^(1/2)*tau_x_z*k_z
+		</formula>
+		<formula name="A_y_1_z">
+			v^(1/2)*tau_y_z*k_z
+		</formula>
+		<formula name="A_z_1_z">
+			v^(1/2)*tau_z_z*k_z
+		</formula>
+		<formula name="A_x_n_b" paras="x,n,i">
+			round{
+				(MS[x]-MS[x+n]))/D[x]
+			,6}*k_b
+		</formula>
+		<formula name="A_x_n_j_b" paras="x,n,j,i">
+			round{
+				(MS[x+j]-MS[x+n])/D[x+j]
+			,6}*k_b
+		</formula>
+		<formula name="A_x_n_b_nashu" paras="x,n,m,i">
+			if(kaiyakuUmu==0){
+				round{
+					(MT[x]-MT[x+m])/DT[x]
+					+DT[x+m]/DT[x]*(MS[x+m]-MS[x+n])/D[x+m]
+				,6}*k_b
+			}else{
+				round{(MS[x]-MS[x+n])/D[x],6}*k_b
+			}
+		</formula>
+		<formula name="A_x_n_j_b_nashu" paras="x,n,m,j,i">
+			if(kaiyakuUmu==0){
+				round{
+					(MT[x+j]-MT[x+m])/DT[x+j]
+					+DT[x+m]/DT[x+j]*(MS[x+m]-MS[x+n])/D[x+m]
+				,6}*k_b
+			}else{
+				round{(MS[x+j]-MS[x+n])/D[x+j],6}*k_b
+			}
+		</formula>
+		<formula name="A_y_n_b" paras="x,n,i">
+			round{
+				(MS[x]-MS[x+n])/D[x]
+			,6}*k_b
+		</formula>
+		<formula name="A_y_n_j_b" paras="x,n,j,i">
+			round{
+				(MS[x+j]-MS[x+n])/D[x+j]
+			,6}*k_b
+		</formula>
+		<formula name="A_y_n_b_nashu" paras="x,n,m,i">
+			if(kaiyakuUmu==0){
+		 		round{
+					(MT[x]-MT[x+m])/DT[x]
+					+DT[x+m]/DT[x]*(MS[x+m]-MS[x+n])/D[x+m]
+				,6}*k_b
+			}else{ 
+				round{(MS[x]-MS[x+n])/D[x],6}*k_b
+			}
+		</formula>
+		<formula name="A_y_n_j_b_nashu" paras="x,n,j,i">
+			if(kaiyakuUmu==0){
+		 		round{
+					(MT[x+j]-MT[x+m])/DT[x+j]
+					+DT[x+m]/DT[x+j]*(MS[x+m]-MS[x+n])/D[x+m]
+				,6}*k_b
+			}else{ 
+				round{(MS[x+j]-MS[x+n])/D[x+j],6}*k_b
+			}
+		</formula>
+		<formula name="A_z_1_b">
+			v^(1/2)*tau_z_b*k_b
+		</formula>
+				
+		<!-- 共通公式235専用 -->
+		<formula name="aT_x_n" paras="x,n" fraction="5">
+			if(kaiyakuUmu==0){
+				(NT[x]-NT[x+n])/DT[x]
+			}else{
+				(N[x]-N[x+n])/D[x]
+			}
+		</formula>
+		<formula name="aT_xt_nt" paras="x,n,t" fraction="5">
+			if(n-t&lt;=0){0}
+			else{
+				if(kaiyakuUmu==0){
+					(NT[x+t]-NT[x+n])/DT[x+t]
+				}else{
+					(N[x+t]-N[x+n])/D[x+t]
+				}
+			}
+		</formula>
+		<formula name="a_k_T_x_n" paras="k,x,n" fraction="5">
+			if(kaiyakuUmu==0){
+				(NT[x]-NT[x+n])/DT[x]-(k-1)/(2*k)*(1-DT[x+n]/DT[x])
+			}else{
+				(N[x]-N[x+n])/D[x]-(k-1)/(2*k)*(1-D[x+n]/D[x])
+			}
+		</formula>
+		<!-- 共通公式x=40専用 -->
+		<formula name="a_x40_n" paras="x,n" fraction="5">
+			(1-(v*(1-qx[40]))^n)/(1-v*(1-qx[40]))
+		</formula>
+		<formula name="a_k_x40_n" paras="k,x,n" fraction="5">
+			(1-(v*(1-qx[40]))^n)/(1-v*(1-qx[40]))
+			-(k-1)/(2*k)*(1-(v*(1-qx[40]))^n)
+		</formula>
+		<formula name="f_a_x40_n" paras="f,x,n" fraction="5">
+			if((n-f)&gt;omega){0}
+			else{
+				(v*(1-qx[40]))^f*(1-(v*(1-qx[40]))^(n-f))/(1-v*(1-qx[40]))
+			}
+		</formula>
+		<formula name="aT_x40_n" paras="x,n" fraction="5">
+			if(n&gt;omega){0}
+			else{
+				(1-(v*(1-qx[40]-qw+qx[40]*qw))^n)/(1-v*(1-qx[40]-qw+qx[40]*qw))
+			}
+		</formula>
+		<formula name="a_x40_n_nashu" paras="x,n,m" fraction="5">
+			if(m&gt;omega){0}
+			else{
+				if(kaiyakuUmu==0){
+					if(n==m){
+						(1-(v*(1-qx[40]-qw+qx[40]*qw))^n)/(1-v*(1-qx[40]-qw+qx[40]*qw))
+					}elseIf(n&gt;m){
+						(1-(v*(1-qx[40]-qw+qx[40]*qw))^m)/(1-v*(1-qx[40]-qw+qx[40]*qw))
+						+(v*(1-qx[40]-qw+qx[40]*qw))^m
+						*(1-(v*(1-qx[40]))^(n-m))/(1-v*(1-qx[40]))
+					}else{0}
+				}else{
+					(1-(v*(1-qx[40]))^n)/(1-v*(1-qx[40]))
+				}
+			}
+		</formula>
+		<formula name="m_a_x40_n_nashu" paras="m,x,n" fraction="5">
+			if(m&gt;omega){0}
+			else{
+				if(kaiyakuUmu==0){
+					if(n==m){0}
+					else{
+						(v*(1-qx[40]-qw+qx[40]*qw))^m*(1-(v*(1-qx[40]))^(n-m))/(1-v*(1-qx[40]))
+					}
+				}else{
+					(v*(1-qx[40]))^m*(1-(v*(1-qx[40]))^(n-m))/(1-v*(1-qx[40]))
+				}
+			}
+		</formula>
+	 	<formula name="aT12_x40_n" paras="x,n" fraction="5">
+			if(n&gt;omega){0}
+			else{	
+	 	    	(1-(v*(1-qx[40]-qw+qx[40]*qw))^n)/(1-v*(1-qx[40]-qw+qx[40]*qw))
+          	 	-11/24*(1-(v*(1-qx[40]-qw+qx[40]*qw))^n)
+          	}
+		</formula>
+		<!-- x+t=40　ここから -->			
+		<formula name="a_xt40_nt_nashu" paras="x,n,m,t" fraction="5">
+			if(kaiyakuUmu==0){
+				if(n==m){
+					(1-(v*(1-qx[40]-qw+qx[40]*qw))^(n-t))/(1-v*(1-qx[40]-qw+qx[40]*qw))
+				}elseIf(n&gt;m&amp;&amp;t&lt;m){
+					(1-(v*(1-qx[40]-qw+qx[40]*qw))^(m-t))/(1-v*(1-qx[40]-qw+qx[40]*qw))
+					+(v*(1-qx[40]-qw+qx[40]*qw))^(m-t)
+					*(1-(v*(1-qx[40]))^(n-m))/(1-v*(1-qx[40]))
+				}else{0}
+			}else{
+				(1-(v*(1-qx[40]))^(n-t))/(1-v*(1-qx[40]))
+			}
+		</formula>
+		<formula name="mt_a_xt40_n_nashu" paras="m,t,x,n" fraction="5">
+			if(kaiyakuUmu==0){
+				if(n==m){
+					0
+				}elseIf(n&gt;m&amp;&amp;t&lt;m){
+					(v*(1-qx[40]-qw+qx[40]*qw))^(m-t)
+					*(1-(v*(1-qx[40]))^(n-m))/(1-v*(1-qx[40]))
+				}else{0}
+			}else{
+				(v*(1-qx[40]))^(m-t)
+				*(1-(v*(1-qx[40]))^(n-m))/(1-v*(1-qx[40]))
+			}
+		</formula>
+		<formula name="aT_xt40_nt" paras="x,n,m,t" fraction="5">
+			if(kaiyakuUmu==0){
+				(1-(v*(1-qx[40]-qw+qx[40]*qw))^(m-t))/(1-v*(1-qx[40]-qw+qx[40]*qw))
+			}else{
+				(1-(v*(1-qx[40]))^(m-t))/(1-v*(1-qx[40]))
+			}
+		</formula> 
+	 	<formula name="a_xt40_nt" paras="x,n,t" fraction="5">
+			(1-(v*(1-qx[40]))^(n-t))/(1-v*(1-qx[40]))
+		</formula>
+
+		<!-- これからは共通公式 -->
+		<formula name="PrateByPaymode" paras="stdPrate,d" fraction="3" desc="払込方法別Prate">
+			<formula name="Discount" paras="d" desc="高額割引">
+				if(kaisu==1){0}
+				elseIf(kaisu==2){12*d}
+				elseIf(kaisu==3){6*d}
+				else{d}
+			</formula>
+			stdPrate*PayFactor(kaisu,gen,keiro)-Discount(d)
+		</formula>
+		<formula name="S2P" paras="SBasePrate" desc="S基準からP基準に変換する">
+				<!-- 普通の場合 -->
+				if(kaisu==1){
+					round(1/SBasePrate,4)
+				}else{
+					round(1/SBasePrate,2)
+				}
+		</formula>
+	</Common>
+	
+	<!-- 保険料　ここから -->
+	<Premium desc="保険料">
+		<!-- 一時払-->
+		<!-- 災害退院療養給付部分-->
+		<formula name="Honnin_z_Yj" fraction="3" paras="n,m" desc="本人(災害)(一時払)">
+			if(fukaumu_z==1){0}
+			else{
+				(A_x_1_z*a_x40_n(x,n)+gamma_z*a_x40_n(x,n))
+				/(1-beta)
+			}
+		</formula>	
+		<formula name="mate_z_Yj" fraction="3" paras="n,m" desc="配偶者(災害)(一時払)">
+			if(fukaumu_z==1){0}
+			else{
+				Sy1*(A_y_1_z*a_x40_n(x,n)+gamma_z*a_x40_n(x,n))
+				/(1-beta)
+			}
+		</formula>
+		<formula name="kotomo_z_Yj" fraction="3" paras="n,m" desc="子とも(災害)(一時払)">
+			if(fukaumu_z==1){0}
+			else{
+				Sz1*2*(A_z_1_z*a_x40_n(x,n)+gamma_z*a_x40_n(x,n))
+				/(1-beta)
+			}
+		</formula>
+
+		<!-- 疾病退院療養給付部分-->
+		<formula name="Honnin_b_Yj" fraction="3"  paras="n,m" desc="本人(疾病)(一時払)">
+			(A_x_n_b(x,n,i)+gamma_b*a_x_n(x,n))
+			/(1-beta)
+		</formula>	
+		<formula name="mate_b_Yj" fraction="3" paras="n,m" desc="配偶者(疾病)(一時払)">
+			Sy1*(A_y_n_b(x,n,i)+gamma_b*a_x_n(x,n))
+			/(1-beta)
+		</formula>
+		<formula name="kotomo_b_Yj" fraction="3" paras="n,m" desc="子とも(疾病)(一時払)">
+			Sz1*2*(A_z_1_b*a_x_n(x,n)+gamma_b*a_x_n(x,n))
+			/(1-beta)
+		</formula>
+	
+		<!-- 分割払-->
+		<!-- 災害退院療養給付部分-->
+		<formula name="Honnin_z_Bk" fraction="3"  paras="n,m" desc="本人(災害)(分割払)">
+			if(fukaumu_z==1){0}
+			else{
+				<!-- 全期払の場合m=n=1 -->
+				if(m==n){
+					(A_x_1_z*a_x40_n_nashu(x,1,1)+gamma_z*aT12_x40_n(x,1)+gamma_z*m_a_x40_n_nashu(1,x,1))
+					/{12*(1-beta-zeta-epsilon)*aT12_x40_n(x,1)}
+				}else{
+					(A_x_1_z*a_x40_n_nashu(x,n,m)+gamma_z*aT12_x40_n(x,m)+gamma_z*m_a_x40_n_nashu(m,x,n))
+					/{12*(1-beta-zeta-epsilon)*aT12_x40_n(x,m)}
+				}
+			}
+		</formula>	
+		<formula name="mate_z_Bk" fraction="3"  paras="n,m" desc="配偶者(災害)(分割払)">
+			<!-- 全期払の場合m=n=1 -->
+			if(fukaumu_z==1){0}
+			else{
+				if(m==n){
+					Sy1*(
+						(A_y_1_z*a_x40_n_nashu(x,1,1)+gamma_z*aT12_x40_n(x,1)+gamma_z*m_a_x40_n_nashu(1,x,1))
+						/{12*(1-beta-zeta-epsilon)*aT12_x40_n(x,1)}
+						)
+				}else{
+					Sy1*(
+						(A_y_1_z*a_x40_n_nashu(x,n,m)+gamma_z*aT12_x40_n(x,m)+gamma_z*m_a_x40_n_nashu(m,x,n))
+						/{12*(1-beta-zeta-epsilon)*aT12_x40_n(x,m)}
+						}
+				}
+			}
+		</formula>
+		<formula name="kotomo_z_Bk" fraction="3"  paras="n,m" desc="子とも(災害)(分割払)">
+			<!-- 全期払の場合m=n=1 -->
+			if(fukaumu_z==1){0}
+			else{
+				if(m==n){
+					Sz1*2*(
+						(A_z_1_z*a_x40_n_nashu(x,1,1)+gamma_z*aT12_x40_n(x,1)+gamma_z*m_a_x40_n_nashu(1,x,1))
+						/{12*(1-beta-zeta-epsilon)*aT12_x40_n(x,1)}
+						)
+				}else{
+					Sz1*2*(
+						(A_z_1_z*a_x40_n_nashu(x,n,m)+gamma_z*aT12_x40_n(x,m)+gamma_z*m_a_x40_n_nashu(m,x,n))
+						/{12*(1-beta-zeta-epsilon)*aT12_x40_n(x,m)}
+						}
+				}
+			}
+		</formula>
+		<!-- 疾病退院療養給付部分-->		
+		<formula name="Honnin_b_Bk" fraction="3" paras="n,m" desc="本人(疾病)(分割払)">
+			(A_x_n_b_nashu(x,n,m,i)+gamma_b*a_k_T_x_n(12,x,m)+gamma_b*m_a_x_n_nashu(m,x,n))
+			/{12*(1-beta-zeta-epsilon)*a_k_T_x_n(12,x,m)}
+		</formula>	
+		<formula name="mate_b_Bk" fraction="3" paras="n,m" desc="配偶者(疾病)(分割払)">
+			Sy1*(
+				(A_y_n_b_nashu(x,n,m,i)+gamma_b*a_k_T_x_n(12,x,m)+gamma_b*m_a_x_n_nashu(m,x,n))
+				/{12*(1-beta-zeta-epsilon)*a_k_T_x_n(12,x,m)}
+			}
+		</formula>
+		<formula name="kotomo_b_Bk" fraction="3" paras="n,m" desc="子とも(疾病)(分割払)">
+			<!-- 全期払の場合m=n=1 -->
+			if(m==n){
+				Sz1*2*(
+					(A_z_1_b*a_x40_n_nashu(x,1,1)+gamma_b*aT12_x40_n(x,1)+gamma_b*m_a_x40_n_nashu(1,x,1))
+					/{12*(1-beta-zeta-epsilon)*aT12_x40_n(x,1)}
+				)
+			}else{
+				Sz1*2*(
+					(A_z_1_b*a_x40_n_nashu(x,n,m)+gamma_b*aT12_x40_n(x,m)+gamma_b*m_a_x40_n_nashu(m,x,n))
+					/{12*(1-beta-zeta-epsilon)*aT12_x40_n(x,m)}
+				}
+			}
+		</formula>	
+		<formula name="stdPrate" pvh="P" desc="基準Ｐレート">
+			if(contractorType==1){
+				<!-- 本人型 -->
+				if(kaisu==1){Honnin_z_Yj(n1,m1)+Honnin_b_Yj(n1,m1)}
+				else{Honnin_z_Bk(n1,m1)+Honnin_b_Bk(n1,m1)}
+			}elseIf(contractorType==2){
+				<!-- 本人・配偶者型 -->
+				if(kaisu==1){Honnin_z_Yj(n1,m1)+mate_z_Yj(n1,m1)+Honnin_b_Yj(n1,m1)+mate_b_Yj(n1,m1)}
+				else{Honnin_z_Bk(n1,m1)+mate_z_Bk(n1,m1)+Honnin_b_Bk(n1,m1)+mate_b_Bk(n1,m1)}
+			}elseIf(contractorType==3){
+				<!-- 本人・配偶者・子型 -->
+				if(kaisu==1){Honnin_z_Yj(n1,m1)+mate_z_Yj(n1,m1)+kotomo_z_Yj(n1,m1)+Honnin_b_Yj(n1,m1)+mate_b_Yj(n1,m1)+kotomo_b_Yj(n1,m1)}
+				else{Honnin_z_Bk(n1,m1)+mate_z_Bk(n1,m1)+kotomo_z_Bk(n1,m1)+Honnin_b_Bk(n1,m1)+mate_b_Bk(n1,m1)+kotomo_b_Bk(n1,m1)}
+			}else{
+				<!-- 本人・子型 -->
+				if(kaisu==1){Honnin_z_Yj(n1,m1)+kotomo_z_Yj(n1,m1)+Honnin_b_Yj(n1,m1)+kotomo_b_Yj(n1,m1)}
+				else{Honnin_z_Bk(n1,m1)+kotomo_z_Bk(n1,m1)+Honnin_b_Bk(n1,m1)+kotomo_b_Bk(n1,m1)}
+			}		
+		</formula>
+		<formula name="Prate" pvh="P" accessable="true" desc="１．保険料レート">
+			PrateByPaymode(stdPrate,0)
+		</formula>
+		<formula name="PrateByYear" pvh="P" paras="stdPrate" fraction="6" desc="年払Prate">
+			if(gen==1){stdPrate*11.3}
+			elseIf(gen==2){stdPrate*11.5}
+			else{stdPrate*11.6}
+		</formula>
+		<!-- OL用計算公式 -->
+		<formula name="Premium" pvh="P" paras="stdPrate" accessable="true" desc="２．保険料・保険金">
+			if(sptate==0){
+				roundDown(SA*max{PrateByPaymode(stdPrate,0),0},0)
+			}else{
+				roundUp(
+						roundDown(
+							SA*S2P(PrateByPaymode(stdPrate,0))
+							,0)/1000
+					,0)*1000
+			}
+		</formula>
+	</Premium>
+	
+	<!-- 責任準備金　ここから -->
+	<ReserveFund desc="責任準備金">
+		<!-- 保険料払込期間中 -->
+		<!-- 災害退院療養給付部分 -->		
+		<formula name="Vrate_honnin_kkc_z" paras="n,m,t" fraction="2" desc="保険年度末保険料積立金(災害)(期間中)(本人)">
+			if(fukaumu_z==1){0}
+			else{
+			<!-- x+t=40 -->
+				max{
+					A_x_1_z*a_xt40_nt_nashu(x,n,m,t)+gamma_z*mt_a_xt40_n_nashu(m,t,x,n)
+				    -(A_x_1_z*a_x40_n_nashu(x,n,m)+gamma_z*m_a_x40_n_nashu(m,x,n))/aT_x40_n(x,m)*aT_xt40_nt(x,n,m,t)
+				,0}
+			}
+		</formula>
+		<formula name="Vrate_mate_kkc_z" paras="n,m,t" fraction="2" desc="保険年度末保険料積立金(災害)(期間中)(配偶)">
+			if(fukaumu_z==1){0}
+			else{
+			<!-- x+t=40 -->
+				max{
+					Sy1*(A_y_1_z*a_xt40_nt_nashu(x,n,m,t)+gamma_z*mt_a_xt40_n_nashu(m,t,x,n)
+					-(A_y_1_z*a_x40_n_nashu(x,n,m)+gamma_z*m_a_x40_n_nashu(m,x,n))/aT_x40_n(x,m)*aT_xt40_nt(x,n,m,t))
+				,0}
+			}
+		</formula>
+		<formula name="Vrate_kotomo_kkc_z" paras="n,m,t" fraction="2" desc="保険年度末保険料積立金(災害)(期間中)(子とも)">
+			if(fukaumu_z==1){0}
+			else{
+			<!-- x+t=40 -->
+				max{
+					Sz1*2*(A_z_1_z*a_xt40_nt_nashu(x,n,m,t)+gamma_z*mt_a_xt40_n_nashu(m,t,x,n)
+					-(A_z_1_z*a_x40_n_nashu(x,n,m)+gamma_z*m_a_x40_n_nashu(m,x,n))/aT_x40_n(x,m)*aT_xt40_nt(x,n,m,t))
+				,0}
+			}
+		</formula>
+		<!-- 疾病退院療養給付部分 -->			
+		<formula name="Vrate_honnin_kkc_b" paras="n,m,t" fraction="2" desc="保険年度末保険料積立金(疾病)(期間中)(本人)">
+			max{
+				A_x_n_j_b_nashu(x,n,m,t,i)+gamma_b*mt_a_xt_n_nashu(m,t,x,n)
+				-(A_x_n_b_nashu(x,n,m,i)+gamma_b*m_a_x_n_nashu(m,x,n))/aT_x_n(x,m)*aT_xt_nt(x,m,t)
+			,0}
+		</formula>
+		<formula name="Vrate_mate_kkc_b" paras="n,m,t" fraction="2" desc="保険年度末保険料積立金(疾病)(期間中)(配偶)">
+			max{
+				Sy1*(A_y_n_j_b_nashu(x,n,t,i)+gamma_b*mt_a_xt_n_nashu(m,t,x,n)
+				-(A_y_n_b_nashu(x,n,m,i)+gamma_b*m_a_x_n_nashu(m,x,n))/aT_x_n(x,m)*aT_xt_nt(x,m,t))
+			,0}
+		</formula>
+		<formula name="Vrate_kotomo_kkc_b" paras="n,m,t" fraction="2" desc="保険年度末保険料積立金(疾病)(期間中)(子とも)">
+			<!-- x+t=40 -->
+			max{
+				Sz1*2*(A_z_1_b*a_xt40_nt_nashu(x,n,m,t)+gamma_b*mt_a_xt40_n_nashu(m,t,x,n)
+				-(A_z_1_b*a_x40_n_nashu(x,n,m)+gamma_b*m_a_x40_n_nashu(m,x,n))/aT_x40_n(x,m)*aT_xt40_nt(x,n,m,t))
+			,0}
+		</formula>
+		
+		<!-- 保険料払込期間終了 -->
+		<!-- 災害退院療養給付部分 -->
+		<formula name="Vrate_honnin_kksl_z" paras="n,t" fraction="2" desc="保険年度末保険料積立金(災害)(期間終了)(本人)">
+			if(fukaumu_z==1){0}
+			else{
+				<!-- x+t=40 -->
+				(A_x_1_z+gamma_z)*a_xt40_nt(x,n,t)
+			}
+		</formula>
+		<formula name="Vrate_mate_kksl_z" paras="n,t" fraction="2"  desc="保険年度末保険料積立金(災害)(期間終了)(配偶)">
+			if(fukaumu_z==1){0}
+			else{
+				<!-- x+t=40 -->
+				Sy1*((A_y_1_z+gamma_z)*a_xt40_nt(x,n,t))
+			}
+		</formula>
+		<formula name="Vrate_kotomo_kksl_z" paras="n,t" fraction="2" desc="保険年度末保険料積立金(災害)(期間終了)(子とも)">
+			if(fukaumu_z==1){0}
+			else{
+				<!-- x+t=40 -->
+				Sz1*2*((A_z_1_z+gamma_z)*a_xt40_nt(x,n,t))
+			}
+		</formula>
+		
+		<!-- 疾病退院療養給付部分 -->
+		<formula name="Vrate_honnin_kksl_b" paras="n,t" fraction="2" desc="保険年度末保険料積立金(疾病)(期間終了)(本人)">
+			A_x_n_j_b(x,n,t,i)+gamma_b*a_x_n(x+t,n-t)
+		</formula>
+		<formula name="Vrate_mate_kksl_b" paras="n,t" fraction="2"  desc="保険年度末保険料積立金(疾病)(期間終了)(配偶)">
+			Sy1*(A_y_n_j_b(x,n,t,i)+gamma_b*a_x_n(x+t,n-t))
+		</formula>
+		<formula name="Vrate_kotomo_kksl_b" paras="n" fraction="2" desc="保険年度末保険料積立金(疾病)(期間終了)(子とも)">
+			Sz1*2*((A_z_1_b+gamma_b)*a_xt40_nt(x,n,t))
+		</formula>
+
+		<!-- 共通公式 -->
+		<formula name="Vrate_endofYear_type1" paras="t" desc="保険年度末保険料積立金レート(本人)">
+			if(kaisu==1||state==2){
+				Vrate_honnin_kksl_z(n1,t)+Vrate_honnin_kksl_b(n1,t)
+			}elseIf(state==1||state==6){
+				Vrate_honnin_kkc_z(n1,m1,t)+Vrate_honnin_kkc_b(n1,m1,t)
+			}else{0}
+		</formula>
+		<formula name="Vrate_endofYear_type2" paras="t" desc="保険年度末保険料積立金レート(配偶者)">
+			if(kaisu==1||state==2){
+				Vrate_mate_kksl_z(n1,t)+Vrate_mate_kksl_b(n1,t)
+			}elseIf(state==1||state==6){
+				Vrate_mate_kkc_z(n1,m1,t)+Vrate_mate_kkc_b(n1,m1,t)
+			}else{0}
+		</formula>
+		<formula name="Vrate_endofYear_type3" paras="t" desc="保険年度末保険料積立金レート(子とも)">
+			if(kaisu==1||state==2){
+				Vrate_kotomo_kksl_z(n1,t)+Vrate_kotomo_kksl_b(n1)
+			}elseIf(state==1||state==6){
+				Vrate_kotomo_kkc_z(n1,m1,t)+Vrate_kotomo_kkc_b(n1,m1,t)
+			}else{0}
+		</formula>
+
+		<formula name="Vrate_accu" paras="t" desc="保険年度末rate">
+			if(contractorType==1){
+				<!-- 本人型 -->
+				Vrate_endofYear_type1(t)
+			}elseIf(contractorType==2){
+				<!-- 本人・配偶者型 -->
+				Vrate_endofYear_type1(t)+Vrate_endofYear_type2(t)
+			}elseIf(contractorType==3){
+				<!-- 本人・配偶者・子型 -->
+				Vrate_endofYear_type1(t)+Vrate_endofYear_type2(t)+Vrate_endofYear_type3(t)
+			}else{
+				<!-- 本人・子型 -->
+				Vrate_endofYear_type1(t)+Vrate_endofYear_type3(t)
+			}
+		</formula>
+
+		<!-- 保険年度末保険料積立金レート　ここから -->
+		<formula name="Vrate" pvh="if(gen==2){V}else{H}" fraction="2" accessable="true" desc="１．保険年度末Vレート">
+		<!-- 計算基礎は世代２はＶ基礎、世代３～はＨ基礎を使用 -->
+			Vrate_accu(t)
+		</formula>
+
+		<!-- 契約者用Vレート ここから   -->
+		<!-- 保険年度末Vレート -->
+		<formula name="ContractorYearV" paras="t" pvh="P" fraction="2" desc="契約者用Vレート">
+			Vrate_accu(t)
+		</formula>
+		<!-- 契約者用Vレート -->
+		<formula name="ContractorVrate" fraction="2" pvh="P" accessable="true" desc="３．契約者用Vレート">
+			if(kaisu==1||state==2){
+				<!-- 一時 -->
+				(1-f_12(f))*ContractorYearV(t)+f_12(f)*ContractorYearV(t+1)
+			}elseIf(state==1||state==6){
+				<!-- 期間中/免除 -->
+				(1-f_12(f1))*ContractorYearV(t1)+f_12(f1)*ContractorYearV(t1+1)
+			}else{0}
+		</formula>
+		
+		
+		<formula name="Vratebiz_endofYear_Sub1" paras="t" desc="事業年度末用保険年度末Vレート(Sub1)">
+				if(contractorType==1){
+					<!-- 本人型 -->
+					Vrate_honnin_kksl_z(n1,t)+Vrate_honnin_kksl_b(n1,t)		
+				}elseIf(contractorType==2){
+					<!-- 本人・配偶者型 -->
+					Vrate_honnin_kksl_z(n1,t)+Vrate_honnin_kksl_b(n1,t)
+					+Vrate_mate_kksl_z(n1,t)+Vrate_mate_kksl_b(n1,t)
+				}elseIf(contractorType==3){
+					<!-- 本人・配偶者・子型 -->
+					Vrate_honnin_kksl_z(n1,t)+Vrate_honnin_kksl_b(n1,t)
+					+Vrate_mate_kksl_z(n1,t)+Vrate_mate_kksl_b(n1,t)
+					+Vrate_kotomo_kksl_z(n1,t)+Vrate_kotomo_kksl_b(n1)	
+				}else{
+					<!-- 本人・子型 -->
+					Vrate_honnin_kksl_z(n1,t)+Vrate_honnin_kksl_b(n1,t)
+					+Vrate_kotomo_kksl_z(n1,t)+Vrate_kotomo_kksl_b(n1)	
+				}
+		</formula>
+		
+		<formula name="BizYearV" paras="t" fraction="2" accessable="false" desc="事業末Vレート">
+			if(kaisu==1){
+				Vrate_accu(t)
+			}else{
+				if(state==1||state==2){
+					Vrate_accu(t)
+				}elseIf(state==6){
+					Vratebiz_endofYear_Sub1(t)
+				}else{0}
+			}
+		</formula>
+
+		<formula name="BizYearVate" pvh="if(kisoritsu==0){P}elseIf(kisoritsu==1){V}else{H}" accessable="true" desc="２．事業年度末Vレート">
+			BizYearV(t)
+		</formula>
+		
+	</ReserveFund>
+	
+    <SurrenderFee desc="解約返戻金">
+	<!-- 解約返戻金　ここから -->
+		<formula name="tWrate" paras="t" pvh="P">
+			<formula name="tsigma" paras="n,m,t">
+				0.40*min(n/10,1)*max(1-t/min(m,10),0)
+			</formula>
+			if(kaisu==1||state==2){
+				<!-- 一時 -->
+				max{ContractorYearV(t),0}
+			}elseIf(state==1||state==6){
+				max{ContractorYearV(t)-tsigma(n1,m1,t),0}
+			}else{0}
+		</formula>
+
+		<!-- 解約返戻金レート-->
+		<formula name="Wrate" pvh="P" accessable="true" desc="１．解約返戻金Wレート">
+			<!-- ①の期間中/免除後-->
+			<formula name="Wrate_Sub1" fraction="2">
+				if((t1*12+f1)-(t*12+f)&lt;0){
+					(1-f_12(f1))*tWrate(t1)+f_12(f1)*tWrate(t1+1)
+				}else{
+					(1-f_12(f))*tWrate(t)+f_12(f)*tWrate(t+1)
+				}
+			</formula>
+			<!-- ①，②，③の終了後/一時払 -->
+			<formula name="Wrate_Sub2" fraction="2">
+				(1-f_12(f))*tWrate(t)+f_12(f)*tWrate(t+1)
+			</formula>
+			<!-- ②の期間中/免除後 -->
+			<formula name="Wrate_Sub5" fraction="2">
+				v^ve*round((1-f_12(f1))*tWrate(t1)+f_12(f1)*tWrate(t1+1),2)
+			</formula>
+			<!-- ③の期間中/免除後 -->
+			<formula name="Wrate_Sub6" fraction="2">
+				v^ve
+				*round((1-f_12(f1))*min(tWrate(t1),Wrate_Sub7(t1))
+				+f_12(f1)*min(tWrate(t1+1),Wrate_Sub7(t1+1)),2)
+			</formula>
+			<formula name="Wrate_Sub7" paras="t" pvh="V">
+				Vrate_accu(t)
+			</formula>
+			<!-- 解約返戻金なし -->	
+			if(kaiyakuUmu==0){0}
+			else{
+			<!-- 解約返戻金ある -->
+				if(kaisu==1||state==2){
+					<!-- 一時 -->
+					Wrate_Sub2
+				}elseIf(state==1||state==6){
+					<!-- 期間中・免除後 -->
+			  		if(PremiumAbolishSign==1){
+			  			Wrate_Sub1
+			  		}elseIf(contractDate&gt;=20080202){
+			  			Wrate_Sub5
+			  		}else{
+			  			Wrate_Sub6
+			  		}
+				}else{0}
+			}
+		</formula>
+	</SurrenderFee>	
+</Formula-definition>

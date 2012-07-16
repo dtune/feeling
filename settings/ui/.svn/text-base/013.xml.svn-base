@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Calculation-definition SYSTEM "Calculation-definition.dtd">
+<Calculation-definition>
+<Categories>
+  <Category>
+  	<name>Premium</name>
+  	<label>保険料Pレート</label>
+	<RateKeys>
+		n,m,x,sex,kaisu,keiro,sptate,SA,partOnetime,contractDate
+	</RateKeys>
+  </Category>
+  <Category>
+    <name>ReserveFund</name>
+  	<label>保険料積立金Vレート</label>
+  	<RateKeys>
+  		n,m,x,sex,kaisu,state,
+  		t,f,t1,f1,SA,
+  		fEX,tEX,partOnetime,SAS,SAD,kisoritsu,z,contractDate
+  	</RateKeys>
+  </Category>
+  <Category>
+   	<name>SurrenderFee</name>
+  	<label>解約返戻金Wレート</label>
+  	<RateKeys>
+  		n,m,x,sex,kaisu,state,
+  		t,f,t1,f1,SA,contractDate,
+  		fEX,tEX,partOnetime,SAS,SAD,PremiumAbolishSign
+    </RateKeys>
+  </Category>
+  <Category>
+   	<name>Paidup</name>
+  	<label>払済Ｓ</label>
+  	<RateKeys>
+		n,m,x,sex,kaisu,t,f,SurrenderFeeS,paidupLimitS,L,contractDate
+    </RateKeys>
+  </Category>
+  <Category>
+   	<name>Extend</name>
+  	<label>延長保険への変更</label>
+  	<RateKeys>
+  		n,m,x,sex,kaisu,t,f,SurrenderFeeS,extendPremium,L,contractDate
+    </RateKeys>
+  </Category>
+  <Category>
+   	<name>Dividend</name>
+  	<label>配当金</label>
+  	<RateKeys>
+  		n,m,g,x,sex,kaisu,state,SA,fEX,tEX,partOnetime,SAS,
+  		SA_nashu,bonusDiv,bonus_month,psi,payState,
+  		contractorState,changeState,contractDate,divEndDate,effectBeginDate,
+  		SA_lastyear,Dt_lastyear,Dt_thisyear,DividendValueLastYear,keisanPtn
+    </RateKeys>
+  </Category>
+</Categories>
+</Calculation-definition>

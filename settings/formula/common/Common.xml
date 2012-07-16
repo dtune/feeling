@@ -1,0 +1,443 @@
+﻿<!DOCTYPE common-formula PUBLIC "Formula" "Formula-definition.dtd">
+<common-formula>
+	<Common desc="全商品範囲の共通公式">
+
+	<!-- 要件として、事業年度末用保険年度末Vrate、契約者用Vrate、利源Vrateは
+		保険年度末保険料積立金rateと基礎率が異なるだけので、計算式は統一すべき -->
+	<!-- 事業年度末保険料積立金rate、契約者用Vrate（保険料払込年数または経過年数が正数でない場合）の計算式は全商品で統一すべき -->
+	<!-- 解約返戻金rateの計算式は、災疾系商品とそれ以外の商品で統一（２パターン） -->
+		
+		<!-- 特条の共通定義公式　ここから -->
+		<formula name="specialLambda">
+			deathIndex/100
+		</formula>
+		<formula name="specialLambda1" value="4"/>		
+		
+		<!-- 家族型の割合 -->
+		<formula name="Sy" value="60" desc="配偶者割合"/>
+		<formula name="Sz" value="60" desc="子割合"/>
+		
+		<!-- ボーナス併用払込特約の共通定義公式　ここから -->
+		<formula name="bonus_lambda">
+			if(gen &gt; 2){
+				<!-- ①世代3～（契約日：2001/04/02～） -->
+				if(bonus_k==0){
+					if(bonus_l==5){
+						0.999
+					}elseIf(bonus_l==6){
+						1.000
+					}elseIf(bonus_l==7){
+						1.001
+					}else{0}
+				}elseIf(bonus_k==1){
+					if(bonus_l==6){
+						1.001
+					}elseIf(bonus_l==7){
+						1.002
+					}elseIf(bonus_l==8){
+						1.002
+					}else{0}
+				}elseIf(bonus_k==2){
+					if(bonus_l==7){
+						1.002
+					}elseIf(bonus_l==8){
+						1.003
+					}elseIf(bonus_l==9){
+						1.004
+					}else{0}
+				}elseIf(bonus_k==3){
+					if(bonus_l==8){
+						1.004
+					}elseIf(bonus_l==9){
+						1.005
+					}elseIf(bonus_l==10){
+						1.006
+					}else{0}
+				}elseIf(bonus_k==4){
+					if(bonus_l==9){
+						1.006
+					}elseIf(bonus_l==10){
+						1.007
+					}elseIf(bonus_l==11){
+						1.007
+					}else{0}
+				}elseIf(bonus_k==5){
+					if(bonus_l==10){
+						1.007
+					}elseIf(bonus_l==11){
+						1.008
+					}else{0}
+				}elseIf(bonus_k==6){
+					if(bonus_l==11){
+						1.009
+					}else{0}
+				}else{0}
+			}elseIf(gen==2){
+				<!-- ②世代2（契約日：1999/04/02～2001/04/01） -->
+				if(bonus_k==0){
+					if(bonus_l==5){
+						0.999
+					}elseIf(bonus_l==6){
+						1.000
+					}elseIf(bonus_l==7){
+						1.001
+					}else{0}
+				}elseIf(bonus_k==1){
+					if(bonus_l==6){
+						1.001
+					}elseIf(bonus_l==7){
+						1.002
+					}elseIf(bonus_l==8){
+						1.003
+					}else{0}
+				}elseIf(bonus_k==2){
+					if(bonus_l==7){
+						1.003
+					}elseIf(bonus_l==8){
+						1.004
+					}elseIf(bonus_l==9){
+						1.005
+					}else{0}
+				}elseIf(bonus_k==3){
+					if(bonus_l==8){
+						1.005
+					}elseIf(bonus_l==9){
+						1.006
+					}elseIf(bonus_l==10){
+						1.007
+					}else{0}
+				}elseIf(bonus_k==4){
+					if(bonus_l==9){
+						1.007
+					}elseIf(bonus_l==10){
+						1.008
+					}elseIf(bonus_l==11){
+						1.009
+					}else{0}
+				}elseIf(bonus_k==5){
+					if(bonus_l==10){
+						1.009
+					}elseIf(bonus_l==11){
+						1.010
+					}else{0}
+				}elseIf(bonus_k==6){
+					if(bonus_l==11){
+						1.011
+					}else{0}
+				}else{0}
+			}elseIf(gen==1){
+				<!-- ③世代1（契約日：～1999/04/01） -->
+				if(bonus_k==0){
+					if(bonus_l==5){
+						0.999
+					}elseIf(bonus_l==6){
+						1.000
+					}elseIf(bonus_l==7){
+						1.001
+					}else{0}
+				}elseIf(bonus_k==1){
+					if(bonus_l==6){
+						1.001
+					}elseIf(bonus_l==7){
+						1.003
+					}elseIf(bonus_l==8){
+						1.004
+					}else{0}
+				}elseIf(bonus_k==2){
+					if(bonus_l==7){
+						1.004
+					}elseIf(bonus_l==8){
+						1.005
+					}elseIf(bonus_l==9){
+						1.006
+					}else{0}
+				}elseIf(bonus_k==3){
+					if(bonus_l==8){
+						1.006
+					}elseIf(bonus_l==9){
+						1.008
+					}elseIf(bonus_l==10){
+						1.009
+					}else{0}
+				}elseIf(bonus_k==4){
+					if(bonus_l==9){
+						1.009
+					}elseIf(bonus_l==10){
+						1.010
+					}elseIf(bonus_l==11){
+						1.012
+					}else{0}
+				}elseIf(bonus_k==5){
+					if(bonus_l==10){
+						1.012
+					}elseIf(bonus_l==11){
+						1.013
+					}else{0}
+				}elseIf(bonus_k==6){
+					if(bonus_l==11){
+						1.014
+					}else{0}
+				}else{0}
+			}else{0}
+		</formula>
+
+		<formula name="contractDateY" desc="契約年">
+			roundDown(contractDate/10000,0)
+		</formula>
+		<formula name="contractDateM" desc="契約月">
+			roundDown(contractDate/100,0)%100
+		</formula>
+		<formula name="contractDateD" desc="契約日">
+			contractDate%100
+		</formula>
+
+		<formula name="payMonths" desc="年間払込月数">
+			10+2*psi
+		</formula>
+		
+		<formula name="bonus_k">
+			if(bonus_month==1){
+				if(contractDateM==7 || contractDateM==1){
+					0
+				}elseIf(contractDateM&lt;7){
+					7-contractDateM
+				}else{
+					13-contractDateM
+				}
+			}elseIf(bonus_month==2){
+				if(contractDateM==6 || contractDateM==12){
+					0
+				}elseIf(contractDateM&lt;6){
+					6-contractDateM
+				}else{
+					12-contractDateM
+				}
+			}else{
+				if(contractDateM==7 || contractDateM==12){
+					0
+				}elseIf(contractDateM&lt;7){
+					7-contractDateM
+				}else{
+					12-contractDateM
+				}
+			}
+		</formula>
+		
+		<formula name="bonus_l">
+			if(bonus_month==1){
+				if(contractDateM==7 || contractDateM==1){
+					6
+				}elseIf(contractDateM&lt;7){
+					13-contractDateM
+				}else{
+					19-contractDateM
+				}
+			}elseIf(bonus_month==2){
+				if(contractDateM==6 || contractDateM==12){
+					6
+				}elseIf(contractDateM&lt;6){
+					12-contractDateM
+				}else{   
+					18-contractDateM
+				}
+			}else{
+				if(contractDateM==7){
+					5
+				}elseIf(contractDateM==12){
+					7
+				}elseIf(contractDateM&lt;7){
+					12-contractDateM
+				}else{
+					19-contractDateM
+				}
+			}
+		</formula>
+
+	</Common>
+	
+	<Premium desc="全商品範囲の保険料算式">
+		<formula name="PayFactor" paras="kaisu,gen,keiro" desc="分割払の係数">
+			if(kaisu==1){
+				1
+			}elseIf(kaisu==2){
+				if(gen&gt;2){11.6}elseIf(gen==2){11.5}else{11.3}
+			}elseIf(kaisu==3){
+				if(keiro==1||keiro==2||keiro==4){
+					if(gen&gt;2){5.87}elseIf(gen==2){5.85}else{5.8}
+				}else{
+					if(gen&gt;2){5.82}elseIf(gen==2){5.78}else{5.71}
+				}
+			}else{
+				if(keiro==1){1}elseIf(keiro==2||keiro==4){0.985}
+				else{
+					if(gen&gt;2){0.973}elseIf(gen==2){0.968}else{0.958}
+				}
+			}
+		</formula>
+
+	</Premium>
+	
+	<ReserveFund desc="全商品範囲の保険積立金算式">
+	
+		<formula name="VrateValuation" pvh="H" fraction="0" accessable="true" desc="４．保険年度末V実額">
+			if(state==7){
+				SAS*live(t,tEX)+SAD*dead(t,tEX,fEX)
+			}else{
+				SA*Vrate
+			}
+		</formula>
+		<formula name="Valuation" pvh="P" fraction="0" accessable="true" desc="５．契約者責任準備金実額">
+			if(state==7){
+				SAS*live(t,tEX)+SAD*dead(t,tEX,fEX)
+			}else{
+				SA*ContractorVrate
+			}
+		</formula>
+		<formula name="BizYearVate" pvh="if(kisoritsu==0){P}elseIf(kisoritsu==1){V}else{H}" accessable="true" desc="２．事業年度末Vレート">
+			calBizYearV
+		</formula>
+		<formula name="BizYearValuation" pvh="if(kisoritsu==0){P}elseIf(kisoritsu==1){V}else{H}" fraction="0" accessable="true" desc="６．事業年度末V実額">
+			if(state==7){
+				SAS*live(t,tEX)+SAD*dead(t,tEX,fEX)
+			}else{
+				SA*BizYearVate
+			}
+		</formula>
+
+		<formula name="x4ContractorYearV" pvh="P" xtime="4" paras="t" desc="4倍体保険年度末レート">
+			set{z=0}
+			ContractorYearV(t)
+		</formula>
+		
+		<formula name="x1ContractorYearV" pvh="P" xtime="1" paras="t" desc="1倍体保険年度末レート">
+			set{z=0}
+			ContractorYearV(t)
+		</formula>
+		
+		<formula name="BT_Vrate" pvh="if(kisoritsu==0){P}elseIf(kisoritsu==1){V}else{H}" fraction="0" desc="BATCH_Vrate">
+			if(vrateCN&gt;=1){
+				if(specialCN==100){
+					BizYearValuation
+				}else{
+					SA*x4BizYear
+				}					
+			}else{
+				if(specialCN==100){
+					Valuation
+				}else{
+					SA*x4ContractorYearV
+				}
+			}
+		</formula>
+				
+	</ReserveFund>	
+	
+	<SurrenderFee desc="全商品範囲の解約返戻金算式">
+	
+		<!-- Wrate計算で現価の指数共通計算式 -->
+		<formula name="ve" desc="Wrate計算の現価の指数">
+			set{ve_=12*t1+f1-12*t-f}
+			if(ve_&gt;0){ve_/12}else{0}
+		</formula>
+		<formula name="Wrate_live" paras="t" fraction="4" pvh="P" desc="解約返戻金レート(生存)">	
+			(1-f_12(f))*live(t)+f_12(f)*live(t+1)
+		</formula>
+		<formula name="Wrate_dead" paras="t" fraction="4" pvh="P" desc="解約返戻金レート(死亡)">	
+			(1-f_12(f))*dead(t)+f_12(f)*dead(t+1)
+		</formula>
+		<formula name="CashValue" fraction="0" pvh="P" accessable="true" desc="２．解約返戻金実額">
+			if(state==7){
+				SAS*Wrate_live(t)+SAD*Wrate_dead(t)
+            }else{
+                SA*Wrate
+            }
+		</formula>
+		
+	</SurrenderFee>
+
+	<Extend desc="全商品範囲の延長算式">
+		
+		<!-- 延長計算用Vrateの共通算式　ここから -->
+		<formula name="extend_live_Vrate" paras="t,f,tEX" pvh="P" fraction="4" desc="延長計算用Vrate(生存)">
+			(1-f_12(f))*live(t,tEX)+f_12(f)*live(t+1,tEX)
+		</formula>
+		<formula name="extend_dead_Vrate" paras="t,f,tEX,fEX" pvh="P" fraction="4" desc="延長計算用Vrate(死亡)">
+			if(fEX!=0&amp;&amp;t==tEX){
+				round((1-f/fEX),5)*dead(t,tEX,fEX)+round(f/fEX,5)*dead(t+1,tEX,fEX)
+			}else{
+				(1-f_12(f))*dead(t,tEX,fEX)+f_12(f)*dead(t+1,tEX,fEX)
+			}
+		</formula>
+		
+		<formula name="maxN" desc="限度保期">
+			if(m==99){
+				80-x
+			}else{
+				min(m,80-x)
+			}
+		</formula>
+		
+		<!-- 延長保険への変更に関する計算の共通定義公式　ここから -->
+		<formula name="extendDeadS" desc="延長死亡Ｓ">
+			extendPremium-L
+		</formula>
+		<formula name="extendWX" desc="延長原資">
+			SurrenderFeeS-L
+		</formula>		
+		
+		<formula name="SurrenderFeeRate" pvh="P" fraction="4" desc="解約返戻金率">
+			extendWX/extendDeadS
+		</formula>
+
+		<formula name="extend_tex" pvh="P" desc="延長期間・年">
+			if(SurrenderFeeRate&lt;extend_dead_Vrate(t,f,maxN,0)){
+				set(i=maxN+1)
+				while(extend_dead_Vrate(t,f,i,0)&gt;SurrenderFeeRate&amp;&amp;i&gt;t){
+					i=i-1
+				}
+			}else{
+				maxN
+			}
+		</formula>
+		
+		<formula name="extend_fex" pvh="P" desc="延長期間・月">
+			if(SurrenderFeeRate&lt;extend_dead_Vrate(t,f,maxN,0)){
+				roundDown(12*round(
+					roundDown(SurrenderFeeRate-extend_dead_Vrate(t,f,extend_tex,0),4)
+						/
+					roundDown(extend_dead_Vrate(t,f,extend_tex+1,0)-extend_dead_Vrate(t,f,extend_tex,0),4)
+				,4),0)
+			}else{
+				0
+			}
+		</formula>
+		
+		<formula name="extend_tf" pvh="P" accessable="true" desc="１．延長期間・年月">
+			extend_tex*100+extend_fex
+		</formula>
+		
+		<formula name="extend_live_S" desc="延長生存S">
+			roundUp(
+				roundDown(
+					round(extendDeadS*round((SurrenderFeeRate-extend_dead_Vrate(t,f,maxN,0))/extend_live_Vrate(t,f,maxN),4),1)*10
+					,0)/10000
+				,0)*1000
+		</formula>
+		
+		<formula name="extend_live_Premium" pvh="P" accessable="true" desc="４．延長生存保険金額">
+			if(SurrenderFeeRate&lt;extend_dead_Vrate(t,f,maxN,0)){
+				0
+			}else{
+				min(extend_live_S,extendDeadS)
+			}
+		</formula>
+		
+		<formula name="extend_SurrenderFee" pvh="P" fraction="0" accessable="true" desc="３．延長時の解約返戻金">
+			if(SurrenderFeeRate&lt;extend_dead_Vrate(t,f,maxN,0)){
+				0
+			}else{	
+				max((extend_live_S-extendDeadS)*extend_live_Vrate(t,f,maxN),0)
+			}
+		</formula>
+	</Extend>
+</common-formula>

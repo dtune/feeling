@@ -1,0 +1,31 @@
+<!ELEMENT DataLayout-definition ( default-layout, layout+, error-layout) >
+
+<!ELEMENT Premium ( key+ ) >
+
+<!ELEMENT ReserveFund ( key+ ) >
+
+<!ELEMENT SurrenderFee ( key+ ) >
+
+<!ELEMENT Extend ( key+ ) >
+
+<!ELEMENT Paidup ( key+ ) >
+
+<!ELEMENT UnpaidAnnuity ( key+ ) >
+
+<!ELEMENT default-layout ( Premium, ReserveFund, SurrenderFee, Extend*, Paidup*, UnpaidAnnuity* ) >
+
+<!ELEMENT key ( transfer? ) >
+<!ATTLIST key desc NMTOKEN #IMPLIED >
+<!ATTLIST key len CDATA #REQUIRED >
+<!ATTLIST key name NMTOKEN #REQUIRED >
+<!ATTLIST key pos NMTOKEN #REQUIRED >
+
+<!ELEMENT layout ( Premium, ReserveFund, SurrenderFee, Extend*, Paidup*, UnpaidAnnuity* ) >
+<!ATTLIST layout desc NMTOKEN #IMPLIED >
+<!ATTLIST layout name NMTOKEN #REQUIRED >
+
+<!ELEMENT error-layout ( Premium, ReserveFund, SurrenderFee, Extend, Paidup, UnpaidAnnuity ) >
+
+<!ELEMENT transfer ( #PCDATA ) >
+
+

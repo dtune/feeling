@@ -1,0 +1,195 @@
+########これから 計算のtype########
+## special   normal    extend   paidup  partLumpSum   bringUp  deathBenefit###
+batch.ratekey.calculate=dividend
+
+#####これから普通の場合############
+ratekey.iCurrentDate.normal.label=当月経過年月
+ratekey.t.transfer=iCurrentDate/100
+ratekey.f.transfer=iCurrentDate%100
+ratekey.t1.transfer=iCurrentDate/100
+ratekey.f1.transfer=iCurrentDate%100
+
+ratekey.deathIndex.label=特体死亡指数
+
+ratekey.buzYearSign.label=事業年度末サイン
+
+ratekey.periodKbn.label=保期区分CN
+
+ratekey.paymentKbn.label=払期区分CN
+
+ratekey.kaisu.label=払方CN
+
+ratekey.payup.label=払込済種類CN
+
+ratekey.payment.label=払込状態CN
+
+ratekey.state.transfer=if((payup==1&&payment==2)||(payup==2&&payment==2)){2}\
+                              elseIf(payup==6&&payment==2){3}\
+                              elseIf(payup==0&&payment==1){1}\
+                              elseIf(payup==4&&payment==2){4}\
+                              elseIf(payup==3){6}\
+                              elseIf(payup==5){7}\
+                              else{0}
+
+ratekey.keiro.label=P扱方法CN
+ratekey.keiro.transfer=if(keiro==1){1}\
+                        elseIf(keiro==2){3}\
+                        elseIf(keiro==3){4}\
+                        elseIf{keiro==4}{5}\
+                        elseIf(keiro==6){2}\
+                        else{0}
+
+ratekey.ownersex.label=契約者性別
+ratekey.contractorSex.label=契約者性別CN
+
+ratekey.sex.label=被保性別CN
+ratekey.sex.transfer=if(annuityType==302&&sex==1){1}\
+						elseIf(annuityType==302&&sex==2){0}\
+						else{sex-1}
+
+ratekey.x.label=X年齢
+ratekey.y.label=Y年齢
+
+ratekey.Sy.label=ファミリー配偶者保障割合
+
+ratekey.Sz.label=ファミリー子保障割合
+
+ratekey.I.label=災疾保障期間
+ratekey.contractorType.transfer=if(I==19){1}\
+                               elseIf(I==21){2}\
+                               elseIf(I==20){3}\
+                               elseIf(I==22){4}\
+                               else{0}
+
+ratekey.step.label=修正払込軽減期間
+
+ratekey.n.label=保期年
+ratekey.n.transfer=if(periodKbn==2){n-x}\
+                   elseIf(periodKbn==3){99}\
+                   else{n}
+ratekey.tEX.label=保期年
+ratekey.fEX.label=保期月
+
+ratekey.m.label=払期年
+ratekey.m.transfer=if(paymentKbn==2){m-x}\
+                    elseIf(paymentKbn==3){99}\
+                    else{m}
+
+ratekey.g.label=年金支払年
+ratekey.g.transfer=if(annuityType==5){h}else{g}
+ratekey.t2.transfer=t-n-l
+ratekey.t3.transfer=t-n
+
+ratekey.l.label=繰り下げ年数
+
+ratekey.sptate.label=P建サイン
+
+ratekey.VrateUnit.label=VTレート単位
+
+ratekey.contractDate.label=始期年月日
+ratekey.responsibilityDate.label=責任開始年月日
+
+ratekey.k.label=年金支払年
+
+ratekey.h.label=年金支払保証年
+ratekey.g1.label=年金支払保証年
+
+ratekey.u.label=低解返期間
+ratekey.u.transfer=if((annuityType==16||annuityType==17)&&basedPaymentKbn==2){basedM-x}\
+				elseIf(annuityType==16||annuityType==17){basedM}\
+				elseIf(periodKbn==2){u-m}\
+				else{m}
+
+ratekey.i.label=料率識別区分CN
+
+ratekey.kk1.label=料率識別区分CN
+ratekey.k1.transfer=if(kk1==72){2}elseIf(kk1==73){3}else{0}
+
+ratekey.SAS.label=延長生存S
+
+ratekey.f1.label=払期月
+
+ratekey.WrateUnit.label=Wレート単位
+
+ratekey.PrateUnit.label=Pレート単位
+
+ratekey.SA.label=基準S
+
+ratekey.SAL.label=繰り下げ前基準S
+
+ratekey.SAN.label=年金開始前基準S
+
+ratekey.CompareDt.label=当年度末未割当残高
+
+ratekey.Dt_thisyear.label=当年度末未割当残高
+
+ratekey.SA_lastyear.label=前年度基準S
+ratekey.SA_lastyear.transfer=if(l>0&&state!=3){SAL}elseIf(l>0&&state==3){SAN}else{SA_lastyear}
+
+ratekey.Dt_lastyear.label=前年度末未割当残高
+
+ratekey.divEndDate.label=配当基準日
+ratekey.keisanPtn.transfer=1
+
+ratekey.contractUpdType.label=更新契約サイン
+
+ratekey.annuityType.label=料率保種CN
+ratekey.policyKaisu.label=基礎契約払方CN
+ratekey.policyCode.label=基礎料率保種CN
+ratekey.policyCode.transfer=if(policyCode==5){4}else{policyCode}
+ratekey.syukeiyakutokuyaku.label=主契約特約区分CN
+ratekey.dividend.label=予定利率識別CN
+ratekey.partOnetime.transfer=if(dividend==2||dividend==4){0}\
+							elseIf(dividend==3||dividend==5){1}\
+							elseIf(annuityType<300&&syukeiyakutokuyaku==2&&kaisu==1){1}\
+							else{0}
+ratekey.dividend.transfer=if(dividend==0||dividend==2||dividend==3){0}\
+							else{1}
+ratekey.contractorState.label=契約現況CN
+ratekey.contractorState.transfer=if(payment==3){0}else{1}
+
+ratekey.psi.label=ボーナス払倍数
+ratekey.bonusDiv.transfer=if(psi==0||kaisu!=4||annuityType>300){0}else{1}
+ratekey.bonusMonth1.label=ボーナス月1
+ratekey.bonusMonth2.label=ボーナス月2
+ratekey.bonus_month.transfer=if((bonusMonth1==1&&bonusMonth2==7)||(bonusMonth1==7&&bonusMonth2==1)){1}\
+								elseIf((bonusMonth1==6&&bonusMonth2==12)||(bonusMonth1==12&&bonusMonth2==6)){2}\
+								elseIf((bonusMonth1==7&&bonusMonth2==12)||(bonusMonth1==12&&bonusMonth2==7)){3}\
+								else{0}
+
+ratekey.theta.transfer=0
+ratekey.annuityY.transfer=x+n+l
+ratekey.accCalculation.transfer=0
+ratekey.finalPercent.transfer=if(kk1==31){0}elseIf(kk1==34){1}else{2}
+ratekey.teizoKbn.transfer=if(kk1==40){0}else{1}
+ratekey.afterBenifitPay.label=年金支払種類CN
+ratekey.afterBenifitPay.transfer=if(afterBenifitPay==3){1}else{0}
+ratekey.CompareAllocation.label=翌期配当所要額
+ratekey.changeState.transfer=2
+ratekey.SD.label=基礎契約払済時死亡給付金額
+ratekey.paidupS.transfer=SA
+ratekey.birthday.label=被保生年月日
+
+ratekey.basedPaymentKbn.label=基礎契約払期区分CN
+ratekey.basedM.label=基礎契約払期年
+ratekey.policyContractDate.label=契約年月日
+ratekey.dividendDate.label=翌期配当分配年月日
+ratekey.youikunenkin.label=配当用データ区分CN
+ratekey.youikunenkin.transfer=if(youikunenkin==2){1}else{0}
+ratekey.AnnuityBeginDate.label=年金支払開始年月日
+ratekey.oldAnnuityBuyDate.label=旧年金買増年月日
+ratekey.newAnnuityBuyDate.label=最新年金買増年月日
+ratekey.effectBeginDate.label=効力発生年月日
+ratekey.payState.transfer=0
+
+batch.ratekey=sex,kaisu,x,iCurrentDate,paymentKbn,payup,periodKbn,payment,contractUpdType,sptate,\
+               n,m,g,state,keiro,SA,t,f,t1,f1,t2,t3,l,SAL,SAN,contractDate,k,h,g1,u,step,k1,deathIndex,\
+              Sy,Sz,i,contractorType,VrateUnit,buzYearSign,Wrate,WrateUnit,SAS,PrateUnit,kk1,\
+              CompareDt,Dt_thisyear,SA_lastyear,Dt_lastyear,divEndDate,contractUpdType,annuityType,partOnetime,dividend,policyKaisu,policyCode,\
+              afterBenifitPay,y,contractorSex,CompareAllocation,SD,birthday,psi,bonusMonth1,bonusMonth2,tEX,fEX,\
+              basedPaymentKbn,basedM,responsibilityDate,syukeiyakutokuyaku,policyContractDate,dividendDate,youikunenkin,\
+              AnnuityBeginDate,oldAnnuityBuyDate,newAnnuityBuyDate,effectBeginDate
+
+batch.ratekey.transfer=n,m,t,f,t1,f1,state,keiro,sex,contractorType,t2,t3,partOnetime,dividend,k1,u,SA_lastyear,\
+						contractorState,bonusDiv,theta,annuityY,accCalculation,g,keisanPtn,\
+						finalPercent,teizoKbn,afterBenifitPay,policyCode,changeState,paidupS,bonus_month,youikunenkin,payState

@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Calculation-definition SYSTEM "Calculation-definition.dtd">
+
+<Calculation-definition>
+	<Categories>
+		<Category>
+			<name>Premium</name>
+			<label>保険料Pレート</label>
+			<RateKeys>
+				n,m,x,sex,kaisu,keiro,sptate,SA,k,h,I,type,teizoKbn,partOnetime,contractDate
+	</RateKeys>
+		</Category>
+		<Category>
+			<name>ReserveFund</name>
+			<label>保険料積立金Vレート</label>
+			<RateKeys>
+				n,m,x,sex,kaisu,state,t,f,t1,f1,SA,h,k,u,I,t2,f2,teizoKbn,partOnetime,kisoritsu,z,contractDate,AnnuityBeginDate
+  	</RateKeys>
+		</Category>
+		<Category>
+			<name>SurrenderFee</name>
+			<label>解約返戻金Wレート</label>
+			<RateKeys>
+				n,m,x,sex,kaisu,state,t,f,t1,f1,contractDate,SA,h,k,u,I,teizoKbn,partOnetime
+    </RateKeys>
+		</Category>
+		<Category>
+			<name>UnpaidAnnuity</name>
+			<label>未払年金</label>
+			<RateKeys>
+				gen,kaisu,teizoKbn,t1,t2,f1,f2,n,partOnetime,k,h,monthSA,monthS,monthS_nashu,SA,contractDate
+    </RateKeys>
+		</Category>
+	</Categories>
+</Calculation-definition>

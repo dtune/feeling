@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+	<!-- 保険料　ここから -->
+	<Premium desc="保険料">
+		<formula name="Bonus_Prate" pvh="P" accessable="true" fraction="6" desc="ボーナス払保険料rate">
+			(psi-1)*bonus_lambda*(bonus_month_Prate+d)
+		</formula>
+		<formula name="bonus_month_Prate" pvh="P" accessable="true" fraction="6" desc="ボーナス払の月払部分">
+			if(gen==2){
+				if(keiro==1){
+					5.85/(psi+4.85)*stdPrate-d
+				}elseIf(keiro==2){
+					0.985*5.85/(0.985*(psi-1)+5.85)*stdPrate-d
+				}else{0}
+			}elseIf(gen==1){
+				if(keiro==1){
+					5.80/(psi+4.80)*stdPrate-d
+				}elseIf(keiro==2){
+					0.985*5.80/(0.985*(psi-1)+5.80)*stdPrate-d
+				}else{0}
+			}else{
+				if(keiro==1){
+					5.87/(psi+4.87)*stdPrate-d
+				}elseIf(keiro==2){
+					0.985*5.87/(0.985*(psi-1)+5.87)*stdPrate-d
+				}else{0}
+			}
+		</formula>
+		<formula name="bonus_month_Premium" pvh="P" accessable="true" desc="ボーナス払の月払部分保険料・保険金額">
+			if(sptate==0){
+				roundDown(SA*bonus_month_Prate,0)
+			}else{
+				roundUp(roundDown(SA*S2P(bonus_month_Prate),0)/1000,0)*1000
+			}
+		</formula>
+		<formula name="Bonus_Premium" pvh="P" accessable="true" desc="ボーナス払保険料・保険金額">
+			if(sptate==0){
+				roundDown(SA*Bonus_Prate,0)
+			}else{
+				roundUp(roundDown(SA*S2P(Bonus_Prate),0)/1000,0)*1000
+			}
+		</formula>
+	</Premium>
+
+	<!-- 責任準備金　ここから -->
+	<ReserveFund desc="責任準備金">
+		<formula name="Bonus_ContractorVrate" fraction="4" pvh="P" desc="ボーナス併用払契約者用Vレート">
+			(1-round(bonus_f/payMonths,5))*ContractorYearV(t1)
+				+
+			round(bonus_f/payMonths,5)*ContractorYearV(t1+1)
+		</formula>
+		<formula name="Bonus_Valuation" fraction="0" pvh="P" accessable="true" desc="ボーナス払契約者用準備金額">
+			if(state==1&amp;&amp;kaisu==4){
+				SA*Bonus_ContractorVrate
+			}else{
+				0
+			}
+		</formula>
+	</ReserveFund>
+
+	<!-- 解約返戻金　ここから -->
+	<SurrenderFee desc="解約返戻金">
+		<formula name="bonus_Vrate_endofYear" paras="t,z" fraction="4" pvh="V" desc="ボーナス併用払保険年度末保険料積立金レート">
+            Vrate_endofYear_kkc(t,z)
+		</formula>
+		<formula name="Bonus_Wrate" fraction="4" pvh="P" desc="解約返戻金レート">
+			set(i1=((payMonths*t1+bonus_f)/payMonths-(12*t+f)/12))
+			if(state==1){
+				<!-- 払込期間中 -->
+				if(contractDate&gt;=20080202){
+					round(((1-round(bonus_f/payMonths,5))*tWrate(t1)
+						+
+					round(bonus_f/payMonths,5)*tWrate(t1+1)),4)*{if(i1&gt;0){roundDown(v^i1,11)}else{1}}
+				}else{
+					round({(1-round(bonus_f/payMonths,5))*min(tWrate(t1),bonus_Vrate_endofYear(t1,min(m,5)))
+						+
+					round(bonus_f/payMonths,5)*min(tWrate(t1+1),bonus_Vrate_endofYear(t1+1,min(m,5)))},4)*{if(i1&gt;0){roundDown(v^i1,11)}else{1}}
+				}
+			}else{0}
+		</formula>
+		<formula name="Bonus_SurrenderFee" fraction="0" pvh="P" accessable="true" desc="ボーナス払解約返戻金実額">
+		　　　SA*Bonus_Wrate
+		</formula>	
+	</SurrenderFee>
+</Formula-definition>

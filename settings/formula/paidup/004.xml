@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+
+	<!-- 解約返戻金　ここから -->
+	<Paidup desc="払済">
+		<formula name="ContractorV_live" paras="t" desc="払済Ｓ生存部分(端月なし)">
+			A_x_n_l(x+t,n-t)+gamma4*a_x_n(x+t,n-t)
+		</formula>
+		<formula name="ContractorV_dead" paras="t" desc="払済Ｓ死亡部分(端月なし)">
+			A_x_n_D(x+t,n-t)+gamma3*a_x_n(x+t,n-t)
+		</formula>
+		<formula name="Contractor_live" pvh="P" accessable="true" fraction="4" desc="払済Ｓ生存部分(端月あり)">
+			(1-f_12(f))*ContractorV_live(t)+(f_12(f))*ContractorV_live(t+1)
+		</formula>
+		<formula name="Contractor_dead" pvh="P" accessable="true" fraction="4" desc="払済Ｓ死亡部分(端月あり)">
+			(1-f_12(f))*ContractorV_dead(t)+(f_12(f))*ContractorV_dead(t+1)
+		</formula>
+
+		<formula name="Vrate_PaymentEnd" fraction="4">
+			(1-f_12(f))*PaymentEndV(t)+f_12(f)*PaymentEndV(t+1)
+		</formula>
+
+		<formula name="paidup_Premium" pvh="P" accessable="true" desc="１．払済保険金額">
+			roundUp(
+				max(
+					round((SurrenderFeeS-L)-deathBenefitS*Contractor_dead,4)
+						/
+					round(F*Contractor_live,8)
+				,0)
+			,0-2)
+		</formula>
+		
+		<formula name="paidup_SurrenderFee" pvh="P" accessable="true" desc="２．解約払戻金">
+			roundDown((SurrenderFeeS-L),0)
+		</formula>
+	</Paidup>
+</Formula-definition>

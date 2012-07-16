@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+	<BizExpenses desc="事業費率の設定">
+		<formula name="ei">
+			if(i==120){0.100}elseIf(i==360){0.123}else{0.131}
+		</formula> 
+		<formula name="beta" value="0.10"/>
+	 	<formula name="beta1" value="0.07"/>
+	 	<formula name="zeta">
+	 		if(gen==1){0.04}elseIf(gen==2){0.03}else{0.025}
+	 	</formula>
+	 	<formula name="epsilon">
+	 		if(m&lt;=5){0.0005}elseIf(m&gt;5&amp;&amp;m&lt;=10){0.001}else{0.002}
+	 	</formula>	 	
+	</BizExpenses>
+	<Common desc="商品内部の共通公式">
+		<formula name="Tx" paras="x">
+			if(i==120){TX1[x]}
+            elseIf(i==360){TX2[x]}
+            else{TX3[x]}
+		</formula>
+		<formula name="MS" paras="x">
+            if(i==120){MS1[x]}
+            elseIf(i==360){MS2[x]}
+            else{MS3[x]}
+         </formula>
+		<formula name="A_i_x" paras="x,n" fraction="6">
+            (MS(x)-MS(x+n))/D[x] 
+         </formula>
+		 <formula name="PrateByPaymode" paras="sPrate,d" fraction="3" desc="払込方法別Prate">
+			<!-- 基準Prateと高額割引dより、払込方法別Prateを求める -->
+			<formula name="Discount" paras="d" desc="高額割引">
+				if(kaisu==1){0}
+				elseIf(kaisu==2){12*d}
+				elseIf(kaisu==3){6*d}
+				else{d}
+			</formula>
+			sPrate*PayFactor(kaisu,gen,keiro)-Discount(d)
+		 </formula>
+		 
+		 <formula name="S2P" paras="SBasePrate" fraction="2" desc="S基準からP基準に変換する">
+			<!-- 普通の場合 -->
+			1/SBasePrate
+		 </formula>
+	</Common>
+	 <Premium desc="保険料">
+		<formula name="stdPrate" pvh="P" accessable="false" desc="基準Ｐレート">
+			if(kaisu==1){singlePrate}else{MultiPrate}
+			<formula name="singlePrate" fraction="3" desc="一時払いPrate">
+				(A_i_x(x,n)+ei*a_x_n(x,n))/(1-beta1)
+			</formula>
+			<formula name="MultiPrate" fraction="3" desc="分割払いPrate">
+				(A_i_x(x,n)+ei*a_k_x_n(12,x,m)+ei*f_a_x_n(m,x,n))
+                         /
+                (12*(1-beta-zeta-epsilon)*a_k_x_n(12,x,m))
+			</formula>			
+		</formula>
+		<formula name="Prate" pvh="P" accessable="true" desc="１.保険料レート">
+			PrateByPaymode(stdPrate,0)	
+		</formula>
+		<formula name="Premium" pvh="P" accessable="true" desc="２.保険料/保険金額">
+			if(sptate==0){
+				roundDown(SA*PrateByPaymode(stdPrate,0),0)
+			}else{
+				roundUp(roundDown(SA*S2P(PrateByPaymode(stdPrate,0)),0)/1000,0)*1000
+			}
+		</formula>
+	</Premium>
+	<ReserveFund desc="保険積立金">
+		<formula name="BenifitPostponingV" paras="t" fraction="2" desc="保険料払込期間中">
+			max(A_i_x(x+t,n-t)+ei*a_x_n(x+t,n-t)-
+			(A_i_x(x,n)+ei*a_x_n(x,n))/a_x_n(x,m)*a_x_n(x+t,m-t)
+            ,0)
+		</formula>
+		<formula name="BenifitStartedV" paras="t" fraction="2" desc="保険料払込期間終了後">
+	        A_i_x(x+t,n-t)+ei*a_x_n(x+t,n-t)
+	    </formula>
+	    
+	    <formula name="Vrate_accu" paras="t" fraction="2" desc="保険年度末rate">
+			if(state==1){
+             <!-- 払込中 -->
+             	BenifitPostponingV(t)
+            }elseIf(state==2||kaisu==1||state==6){
+             <!--保険料払込期間終了後 免除 一時払 -->
+             	BenifitStartedV(t)
+            }else{0}
+		</formula>
+	    <formula name="Vrate" accessable="true" pvh="if(gen&gt;2){H}else{V}" fraction="2" desc="１.保険年度末Ｖレート">
+            Vrate_accu(t)
+        </formula>
+        <formula name="ContractorYearV" paras="t" pvh="P" fraction="2" accessable="false" desc="保険年度契約者VTレート">
+            Vrate_accu(t)
+        </formula>
+        <formula name="ContractorVrate" pvh="P" accessable="true" fraction="2" desc="３.契約者用Ｖレート">
+                if(state==1||state==6){
+                	<!-- 払込中　または　免除 -->
+                 	(1-f_12(f1))*BenifitPostponingV(t1)+f_12(f1)*BenifitPostponingV(t1+1)
+                 }elseIf(state==2||kaisu==1){
+                 	<!--保険料払込期間終了後  -->
+                 	(1-f_12(f))*BenifitStartedV(t)+f_12(f)*BenifitStartedV(t+1)
+                 }else{0}
+        </formula>
+      
+        <formula name="BizYearV" paras="t" fraction="4" accessable="false" desc="事業末Vレート">
+			if(state==1){
+                 <!-- 払込中 -->
+                 BenifitPostponingV(t)
+            }elseIf(state==2||state==6||kaisu==1){
+                 <!--保険料払込期間終了後 免除 -->
+                 BenifitStartedV(t)
+            }else{0}
+		</formula>
+		
+		<formula name="BizYearVate" pvh="if(kisoritsu==0){P}elseIf(kisoritsu==1){V}else{H}" accessable="true" desc="２．事業年度末Vレート">
+			BizYearV(t)
+		</formula>
+        
+	</ReserveFund>
+    <SurrenderFee desc="解約返戻金">
+		<formula name="Wrate" pvh="P" fraction="2" accessable="true" desc="１.解約返戻金Ｗレート">
+			if(state==2||kaisu==1){
+				((1-f_12(f)))*WT_inpaid_1(t)+f_12(f)*WT_inpaid_1(t+1)
+			}elseIf(state==1||state==6){
+				if(PremiumAbolishSign==1){
+					if((12*t1+f1-12*t-f)&lt;0){
+						tsigma(t1)*round(
+							(1-f_12(f1))*WT_inpaid(t1)+f_12(f1)*WT_inpaid(t1+1)
+						,2)+0.000000000001
+					}else{
+						tsigma(t)*round(
+							(1-f_12(f))*WT_inpaid(t)+f_12(f)*WT_inpaid(t+1)
+						,2)+0.000000000001
+					}
+				}else{
+					v^ve*tsigma(t1)*round(((1-f_12(f1)))*WT_inpaid(t1)+f_12(f1)*WT_inpaid(t1+1),2)+0.000000000001
+				}
+			}else{0}
+		<formula name="WT_inpaid" paras="t" accessable="false" desc="払込中　または　免除">
+			max(BenifitPostponingV(t),0)
+		</formula>
+		<formula name="WT_inpaid_1" paras="t" accessable="false" desc="保険料払込期間終了後 ">
+	         max(BenifitStartedV(t),0)
+		</formula>
+		<formula name="tsigma" paras="t" desc="解約控除率">
+			 if(t&lt;3){1-m/n}else{1}
+		</formula>
+		</formula>
+	</SurrenderFee>			
+</Formula-definition>	

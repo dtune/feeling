@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE RateKey-definition SYSTEM "RateKey-definition.dtd">
+<RateKey-definition>
+  	<!-- レートキーのUI属性 -->
+    <RateKeys>
+    	
+        <RateKey name="deathIndex" label="特体死亡指数" type="text"
+         required="true" initValue="200" displayOrder="99">
+          <rule min="100" max="1000" step="10"/>
+        </RateKey>
+    </RateKeys>
+</RateKey-definition>

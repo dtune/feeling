@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<configuration>
+	<!-- グローバル公式や計算基礎の定義　商品毎の定義に上書き -->
+	<override>
+		<xml fileName="\settings\formula\common\Benefit.xml"/>
+		<xml fileName="\settings\formula\common\Common.xml"/>
+		<xml fileName="\settings\formula\common\LifePension.xml"/>
+	</override>
+	<!--　基数マッピング定義 -->
+	<xml fileName="\settings\fundation\Fundation.xml"/>
+
+	<!-- 商品毎の計算式の定義  TODO additionalの使い方は間違いそう -->
+  	<additional>
+  		<xml fileName="\settings\formula\insurance\042.xml"/>
+		<xml fileName="\settings\formula\insurance\030.xml"/>
+		<xml fileName="\settings\formula\insurance\203.xml"/>
+  	</additional>
+</configuration>
+

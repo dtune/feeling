@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 154
+/svn/nttd/!svn/ver/27689/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/src/jp/co/nttdata/rate/rateFundation
+END
+FundationTable.java
+K 25
+svn:wc:ra_dav:version-url
+V 174
+/svn/nttd/!svn/ver/23827/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/src/jp/co/nttdata/rate/rateFundation/FundationTable.java
+END
+IFundation.java
+K 25
+svn:wc:ra_dav:version-url
+V 170
+/svn/nttd/!svn/ver/21557/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/src/jp/co/nttdata/rate/rateFundation/IFundation.java
+END
+RateFundationGroup.java
+K 25
+svn:wc:ra_dav:version-url
+V 178
+/svn/nttd/!svn/ver/25353/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/src/jp/co/nttdata/rate/rateFundation/RateFundationGroup.java
+END
+FundationGroupDef.java
+K 25
+svn:wc:ra_dav:version-url
+V 177
+/svn/nttd/!svn/ver/23208/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/src/jp/co/nttdata/rate/rateFundation/FundationGroupDef.java
+END
+FundationPatternDef.java
+K 25
+svn:wc:ra_dav:version-url
+V 179
+/svn/nttd/!svn/ver/23541/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/src/jp/co/nttdata/rate/rateFundation/FundationPatternDef.java
+END
+FundationBeanFactory.java
+K 25
+svn:wc:ra_dav:version-url
+V 180
+/svn/nttd/!svn/ver/21557/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/src/jp/co/nttdata/rate/rateFundation/FundationBeanFactory.java
+END
+FundationDef.java
+K 25
+svn:wc:ra_dav:version-url
+V 172
+/svn/nttd/!svn/ver/21557/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/src/jp/co/nttdata/rate/rateFundation/FundationDef.java
+END
+IRateFundationProvider.java
+K 25
+svn:wc:ra_dav:version-url
+V 182
+/svn/nttd/!svn/ver/27645/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/src/jp/co/nttdata/rate/rateFundation/IRateFundationProvider.java
+END
+FundationDeclaration.java
+K 25
+svn:wc:ra_dav:version-url
+V 180
+/svn/nttd/!svn/ver/21557/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/src/jp/co/nttdata/rate/rateFundation/FundationDeclaration.java
+END
+RateFundationManager.java
+K 25
+svn:wc:ra_dav:version-url
+V 180
+/svn/nttd/!svn/ver/26197/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/src/jp/co/nttdata/rate/rateFundation/RateFundationManager.java
+END

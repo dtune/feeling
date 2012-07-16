@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+	<!-- 保険料　ここから -->
+	<Premium desc="保険料">
+		<formula name="special_sh_Ai_x_n" xtime="4">
+			sh_Ai_x_n(x,n1)
+		</formula>
+		
+		<formula name="x4Prate" pvh="P" accessable="false" desc="4倍体基準Prate">
+			round{(special_sh_Ai_x_n+ah_Ai_x_n(x,n1)+10*o_A_x_n(x,n1)+30*m_Awd_x_n(x,n1,m1)
+			+(sh_gamma+ah_gamma+o_gamma)*a_nashu_x_n(x,n1))/{12*(1-beta-zeta-epsilon(m1))
+			*aT12_x_n(x,m1)},3}
+		</formula>
+
+		<formula name="x1Prate" xtime="1" desc="1倍体体基準Prate">
+			stdPrate
+		</formula>
+		<formula name="Special_stdPrate" desc="特別条件付基準Prate">
+			round((specialLambda-1)*(x4Prate-x1Prate)/(specialLambda1-1),3)
+		</formula>
+		<formula name="Special_Prate" pvh="P" accessable="false" desc="特別条件付Prate">
+			PrateByPaymode(Special_stdPrate,0)
+		</formula>
+		<formula name="Special_Premium" pvh="P" accessable="true" desc="特別条件付保険料/保険金額">
+			<!--Ｓ建てとして計算する -->
+			roundDown(SA*max(PrateByPaymode(Special_stdPrate,0),0),0)
+		</formula>
+	</Premium>
+
+	<!-- 責任準備金　ここから -->
+	<ReserveFund desc="責任準備金">
+		<formula name="Special_sh_Ai_xt_nt" paras="x,n,t" xtime="4">
+			sh_Ai_xt_nt(x,n,t)
+		</formula>
+
+		<formula name="Special_BenifitPostponingV" paras="t" fraction="2" desc="保険料払込期間中">
+	        max{Special_sh_Ai_xt_nt(x,n1,t)+ah_Ai_xt_nt(x,n1,t)+10*o_A_xt_nt(x,n1,t)
+				+30*m_Awd_x_n(x+t,n1-t,m1-t)+(sh_gamma+ah_gamma+o_gamma)*mt_atau_xt_nm(x,n1,m1,t)
+				-(special_sh_Ai_x_n+ah_Ai_x_n(x,n1)+10*o_A_x_n(x,n1)+30*m_Awd_x_n(x,n1,m1)
+				+(sh_gamma+ah_gamma+o_gamma)*m_at_x_nm(x,n1,m1))/aT_x_n(x,m1)*aT_x_n(x+t,m1-t),0}
+		</formula>
+		<formula name="Special_BenifitStartedV"  paras="t" fraction="2" desc="保険料払込期間終了後">
+				Special_sh_Ai_xt_nt(x,n1,t)+ah_Ai_xt_nt(x,n1,t)+10*o_A_xt_nt(x,n1,t)
+				+30*m_Awd_x_n(x+t,n1-t,0)+(sh_gamma+ah_gamma+o_gamma)*at_x_n(x+t,n1-t)
+		</formula>
+		<formula name="x4ContractorYearV" paras="t" pvh="P" desc="4倍体保険年度末レート">
+			if(state==1){
+				Special_BenifitPostponingV(t)
+			}elseIf(state==2){
+				Special_BenifitStartedV(t)
+			}else{
+				0
+			}
+		</formula>
+		
+		<formula name="x4ContractorVrate" fraction="2" desc="4倍体契約者用レート">
+			if(state==1){
+				<!-- 払込期間中 -->
+				(1-f_12(f1))*x4ContractorYearV(t1)+(f_12(f1))*x4ContractorYearV(t1+1)
+			}elseIf(state==2){
+				<!-- 保険料払込期間終了後 -->
+				(1-f_12(f))*x4ContractorYearV(t)+(f_12(f))*x4ContractorYearV(t+1)
+			}else{
+				0
+			}
+		</formula>
+		
+		<formula name="x1ContractorVrate" xtime="1" fraction="2" desc="1倍体契約者用レート">
+			ContractorVrate
+		</formula>
+		
+		<formula name="Special_ContractorVrate" fraction="2" desc="特体契約者Vレート">
+			(specialLambda-1)*(x4ContractorVrate-x1ContractorVrate)/(specialLambda1-1)
+		</formula>
+		
+		<formula name="Special_Valuation" fraction="0" pvh="P" accessable="true" desc="特体契約者実額">
+			max(SA*Special_ContractorVrate,0)
+		</formula>
+		
+		<formula name="normalPrate" pvh="P" xtime="0">
+			stdPrate
+		</formula>
+		<formula name="specialPrateByYear" fraction="3" pvh="P" desc="特体年払Prate">
+			round((x4Prate-x1Prate)*PayFactor(2,gen,1),3)+round(normalPrate*PayFactor(2,gen,1),3)
+		</formula>
+		<formula name="x4BizYear" fraction="2" accessable="false" desc="4倍体事業年度末用Vレート">
+			<formula name="comparePrate" fraction="3">
+				(special_sh_Ai_x_n+ah_Ai_x_n(x,n1)+10*o_A_x_n(x,n1)+30*m_Awd_x_n(x,n1,m1)
+				+(sh_gamma+ah_gamma+o_gamma)*m_at_x_nm(x,n1,m1))/aT_x_n(x,m1)
+			</formula>
+			if(state==1){
+				if(comparePrate&lt;=specialPrateByYear){
+					Special_BenifitPostponingV(t)
+				}else{
+					max{Special_sh_Ai_xt_nt(x,n1,t)+ah_Ai_xt_nt(x,n1,t)+10*o_A_xt_nt(x,n1,t)
+					+30*m_Awd_x_n(x+t,n1-t,m1-t)+(sh_gamma+ah_gamma+o_gamma)*mt_atau_xt_nm(x,n1,m1,t)
+					-specialPrateByYear*aT_x_n(x+t,m1-t),0}
+				}
+			}elseIf(state==2||state==6){
+				Special_BenifitStartedV(t)
+			}else{
+				0				
+			}
+		</formula>
+		
+		<formula name="x1BizYear" xtime="1" fraction="2" accessable="false" desc="1倍体事業年度末用Vレート">
+			BizYearV(t)
+		</formula>
+		
+		<formula name="Special_BizYearVate" pvh="if(kisoritsu==0){P}elseIf(kisoritsu==1){V}else{H}" fraction="2" accessable="true" desc="特体事業年度末レート">
+			(specialLambda-1)*(x4BizYear-x1BizYear)/(specialLambda1-1)
+		</formula>
+		
+		<formula name="Special_BizYearValuation" fraction="0" pvh="H" accessable="true" desc="特体事業末実額">
+			SA*Special_BizYearVate
+		</formula>
+	</ReserveFund>
+</Formula-definition>

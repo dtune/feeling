@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+	<Dividend desc="配当金計算">
+		<formula name="Ps" paras="t" fraction="0" desc="払込方法別貯蓄保険料">
+			if(state==1||state==6){
+				if(bonusDiv==1){
+					<!-- ボーナス併用払 -->
+					if(bonus_month==1){
+						if(contractDateM==7 || contractDateM==1){
+							Bonus_Ps_p(t)
+						}else{Bonus_Ps_m(t)}
+					}elseIf(bonus_month==2){
+						if(contractDateM==6 || contractDateM==12){
+							Bonus_Ps_p(t)
+						}else{Bonus_Ps_m(t)}
+					}else{
+						if(contractDateM==7 || contractDateM==12){
+							Bonus_Ps_p(t)
+						}else{Bonus_Ps_m(t)}
+					}
+					<formula name="Bonus_Ps_m" paras="t" fraction="0" desc="払込方法別貯蓄保険料ボーナス併用払月払部分">
+						Ps_m(t)*12/(10+2*psi)
+					</formula>
+					<formula name="Bonus_Ps_p" paras="t" fraction="0" desc="払込方法別貯蓄保険料ボーナス併用払ボーナス払部分">
+						Ps_hy(t)*2*(psi-1)/(10+2*psi)
+					</formula>
+				}elseIf(kaisu==2){
+					Ps_y(t)
+					<formula name="Ps_y" paras="t" fraction="0" desc="払込方法別貯蓄保険料年払部分">
+						round(Vs(t+1)*v_r5,0)-Vs(t)
+					</formula>
+				}elseIf(kaisu==3){
+					Ps_hy(t)
+					<formula name="Ps_hy" paras="t" fraction="0" desc="払込方法別貯蓄保険料半年払部分">
+						Ps_y(t)*Halfyear_Coefficient
+					</formula>
+				}else{
+					Ps_m(t)
+					<formula name="Ps_m" paras="t" fraction="0" desc="払込方法別貯蓄保険料月払部分">
+						Ps_y(t)*Month_Coefficient
+					</formula>
+				}
+			}elseIf(state==3){
+				<!-- 利配付個人年金(004)途中計算結果について_20110914(499723).xlsより修正 TODO (FS承認待ち) -->
+				if(t==t_bak-1||(f==12&amp;&amp;policyT%dividendYear==0&amp;&amp;StateChanged==0)||(keisanPtn==3)){
+					<!-- 利配付個人年金(004)途中計算結果について_分配額.xlsより修正 -->
+					(round(Vs(t+1)*v_r5,0)
+					-round((DividendContractorV(t)-1)*SA,0))*Month_Coefficient
+				}else{
+					Ps_m(t)
+				}
+			}elseIf(kaisu==1||state&gt;=2){
+				Ps_m(t)
+			}else{0}
+		</formula>
+
+		<formula name="Rs" paras="t,f" fraction="0" desc="事業年度末保険料積立金">
+			if(state==1&amp;&amp;bonusDiv==1){
+				SA*round((1-Keisankekka_Bonus(f))*DividendContractorV(t)+Keisankekka_Bonus(f)*DividendContractorV(t+1),4)
+			}else{
+				if(state==3){
+					SA*round((1-Keisankekka(f2))*(DividendContractorV(t)-(1+theta*(t-n-l))*(1+gamma_2nashu))
+						+
+					Keisankekka(f2)*DividendContractorV(t+1),4)
+				}else{
+					SA*round((1-Keisankekka(f))*DividendContractorV(t)+Keisankekka(f)*DividendContractorV(t+1),4)
+				}
+			}
+		</formula>
+		<formula name="Us" paras="t,f" fraction="0" desc="未経過貯蓄保険料">
+			if(t&lt;m){
+				if(bonusDiv==1){
+					Bonus_Ps_m(t)*(1/2)
+				}elseIf(kaisu==2){
+					Ps(t)*(1-Keisankekka1(f))
+				}elseIf(kaisu==3){
+					Ps(t)*(1-((2*f-1)-roundDown((2*f-1)/12,0)*12)/12)
+				}else{
+					Ps(t)*(1/2)
+				}
+			}else{
+				0
+			}
+		</formula>
+		<formula name="DividendContractorV" paras="t" fraction="4">
+			if(state==4){
+				PaidupV(t)
+			}elseIf(t&gt;=n+l){
+				BenifitStartedV(t-n-l)
+			}elseIf(t&gt;=n&amp;&amp;n+l&gt;t){
+				BenifitPostponingV(t-n)
+			}elseIf(kaisu==1){
+				SingleV(t)
+			}elseIf(t&gt;=m&amp;&amp;n&gt;t){
+				PaymentEndV(t)
+			}elseIf(m&gt;t){
+				MultiV(t,0)
+			}else{0}
+		</formula>
+	</Dividend>
+</Formula-definition>

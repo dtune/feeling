@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+	<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+	<BizExpenses desc="事業費率の設定">
+		<!-- 予定事業費率 -->
+		<formula name="alpha" desc="新契約費(alpha)" value="0.02"/>
+		<formula name="delta" desc="新契約費(delta)">
+			if(kaisu==1){0}else{
+			roundDown(0.02*min(max(m1,10)/20,1),8)
+			}
+	    </formula>
+		<formula name="gamma" desc="維持費（払込中)(gamma)" value="0.00205"/>
+		<formula name="gamma_nashu" value="0.002" desc="維持費（払込中了)(gamma_nashu)" />
+		<formula name="beta" value="0.03" desc="集金費beta" />
+		<formula name="zeta" desc="集金費zeta">
+			if(gen==2){0.03}
+			else{0.025}
+		</formula>
+		<formula name="epsilon" desc="保険料払込免除(epsilon)">
+		       if(m1&lt;=5){0.0005}
+		       elseIf(m1&gt;5&amp;&amp;m1&lt;=10){0.001}
+		       else{0.002}
+		</formula>
+		
+		<formula name="n1">omega-x+1</formula>
+		<formula name="m1" desc="保険料払込期間" >
+			if(m==99){omega-x+1}else{m}
+		</formula>
+	</BizExpenses>
+
+	<Common desc="商品内部の共通公式">
+		<!-- これからは共通公式 -->
+		<formula name="d" desc="高額割引率">
+			0
+		</formula>
+		<formula name="PrateByPaymode" paras="stdPrate,d" fraction="5" desc="払込方法別Prate">
+			<!-- 基準Prateと高額割引dより、払込方法別Prateを求める -->
+			<formula name="Discount" paras="d" desc="高額割引">
+				if(kaisu==1){0}
+				elseIf(kaisu==2){12*d}
+				elseIf(kaisu==3){6*d}
+				else{d}
+			</formula>
+			stdPrate*PayFactor(kaisu,gen,keiro)-Discount(d)
+		</formula>
+
+		<formula name="S2P" paras="SBasePrate" desc="S基準からP基準に変換する">
+			<!-- 普通の場合 -->
+			if(kaisu==1){
+			    round(1/SBasePrate,4)
+			}else{
+			   round(1/SBasePrate,2)
+			}
+		</formula>
+	</Common>
+	
+	<Premium desc="保険料">
+		<formula name="stdPrate" accessable="false" pvh="P" desc="基準保険料レート">
+			if(kaisu==1){round(A_x(x)+alpha+gamma_nashu*a_x(x),5)}
+			else{
+				round(
+				((A_x(x)+alpha+gamma*a_k_x_n(12,x,m1)+gamma_nashu*f_a_x(m1,x))
+				/(12*(1-beta-zeta-delta-epsilon)*a_k_x_n(12,x,m1))),5
+				)
+				<!--  
+				round(
+				((A_x(x)+alpha+gamma*a_k_x_n(12,x,m1)+gamma_nashu*f_a_x_n(m1,x,n))
+				/(12*(1-beta-zeta-delta-epsilon)*a_k_x_n(12,x,m1))),5
+				)
+				-->
+			}
+		</formula>
+		<formula name="Prate" pvh="P" accessable="true" desc="１．保険料レート">
+			PrateByPaymode(stdPrate,d)
+		</formula>
+		<formula name="Premium" pvh="P" fundCode="331" accessable="true" desc="２．保険料・保険金">
+			<!-- 高額割引がゼロ 100円の位を切り上げ--> 
+			if(sptate==0){
+			<!-- Ｐレートはゼロより小さい場合、ゼロとする  -->
+			   roundDown(SA*max{Prate,d),0)
+			}else{
+			   roundUp(roundDown(SA*S2P(Prate),0)/1000,0)*1000
+		    }
+	   </formula>
+	</Premium>
+	
+	<ReserveFund desc="保険積立金">
+		<!--a.保険年度末保険料積立金rate -->
+		<!-- 保険年度末保険料積立金レート(期間中) -->
+		<formula name="Vrate_endofYear_kkc" paras="t,z" desc="保険年度積立金レート(期間中)">
+			
+			max(A_x(x+t)+gamma_nashu*ft_a_xt_n(m1,t,x,n1)-(A_x(x)+gamma_nashu*f_a_x_n(m1,x,n1))
+			/a_x_n(x,m1)*a_x_n(x+t,m1-t)
+				-
+			if(z==0){0}else{alpha/a_x_n(x,z)*a_x_n(x+t,z-t)},0)
+			<!--
+			max(A_x(x+t)+gamma_nashu*f_a_x_n(m1-t,x+t,n-t)-(A_x(x)+gamma_nashu*f_a_x_n(m1,x,n))
+			/a_x_n(x,m1)*a_x_n(x+t,m1-t)
+				-
+			if(z==0){0}else{alpha/a_x_n(x,z)*a_x_n(x+t,z-t)},0)
+			-->
+	  </formula>
+	  <!-- 保険年度末保険料積立金レート(期間終了) -->
+		<formula name="Vrate_endofYear_kksl" paras="t" fraction="4" desc="保険年度末保険料積立金レート(期間終了)">
+			A_x(x+t)+gamma_nashu*a_x(x+t)
+		</formula>
+	
+		<formula name="Vrate_accu" paras="t,z" desc="保険年度末Vrate">
+			if(state==1||state==6){
+				Vrate_endofYear_kkc(t,z)
+			}elseIf(state==2||kaisu==1){
+				Vrate_endofYear_kksl(t)
+			}else{0}
+		</formula>
+		<formula name="Vrate" paras="t" pvh="H" fraction="4" accessable="true" desc="１．保険年度末Vレート">
+			Vrate_accu(t,0)
+		</formula>
+		<!-- 契約者用Vレート ここから   -->
+		<!-- 契約者用Vレート -->
+		<formula name="ContractorYearV" paras="t,z" fraction="4" pvh="P" fundCode="331" desc="契約者用Vレート">
+			Vrate_accu(t,z)
+		</formula>
+		<formula name="ContractorVrate" fraction="4" pvh="P" fundCode="331" accessable="true" desc="３．契約者用Vレート">
+			if(state==1||state==6){
+			  (1-f_12(f1))*ContractorYearV(t1,z)+f_12(f1)*ContractorYearV(t1+1,z)
+			}elseIf(state==2||kaisu==1){
+			  (1-f_12(f))*ContractorYearV(t,z)+f_12(f)*ContractorYearV(t+1,z)
+			}else{0}
+		</formula>
+		
+		<formula name="yearPrate" pvh="P" fraction="6" desc="年払いPrate（P基礎）">
+			PayFactor(2,gen,1)*stdPrate-12*d
+		</formula>
+		
+		<formula name="BizYearV" paras="t,z" desc="事末用Vレート">
+			<!-- 保険料払込期間中 -->
+			if(state==1){				
+				if(round((A_x(x)+gamma_nashu*f_a_x_n(m1,x,n1))/a_x_n(x,m1),6)&lt;=yearPrate){
+					Vrate_endofYear_kkc
+				}else{
+					max(A_x(x+t)+gamma_nashu*ft_a_xt(m1,t,x)-yearPrate*a_x_n(x+t,m1-t)
+					-
+				if(z==0){0}else{alpha/a_x_n(x,z)*a_x_n(x+t,z-t)},0)
+				}			
+				
+			<!-- 保険料払込期間中,保険料払込免除 (一時払,払済保険を含む)-->
+			}elseIf(state==2||state==6||kaisu==1){
+			    Vrate_endofYear_kksl(t)
+			}else{0}
+		</formula>
+		
+		<formula name="calBizYearV" fraction="4" desc="事業末用Vレート">
+			BizYearV(t,z)
+		</formula>
+		
+	</ReserveFund>
+		
+	<SurrenderFee desc="解約返戻金">
+		<formula name="tWrate" paras="t" pvh="P" fundCode="331" accessable="false" desc="Wrate">
+			<formula name="tsigma" paras="t">
+				0.015*max{1-t/min(m1,10),0}
+			</formula>						
+			if(state==1||state==6){
+		      <!-- 払込期間中　または　免除 -->
+			  round(max{ContractorYearV(t,0)-tsigma(t),0},4)
+			}elseIf(state==2||kaisu==1){
+			  <!-- 保険料払込期間終了後 -->
+			  max{ContractorYearV(t,0),0}
+			}else{0}
+		</formula>
+		<formula name="Wrate" fraction="4" pvh="P" fundCode="331" accessable="true" desc="１．解約返戻金Wレート">
+			<formula name="Wrate_Sub1">
+				if((12*t1+f1-12*t-f)&lt;0){
+				<!-- 払込年月数-経過年月数<0の場合、t,fをt1,f1に読み替え -->
+           		  (1-f_12(f1))*tWrate(t1)+f_12(f1)*tWrate(t1+1)
+           		}else{
+           		  (1-f_12(f))*tWrate(t)+f_12(f)*tWrate(t+1)
+           		}
+			</formula>
+			<formula name="Wrate_Sub2">
+				(1-f_12(f))*tWrate(t)+f_12(f)*tWrate(t+1)
+			</formula>
+			<formula name="Wrate_Sub4" paras="t1" desc="Wrate_Sub4">
+				 min(tWrate(t1),t1PremiumVrate(t1))	  
+            </formula>
+			<formula name="t1PremiumVrate" pvh="V" fraction="4" paras="t1" desc="t1保Vrate">
+				Vrate_endofYear_kkc(t1,min(m1,5))
+			</formula>
+  
+			<!-- 払込期間中　または　免除 -->
+			if(state==1||state==6){
+				if(PremiumAbolishSign==1){
+				  	Wrate_Sub1
+				}elseIf(contractDate&gt;=20080202){
+					v^ve*round((1-f_12(f1))*tWrate(t1)+f_12(f1)*tWrate(t1+1),4)
+				}else{
+					v^ve*round((1-f_12(f1))*Wrate_Sub4(t1)+f_12(f1)*Wrate_Sub4(t1+1),4)
+				}
+			}elseIf(state==2||kaisu==1){
+			    Wrate_Sub2
+			}else{0}
+		</formula>
+	</SurrenderFee>
+</Formula-definition>

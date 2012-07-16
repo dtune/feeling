@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE RateKey-definition SYSTEM "RateKey-definition.dtd">
+<RateKey-definition>
+  	<!-- レートキーの制御関係 -->
+  	<Constraints>
+  		<Constraint keys="n,m" condition="(m&lt;99&amp;&amp;n>=m}||(m==99)"
+  		 desc="保険期間は払込期間より大きいで入力ください。"/>
+  	</Constraints>
+  	  	
+  	<!-- レートキーのUI属性 -->
+    <RateKeys>
+        <RateKey name="L" label="貸付金" type="text"
+         required="true" initValue="0" displayOrder="97">
+          <rule min="0" max="999999999" step="1"/>
+        </RateKey>
+        <RateKey name="SurrenderFeeS" label="解約返戻金" type="text"
+         required="true" initValue="1000000" displayOrder="96">
+          <rule min="0" max="999999999" step="1"/>
+        </RateKey>
+        <RateKey name="extendPremium" label="死亡保険金額" type="text"
+         initValue="1000000" required="true" displayOrder="31">
+        	<rule max="999999999" min="0" step="1"/>
+        </RateKey>
+    </RateKeys>
+</RateKey-definition>

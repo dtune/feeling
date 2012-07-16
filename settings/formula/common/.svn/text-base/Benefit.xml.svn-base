@@ -1,0 +1,51 @@
+<!DOCTYPE Benefit-formula PUBLIC "Formula" "Formula-definition.dtd">
+<!-- 給付現価　共通定義 -->
+<Benefit-formula>
+	<Common desc="商品内部の共通公式">
+		<formula name="R" paras="x,omega">
+			sum(0,omega-x-1){M[x+index]}
+		</formula>
+		<formula name="A_x" paras="x" fraction="6" desc="給付現価（終身）">
+			M[x]/D[x]
+		</formula>
+		<formula name="A_x_n" paras="x,n" fraction="6" desc="給付現価">
+			(M[x]-M[x+n]+D[x+n])/D[x]
+		</formula>
+		<formula name="A_x_n_D" paras="x,n" fraction="6" desc="死亡給付現価">
+			(M[x]-M[x+n])/D[x]
+		</formula>
+		<formula name="A_xt_nt_D" paras="x,t,n" fraction="6" desc="死亡給付現価（経過年あり）">
+			(M[x+t]-M[x+n])/D[x+t]
+		</formula>
+		<formula name="f_A_x_n_D" paras="f,x,n" fraction="6" desc="f年据置死亡給付現価">
+			(M[x+f]-M[x+f+n])/D[x]
+		</formula>
+		<formula name="ft_A_xt_n_D" paras="f,t,x,n" fraction="6" desc="f年据置死亡給付現価（経過年あり）">
+			(M[x+f]-M[x+n])/D[x+t]
+		</formula>
+		<formula name="IA_x_n_D" paras="x,n" fraction="6">
+			1/D[x]*(R(x,omega)-R(x+n,omega)-n*M[x+n])
+		</formula>
+		<formula name="IA_k_x_n_D" paras="k,x,n" fraction="6">
+			IA_x_n_D(x,n)-(k-1)/(2*k)*A_x_n_D(x,n)
+		</formula>
+		<formula name="AT_x" paras="x" fraction="6" desc="解約率込みの給付現価（終身）">
+			MD[x]/DT[x]
+		</formula>
+		<formula name="A_x_n_l" paras="x,n" fraction="6" desc="生存給付現価">
+			D[x+n]/D[x]
+		</formula>
+		<formula name="A_xt_nt_l" paras="x,n,t" fraction="6" desc="生存給付現価（経過年あり）">
+			D[x+n]/D[x+t]
+		</formula>
+		<formula name="f_A_x_n_l" paras="f,x,n" fraction="6" desc="f年据置生存給付現価">
+			D[x+n+f]/D[x]
+		</formula>
+		<formula name="ft_A_xt_n_l" paras="f,t,x,n" fraction="6" desc="f年据置生存給付現価（経過年あり）">
+			D[x+n]/D[x+t]
+		</formula>
+		<formula name="f_A_xy_n_l_D" paras="f,x,y,n" fraction="6">
+			1/(lx[x]*ly[y])*sum(1,n){v^{f+index-(1/2)}*((lx[x+f+index-1]+lx[x+f+index])/2)*d[y+f+index+1]}
+		</formula>
+	</Common>
+</Benefit-formula>

@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+	<BizExpenses desc="事業費率の設定">
+		<!-- 子供の予定死亡率 -->
+		<formula name="q_child_P" desc="子供の予定死亡率q_Ｐ基礎">
+			if(gen==4){0.000284}else(0.000345)
+		</formula>
+		<formula name="q_child_VH" desc="子供の予定死亡率q_VH基礎">
+			if(gen==4){0.000293}else(0.000345)
+		</formula>
+		
+		<!--予定事業費率  -->
+		<formula name="alpha" desc="新契約費α">
+			if(m==n){0.006}else{roundDown{0.006*min(n/10,1),8}}
+		</formula>
+		<formula name="delta" fraction="3" desc="新契約費δ">
+			if(kaisu==1){
+				max{0.04-(0.01/5)*max(40+n-55,0),0}
+			}else{
+				if(n==m){
+					0.06
+				}else{
+					max{0.06-(0.01/5)*max{40+n-55,0},0}
+				}
+			}
+		</formula>
+		<formula name="gamma" desc="維持費γ">
+			if(gen==1){0.00115}else{0.00105}
+		</formula>
+		<formula name="gamma1" value="0.001" desc="維持費γ'"/>
+		<formula name="beta" value="0.03" desc="集金費β"/>
+		<formula name="zeta" desc="集金費ζ">
+			if(gen==1){0.04}elseIf(gen==2){0.03}else{0.025}
+		</formula>
+		<formula name="epsilon" desc="Ｐ免費用ε">
+			if(m==n){
+				0.002
+			}else{
+				if(m&lt;=5){
+					0.0005
+				}elseIf(m&gt;5&amp;&amp;m&lt;=10){
+					0.001
+				}else{
+					0.002
+				}
+			}
+		</formula>
+	</BizExpenses>
+		
+	<Common desc="商品内部の共通公式">
+		<formula name="a_x_n_x40" paras="x,n" fraction="5" desc="始期払年金現価（年齢40制限）a_x_n_x40">
+			if(n&lt;=0){
+				0
+			}else{
+				{1-(v*(1-qx[x]))^n}/{1-v*(1-qx[x])}
+			}
+		</formula>
+		<formula name="a_k_x_n_x40" paras="x,m" fraction="5">
+			{1-(v*(1-qx[x]))^m}/{1-v*(1-qx[x])}
+					-
+			(11/24)*{1-(v*(1-qx[x]))^m}
+		</formula>
+		<formula name="m_a_x_n_x40" paras="m,x,n" fraction="5">
+			{(v*(1-qx[x]))^m}*{1-((v*(1-qx[x]))^(n-m))}/{1-v*(1-qx[x])}
+		</formula>
+		
+		<!-- 下記の分割払いの係数定義は商品に問わずため、外部の共通commonフォルダに移す -->
+		<formula name="PrateByPaymode" paras="stdPrate,d" fraction="6" desc="払込方法別Prate">
+			<!-- 基準Prateと高額割引dより、払込方法別Prateを求める -->
+			<formula name="Discount" paras="d" desc="高額割引">
+				if(kaisu==1){0}
+				elseIf(kaisu==2){12*d}
+				elseIf(kaisu==3){6*d}
+				else{d}
+			</formula>
+			stdPrate*PayFactor(kaisu,gen,keiro)-Discount(d)
+		</formula>
+		<formula name="S2P" paras="SBasePrate" desc="S基準からP基準に変換する">
+			if(kaisu==1){
+				round(1/SBasePrate,4)
+			}else{
+				round(1/SBasePrate,2)
+			}
+		</formula>
+	</Common>
+	
+	<Premium desc="保険料">
+		<formula name="single_Prate" limitedAge="40" fraction="5" desc="保険料一時払部分">
+			2*{v^(1/2)*q_child_P*a_x_n_x40(x,n)+alpha+gamma1*a_x_n_x40(x,n)}
+			/
+			{1-delta}
+		</formula>
+		<formula name="multi_Prate" limitedAge="40" fraction="6" desc="保険料分割払部分">
+			if(m==n){
+				2*{v^(1/2)*q_child_P*a_x_n_x40(x,15)+alpha+gamma*a_k_x_n_x40(x,15)+gamma1*m_a_x_n_x40(15,x,15)}
+						/
+				{12*{1-beta-zeta-delta-epsilon}*a_k_x_n_x40(x,15)}
+			}else{
+				2*{v^(1/2)*q_child_P*a_x_n_x40(x,n)+alpha+gamma*a_k_x_n_x40(x,m)+gamma1*m_a_x_n_x40(m,x,n)}
+						/
+				{12*{1-beta-zeta-delta-epsilon}*a_k_x_n_x40(x,m)}			
+			}
+		</formula>
+		
+		<formula name="stdPrate" pvh="P" desc="基準Ｐレート">
+			if(kaisu==1){single_Prate}else{multi_Prate}
+		</formula>
+		
+		<formula name="PrateByYear" fraction="6" desc="年払Prate">
+			stdPrate*PayFactor(2,gen,1)
+		</formula>
+		
+		<formula name="Prate" accessable="true" pvh="P" desc="１．保険料レート">
+			PrateByPaymode(stdPrate,0)
+		</formula>
+		
+		<formula name="Premium" pvh="P" accessable="true" desc="２．保険料・保険金">
+			<!-- 高額割引がゼロ 100円の位を切り上げ-->
+			if(sptate==0){
+				<!-- Ｐレートはゼロより小さい場合、ゼロとする -->
+				roundDown(SA*max(PrateByPaymode(stdPrate,0),0),0)
+			}else{
+				roundUp(roundDown(SA*S2P(PrateByPaymode(stdPrate,0)),0)/1000,0)*1000
+			}
+		</formula>
+	</Premium>	
+	
+	<ReserveFund desc="保険積立金">
+		<!-- 保険年度末保険料積立金 -->
+		<formula name="alphaz" desc="保険年度αz">
+			0.008*min(n/10,1)
+		</formula>
+		<formula name="SingleV" paras="t" limitedAge="40" desc="一時払と期間終了後VTレート">
+			2*(v^(1/2)*q_child_VH+gamma1)*a_x_n_x40(40,n-t)
+		</formula>
+		<formula name="multiV" paras="t,z" limitedAge="40" desc="期間中と免除">
+			max{
+				2*{
+					v^(1/2)*q_child_VH*a_x_n_x40(40,n-t)+gamma1*a_x_n_x40(40,n-t)
+					-
+					(v^(1/2)*q_child_VH*a_x_n_x40(x,n)+gamma1*a_x_n_x40(x,n))*a_x_n_x40(40,m-t)/a_x_n_x40(x,m)
+					-
+					if(z==0){0}else{alphaz*a_x_n_x40(40,z-t)/a_x_n_x40(x,z)}
+				}
+			,0}
+		</formula>
+		
+		<formula name="Vrate_accu" paras="t,z" desc="保険年度末rate">
+			if(state==1 || state==6){
+				<!-- 払込期間中まだは免除 -->
+				multiV(t,z)
+			}elseIf(state==2 || kaisu==1){
+				<!-- 払込期間終了後 -->
+				SingleV(t)
+			}else(0)
+		</formula>
+		<formula name="Vrate" pvh="H" fraction="4" accessable="true" desc="１．保険年度末Vレート">
+			Vrate_accu(t,0)
+		</formula>
+		<!-- 契約者保険年度Vrate　ここから -->
+		<formula name="SingleV_P" paras="t" fraction="4" limitedAge="40" desc="一時払と期間終了後VTレート、Ｐ基礎用">
+			2*((v^(1/2))*q_child_P+gamma1)*a_x_n_x40(40,n-t)
+		</formula>
+		<formula name="multiV_P" paras="t,z" fraction="4" limitedAge="40" desc="期間中と免除、Ｐ基礎用">
+			max{
+				2*{
+					v^(1/2)*q_child_P*a_x_n_x40(40,n-t)+gamma1*a_x_n_x40(40,n-t)
+					-
+					(v^(1/2)*q_child_P*a_x_n_x40(x,n)+gamma1*a_x_n_x40(x,n))*a_x_n_x40(40,m-t)/a_x_n_x40(x,m)
+					-
+					if(z==0){0}else{alphaz*a_x_n_x40(40,z-t)/a_x_n_x40(x,z)}
+				}
+			,0}
+		</formula>
+		<formula name="ContractorYearV" paras="t,z" pvh="P" fraction="4" desc="契約者保険年度Vrate">
+			if(state==1 || state==6){
+				<!-- 払込期間中まだは免除 -->
+				multiV_P(t,z)
+			}elseIf(state==2 || kaisu==1){
+				<!-- 払込期間終了後 -->
+				SingleV_P(t)
+			}else(0)
+		</formula>	
+			
+		<!-- 契約者保険年度Vrate(保険料払込年数または経過年数が整数でない場合)　ここから -->
+		<formula name="ContractorVrate" fraction="4" pvh="P" accessable="true" desc="３．契約者用Vレート">
+			if(state==1 || state==6){
+				<!-- 払込期間中まだは免除 -->
+				round{(1-f_12(f1)),5}*ContractorYearV(t1,z)+round{(f_12(f1)),5}*ContractorYearV(t1+1,z)
+			}elseIf(state==2 || kaisu==1){
+				<!-- 払込期間終了後 -->
+				round{(1-f_12(f)),5}*ContractorYearV(t,z)+round{(f_12(f)),5}*ContractorYearV(t+1,z)
+			}else(0)
+		</formula>
+		
+		<formula name="multiBizYearV" paras="t,z" limitedAge="40" fraction="4" desc="事業年度末保険料積立金期間中">
+			<formula name="alphaz" desc="事業年度末αz">0.008*min(n/10,1)</formula>
+			if(round((v^(1/2)*q_child_VH*a_x_n_x40(x,n)+gamma1*m_a_x_n_x40(m,x,n))/a_x_n_x40(x,m),6)&lt;=0.5*PrateByYear){
+				multiV_P(t,z)
+			}else{
+				max{
+					2*(v^(1/2)*q_child_VH*a_x_n_x40(40,n-t)+gamma1*a_x_n_x40(40,n-t))
+					-(PrateByYear+2*gamma1)*a_x_n_x40(40,m-t)
+					-if(z==0){0}else{2*alphaz*a_x_n_x40(40,z-t)/a_x_n_x40(x,z)}
+				,0}
+			}			
+		</formula>
+		
+		<formula name="BizYearV" paras="t,z" fraction="4" accessable="false" desc="事業末Vレート">
+			if(state==1){
+				<!-- 払込期間中 -->
+				multiBizYearV(t,z)
+			}elseIf(kaisu==1||state==2||state==6){
+				<!-- 払込期間終了後 .免除.一時払-->
+				SingleV(t)
+			}else{0}
+		</formula>
+		
+		<formula name="calBizYearV" fraction="4" desc="事業末用Vレート">
+			BizYearV(t,z)
+		</formula>
+		
+	</ReserveFund>
+	
+	<!-- 解約返戻金　ここから -->
+	<SurrenderFee desc="解約返戻金">
+		<formula name="multiV_V" pvh="V" paras="t,z" fraction="4">
+			multiV(t,z)
+		</formula>
+		<formula name="tWrate" paras="t" pvh="P">
+			<formula name="sigma" paras="t" desc="tσ">
+				if(min{m,10}&gt;=t){
+					2*0.006*min(round(n/10,3),1)*(min(m,10)-t)/min(m,10)
+				}else{
+					0
+				}
+			</formula>
+			if(state==1 || state==6){
+				<!-- 払込期間中まだは免除 -->
+				round{max(ContractorYearV(t,0)-sigma(t),0),4}
+			}elseIf(state==2||kaisu==1){
+				<!-- 払込期間終了後 -->
+				max(round(ContractorYearV(t,0),4),0)
+			}else(0)
+		</formula>
+		<formula name="Wrate" fraction="4" pvh="P" accessable="true" desc="１．解約返戻金Wレート">
+			<formula name="Wrate_Overbar1">
+				if(12*t1+f1-12*t-f&lt;0){
+					<!-- 払込年月数-経過年月数<0の場合、t,fをt1,f1に読み替え -->
+					(1-f_12(f1))*tWrate(t1)+f_12(f1)*tWrate(t1+1)
+				}else{
+					(1-f_12(f))*tWrate(t)+f_12(f)*tWrate(t+1)
+				}				
+			</formula>
+			<formula name="Wrate_Overbar2">
+				v^ve*round((1-f_12(f1))*tWrate(t1)+f_12(f1)*tWrate(t1+1),4)
+			</formula>
+			<formula name="Wrate_Overbar3">
+				set{z1=min(m,5)}
+				v^ve*
+				round((1-f_12(f1))*min{tWrate(t1),multiV_V(t1,z1)}
+					+
+				f_12(f1)*min{tWrate(t1+1),multiV_V(t1+1,z1)},4)
+			</formula>
+			<formula name="Wrate_Overbar4">
+				(1-f_12(f))*tWrate(t)+f_12(f)*tWrate(t+1)
+			</formula>
+			if(state==1 || state==6){
+				<!-- 払込期間中まだは免除 -->
+				if(PremiumAbolishSign==1){
+					Wrate_Overbar1
+				}elseIf(contractDate&gt;=20080202){
+					Wrate_Overbar2
+				}else{
+					Wrate_Overbar3
+				}	
+			}elseIf(state==2||kaisu==1){
+				<!-- 払込期間終了後 -->
+				Wrate_Overbar4
+			}else(0)
+		</formula>
+	</SurrenderFee>
+</Formula-definition>

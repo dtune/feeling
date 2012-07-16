@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE RateKey-definition SYSTEM "RateKey-definition.dtd">
+<RateKey-definition>
+  	  	
+  	<!-- レートキーのUI属性 -->
+    <RateKeys>
+        <RateKey name="psi" label="ボーナス倍数" type="combo"
+         required="true" displayOrder="95">
+          <items>
+          	<item label="3" value="3"/>
+          	<item label="5" value="5"/>
+          	<item label="7" value="7"/>
+          </items>
+          <rule min="3" max="7" step="2"/>
+        </RateKey>
+        <RateKey name="bonus_month" label="ボーナス月" type="combo"
+         required="true" displayOrder="94">
+          <items>
+          	<item label="1月.7月" value="1"/>
+          	<item label="6月.12月" value="2"/>
+          	<item label="7月.12月" value="3"/>
+          </items>
+          <rule min="1" max="3" step="1"/>
+        </RateKey>
+        <RateKey name="deathReason" label="死亡原因" type="combo"
+         required="true" displayOrder="92">
+          <items>
+          	<item label="災害" value="1"/>
+          	<item label="災害以外" value="2"/>
+          </items>
+          <rule min="1" max="2" step="1"/>
+        </RateKey>
+        <RateKey name="PremiumAbolishSign" label="保険料不可分の撤廃の対象" type="radio" displayOrder="90">
+        	<items>
+        		<item label="いいえ" value="0"/>
+        		<item label="はい" value="1"/>
+        	</items>
+        </RateKey>
+        
+        <RateKey name="DP" label="営業保険料" type="text" required="true" initValue="10000" displayOrder="100">
+          <rule min="0" max="999999999" step="1"/>
+        </RateKey>
+    </RateKeys>
+</RateKey-definition>

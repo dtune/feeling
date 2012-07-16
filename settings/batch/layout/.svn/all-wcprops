@@ -1,0 +1,83 @@
+K 25
+svn:wc:ra_dav:version-url
+V 139
+/svn/nttd/!svn/ver/33938/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/settings/batch/layout
+END
+CsvConfig.xml
+K 25
+svn:wc:ra_dav:version-url
+V 153
+/svn/nttd/!svn/ver/27917/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/settings/batch/layout/CsvConfig.xml
+END
+DefaultCsvMapping_JP.properties
+K 25
+svn:wc:ra_dav:version-url
+V 171
+/svn/nttd/!svn/ver/20807/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/settings/batch/layout/DefaultCsvMapping_JP.properties
+END
+CsvMapping.properties
+K 25
+svn:wc:ra_dav:version-url
+V 161
+/svn/nttd/!svn/ver/23132/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/settings/batch/layout/CsvMapping.properties
+END
+DividendCsvMapping_JP.properties
+K 25
+svn:wc:ra_dav:version-url
+V 172
+/svn/nttd/!svn/ver/31272/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/settings/batch/layout/DividendCsvMapping_JP.properties
+END
+ExtendCsvMapping_JP.properties
+K 25
+svn:wc:ra_dav:version-url
+V 170
+/svn/nttd/!svn/ver/20807/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/settings/batch/layout/ExtendCsvMapping_JP.properties
+END
+InputLayout-def.dtd
+K 25
+svn:wc:ra_dav:version-url
+V 159
+/svn/nttd/!svn/ver/23132/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/settings/batch/layout/InputLayout-def.dtd
+END
+PaidupCsvMapping.properties
+K 25
+svn:wc:ra_dav:version-url
+V 167
+/svn/nttd/!svn/ver/20807/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/settings/batch/layout/PaidupCsvMapping.properties
+END
+DefaultCsvMapping.properties
+K 25
+svn:wc:ra_dav:version-url
+V 168
+/svn/nttd/!svn/ver/20807/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/settings/batch/layout/DefaultCsvMapping.properties
+END
+DividendCsvMapping.properties
+K 25
+svn:wc:ra_dav:version-url
+V 169
+/svn/nttd/!svn/ver/31272/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/settings/batch/layout/DividendCsvMapping.properties
+END
+ExtendCsvMapping.properties
+K 25
+svn:wc:ra_dav:version-url
+V 167
+/svn/nttd/!svn/ver/20807/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/settings/batch/layout/ExtendCsvMapping.properties
+END
+CsvMapping_JP.properties
+K 25
+svn:wc:ra_dav:version-url
+V 164
+/svn/nttd/!svn/ver/23132/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/settings/batch/layout/CsvMapping_JP.properties
+END
+InputLayout.xml
+K 25
+svn:wc:ra_dav:version-url
+V 155
+/svn/nttd/!svn/ver/33938/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/settings/batch/layout/InputLayout.xml
+END
+PaidupCsvMapping_JP.properties
+K 25
+svn:wc:ra_dav:version-url
+V 170
+/svn/nttd/!svn/ver/20807/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/settings/batch/layout/PaidupCsvMapping_JP.properties
+END

@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+	<Dividend desc="配当金計算">
+		<formula name="Ps_month_lastyear" paras="t,f" fraction="0" desc="前年度平残貯蓄保険料">
+			if(policyT%dividendYear!=0){
+				if(state==6){
+					if(t&lt;=m){
+						Ps_month_lastyear_sub(t-1,f)
+					}else{
+						set{state=2}
+						set{SA=SA_lastyear}
+						Ps_month_lastyear_sub(t-1,f)
+					}
+				}elseIf(StateChanged==1&amp;&amp;state!=4){
+					set{state=1}
+					set{SA=SA_lastyear}
+					Ps_month_lastyear_sub(t-1,f)
+				}elseIf(t&lt;m&amp;&amp;state!=4){
+					set{state=1}
+					Ps_month_lastyear_sub(t-1,f)
+				}else{
+					Ps_month(t-1,f)
+				}
+			}else{
+				Ps_month(t-1,f)
+			}
+		</formula>
+		<formula name="Ps_month" paras="t,f" fraction="0" desc="平残貯蓄保険料">
+			if(state==6){
+				if(t&lt;=m){
+					Ps_month_sub(t,f)
+				}else{
+					set{state=2}
+					Ps_month_sub(t,f)
+				}
+			}else{
+				Ps_month_sub(t,f)
+			}
+		</formula>
+		<formula name="JVs_lastyear" paras="t,f" fraction="0" desc="前事業年度末責任準備金">
+			if(state==6){
+				if(t&lt;=m){
+					JVs(t-1,f)
+				}else{
+					set{state=2}
+					set{SA=SA_lastyear}
+					JVs(t-1,f)
+				}
+			}elseIf(StateChanged==1&amp;&amp;state!=4){
+				set{state=1}
+				set{SA=SA_lastyear}
+				JVs(t-1,f)
+			}elseIf(t&lt;m&amp;&amp;state!=4){
+				set{state=1}
+				JVs(t-1,f)
+			}else{
+				JVs(t-1,f)
+			}
+		</formula>
+		<formula name="Ps_y" paras="t" fraction="0" desc="払込方法別貯蓄保険料年払部分">
+			round(Vs(t+1)*v_r5,0)-Vs_ps(t)
+		</formula>
+		<formula name="Vs_ps" paras="t" fraction="0" desc="保険年度末責任準備金(平残貯蓄保険料用)">
+			if(state==6){
+				if(t&lt;=m){
+					DividendContractorV(t)*SA
+				}else{
+					set{state=2}
+					DividendContractorV(t)*SA
+				}
+			}else{
+				if(t&lt;=m){
+					set{state=1}
+					DividendContractorV(t)*SA
+				}else{
+					DividendContractorV(t)*SA
+				}
+			}
+		</formula>
+		<formula name="Vs_month" paras="t" fraction="0" desc="保険年度末責任準備金">
+			if(state==6){
+				if(t&lt;=m){
+					DividendContractorV(t)*SA
+				}else{
+					set{state=2}
+					DividendContractorV(t)*SA
+				}
+			}else{
+				if(t&lt;=m){
+					set{state=1}
+					DividendContractorV(t)*SA
+				}else{
+					DividendContractorV(t)*SA
+				}
+			}
+		</formula>
+		<formula name="DividendContractorV" paras="t">
+			<!-- (t+1)%dividendYear==0の条件追加の根拠はない、単にデータからの検証結果によって -->
+			if(t==t_bak-1&amp;&amp;(state==1||state==6)||(keisanPtn==3&amp;&amp;(t+1)%dividendYear==0)){
+				ContractorYearV(t,0)-(tJx_jissai(t+1)-tJx_jissai(t))
+			}else{
+				ContractorYearV(t,0)
+			}
+		</formula>
+		<formula name="Rs" paras="t,f" fraction="0" desc="事業年度末保険料積立金">
+			if(state==1||state==6){
+				if(t==t_bak-1){
+					SA*round(((1-Keisankekka(f))*(ContractorYearV(t,0)+tJx_jissai(t))
+						+
+					Keisankekka(f)*(ContractorYearV(t+1,0)+tJx_jissai(t+1)))-sJx(x,birthday,dividendLastYear,contractDate),4)
+				}else{
+					if(afterBenifitPay==1){
+						SA*round((1-Keisankekka(f))*ContractorYearV(t,0)+Keisankekka(f)*ContractorYearV(t+1,0),4)
+					}else{
+						SA*round(((1-Keisankekka(f))*(ContractorYearV(t,0)+tJx_jissai(t))
+							+
+						Keisankekka(f)*(ContractorYearV(t+1,0)+tJx_jissai(t+1)))-sJx(x,birthday,dividendThisYear,contractDate),4)
+					}
+				}
+			}else{
+				SA*round((1-Keisankekka(f))*ContractorYearV(t,0)+Keisankekka(f)*ContractorYearV(t+1,0),4)
+			}
+		</formula>
+		<formula name="Ps_youikunenkin" paras="t" fraction="0" desc="払込方法別貯蓄保険料(養育年金部分用)">
+			round(
+				round(round(youikuV(t+1,youikuAnnuityF)*SA,0)*v_r5,0)
+					-
+				round(youikuV(t,youikuAnnuityF)*SA,0)
+			,0)*Month_Coefficient
+		</formula>
+
+		<formula name="Rs_youikunenkin" paras="t,f" fraction="0" desc="事業年度末保険料積立金(養育年金部分用)">
+			SA*round((1-Keisankekka(f))*youikuV(t,youikuAnnuityF)+Keisankekka(f)*youikuV(t+1,youikuAnnuityF),4)
+		</formula>
+
+		<formula name="Us_youikunenkin" paras="t,f" fraction="0" desc="未経過貯蓄保険料(養育年金部分用)">
+			0
+		</formula>
+
+		<formula name="JV_youikunenkin" paras="t,f" fraction="0" desc="事業年度末責任準備金(養育年金部分用)">
+			if(keisanPtn==3){
+				set{state=stateTemp}
+				Rs_youikunenkin(t,f)+Us_youikunenkin(t,f)
+			}else{
+				Rs_youikunenkin(t,f)+Us_youikunenkin(t,f)
+			}
+		</formula>
+
+		<formula name="Ps_month_youikunenkin" paras="t,f" fraction="0" desc="平残貯蓄保険料(養育年金部分用)">
+			if(policyT%dividendYear!=0){
+				if(t!=0){
+					Ps_youikunenkin(t-1)*Keisankekka3(f)+Ps_youikunenkin(t)*Keisankekka4(f)
+				}else{
+					round(SA*youikuV(0,0),0)*Keisankekka1(f)+Ps(t)*Keisankekka4(f)
+				}
+			}else{
+				Ps_youikunenkin(t)*Keisankekka4(f)
+			}
+		</formula>
+
+		<formula name="Dt_sub" paras="lastVal,lastPsMonth,curVal,curPsMonth">
+			if(policyT%dividendYear!=0){
+				<!-- 当事業年度が「Ｘ年ごとの応当日」でない場合 -->
+				if(contractorState!=0){
+					<!-- 現況≠消滅のとき -->
+					if(StateChanged==1&amp;&amp;youikunenkin!=1){
+						<!-- 
+						当該事業年度中に以下のいずれかが発生した場合
+						・保険料払込期間の終了
+						・年金支払いの開始
+						・年金繰り下げ期間の開始
+						・保険期間の終了
+						 -->
+						(lastVal*(1-Keisankekka1(f))+lastPsMonth
+							+
+						curVal*Keisankekka1(f)+curPsMonth)*Haitouyouritu1
+							+
+						Dt_lastyear*(1+id_nashu)
+					}else{
+						<!--
+						当該事業年度中に以下のいずれもが発生していない場合
+						・保険料払込期間の終了
+						・年金支払いの開始
+						・年金繰り下げ期間の開始
+						・保険期間の終了
+						-->
+						(lastVal+curPsMonth)*Haitouyouritu1+Dt_lastyear*(1+id_nashu)
+					}
+				}else{
+					<!-- 現況＝消滅のとき -->
+					if(isEndOfN!=1){
+						<!-- 当該事業年度中に保険期間の終了を迎えていない場合 -->
+						Dt_lastyear*(1+id_nashu)
+					}else{
+						<!-- 当該事業年度中に保険期間の終了を迎えている場合 -->
+						(lastVal*(1-Keisankekka1(f))+lastPsMonth)*Haitouyouritu1
+							+
+						Dt_lastyear*(1+id_nashu)
+					}
+				}
+			}else{
+				<!-- 当事業年度が「Ｘ年ごとの応当日」の場合 -->
+				if(contractorState!=0){
+					<!-- 現況≠消滅のとき -->
+					(curVal*Keisankekka1(f)+curPsMonth)*Haitouyouritu1
+				}else{
+					<!-- 現況＝消滅のとき -->
+					0
+				}
+			}
+		</formula>
+		
+		<formula name="Dt" fraction="0" accessable="true" pvh="P" desc="1.未割当配当金残高">
+			if(youikunenkin==1){
+				Dt_sub(JV_youikunenkin(t-1,f),Ps_month_youikunenkin(t-1,f),
+				round(SA*youikuV(t,youikuAnnuityF),0),Ps_month_youikunenkin(t,f))
+			}else{
+				set{t_bak=t}
+				Dt_sub(JVs_lastyear(t,f),Ps_month_lastyear(t,f),Vs_month(t),Ps_month(t,f))
+			}
+		</formula>
+		
+		<formula name="Ps_month_hoken_youikunenkin" paras="t1,f1" fraction="0" desc="当年度平残貯蓄保険料(養育年金部分用)">
+			if(t1==t){
+				Ps_youikunenkin(t1)*Allocation_Keisan_05
+			}elseIf(t1==(t+1)){
+				Ps_youikunenkin(t1-1)*Allocation_Keisan_02+Ps_youikunenkin(t1)*Allocation_Keisan_04
+			}else{0}
+		</formula>
+		
+		<formula name="Dt_nashu_Plus_sub" paras="JVsVal,lastPsMonthHoken,PsMonthHokenVal,curVal">
+			if(isComeOfDate==1){
+				(JVsVal*(1-Keisankekka1)+lastPsMonthHoken
+					+
+				curVal*Allocation_Keisan_01+PsMonthHokenVal)*Haitouyouritu1
+					+
+				Dt_thisyear*Allocation_Keisan_06*id_nashu
+			}elseIf(isComeOfDate==2){
+				(JVsVal*(1-Keisankekka1)+PsMonthHokenVal)*Haitouyouritu1
+					+
+				Dt_thisyear*Allocation_Keisan_06*id_nashu
+			}elseIf(isComeOfDate==3){
+				(JVsVal*(1-Keisankekka1)+PsMonthHokenVal)*Haitouyouritu1
+					+
+				Dt_thisyear*Allocation_Keisan_03*id_nashu
+			}else{
+				if(contractorState!=0){
+					if(isAnnuityBegin==1){
+						PsMonthHokenVal*Haitouyouritu1
+					}else{
+						if(StateDtPlus==1){
+							(JVsVal*max{Allocation_Keisan_06,0}+PsMonthHokenVal)*Haitouyouritu1
+								+
+							Dt_thisyear*max{Allocation_Keisan_06,0}*id
+						}else{
+							(JVsVal*Allocation_Keisan_03+PsMonthHokenVal)*Haitouyouritu1
+								+
+							Dt_thisyear*Allocation_Keisan_03*id_nashu
+						}
+					}
+				}else{
+					Dt_thisyear*Allocation_Keisan_06*id_nashu
+				}
+			}
+		</formula>
+		<formula name="Dt_nashu_Plus" fraction="0" desc="加算額">
+			if(youikunenkin==1){
+				Dt_nashu_Plus_sub(JV_youikunenkin(t,f),Ps_month_hoken_youikunenkin(t1-1,f1),
+				Ps_month_hoken_youikunenkin(t1,f1),round(SA*youikuV(t+1,youikuAnnuityF),0))
+			}else{
+				set{t_bak=t}
+				Dt_nashu_Plus_sub(JVs(t,f),Ps_month_hoken_lastyear(t1,f1),Ps_month_hoken(t1,f1),Vs(t+1))
+			}
+		</formula>
+		<!-- TODO：BTの場合、配当金を計算するときは、養育年金部分の公式をロードしません。
+		ですから、ここで再定義します。
+		養育年金部分の公式をロードするかどうか再検討が必要です。 -->
+		<formula name="a_g" paras="n" fraction="5">
+			(1-v^n)/(1-v)
+		</formula>
+		<formula name="youikuV" paras="t,f" fraction="4" pvh="P" desc="養育年金の一時支払金rate">
+			v^((12-f)/12)*round((1+gamma_2nashu)*a_g(n-t),4)
+		</formula>
+	</Dividend>
+</Formula-definition>

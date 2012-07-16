@@ -1,0 +1,15 @@
+<!ELEMENT Category ( key* ) >
+<!ATTLIST Category name NMTOKEN #REQUIRED >
+<!ATTLIST Category label CDATA #REQUIRED >
+
+<!ELEMENT key EMPTY>
+<!ATTLIST key pos NMTOKEN #REQUIRED >
+<!ATTLIST key initValue NMTOKEN #REQUIRED >
+<!ATTLIST key desc CDATA #REQUIRED >
+<!ATTLIST key name NMTOKEN #REQUIRED >
+<!ATTLIST key len NMTOKEN #REQUIRED >
+
+<!ELEMENT DataLayout-definition ( Category* ) >
+
+
+

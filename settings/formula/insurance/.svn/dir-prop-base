@@ -1,0 +1,8 @@
+K 10
+svn:ignore
+V 54
+001NewDef.xml
+new-formula-def.dtd
+new-formula-def.xsd
+
+END

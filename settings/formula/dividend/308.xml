@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+	<Dividend desc="配当金計算">
+		<formula name="Ps_month_lastyear" paras="t,f" fraction="0" desc="前年度平残貯蓄保険料">
+			if(policyT%dividendYear!=0){
+				<!-- 払込終了後 あるいは年金支払開始あるいは繰り下げ期間中 -->
+				if(StateChanged==1){
+					set{state=1}
+					set{SA=SA_lastyear}
+					Ps_month_lastyear_sub(t-1,f)
+				<!-- 払込期間中 -->
+				}elseIf(t&lt;m&amp;&amp;state!=3){
+					set{state=1}
+					Ps_month_lastyear_sub(t-1,f)
+				}else{
+					Ps_month_lastyear_sub(t-1,f)
+				}
+			}else{
+				Ps_month(t-1,f)
+			}
+		</formula>
+		<formula name="JVs_lastyear" paras="t,f" fraction="0" desc="前事業年度末責任準備金">
+			if(StateChanged==1){
+				set{state=1}
+				set{SA=SA_lastyear}
+				JVs(t-1,f)
+			}elseIf(t&lt;m&amp;&amp;state!=3){
+				set{state=1}
+				JVs(t-1,f)
+			}elseIf(kaisu==1||state==2){
+				set{SA=SA_lastyear}
+				JVs(t-1,f)
+			}else{
+				JVs(t-1,f)
+			}
+		</formula>
+		<formula name="Rs" paras="t,f" fraction="0" desc="事業年度末保険料積立金">
+			if(state==1&amp;&amp;bonusDiv==1){
+				SA*round((1-Keisankekka_Bonus(f))*DividendContractorV(t)+Keisankekka_Bonus(f)*DividendContractorV(t+1),3)
+			}else{
+				if(state==7){
+					SAS*round((1-Keisankekka(f))*live(t,tEX)+Keisankekka(f)*live(t+1,tEX),3)
+						+
+					SA*round((1-Keisankekka(f))*dead(t,tEX,fEX)+Keisankekka(f)*dead(t+1,tEX,fEX),3)
+				}elseIf(state==3){
+					SA*round((1-Keisankekka(f))*DividendContractorV(t)+Keisankekka(f)*DividendContractorV(t+1)
+						+
+					1/2*(1+gamma2)*S_j(t),3)
+				}else{
+					SA*round((1-Keisankekka(f))*DividendContractorV(t)+Keisankekka(f)*DividendContractorV(t+1),3)
+				}
+			}
+		</formula>
+		<formula name="Us" paras="t,f" fraction="0" desc="未経過貯蓄保険料">
+			if(t&lt;m&amp;&amp;state!=3){
+				if(bonusDiv==1){
+					Bonus_Ps_m(t)*(1/2)
+				}elseIf(kaisu==2){
+					Ps(t)*(1-Keisankekka1(f))
+				}elseIf(kaisu==3){
+					Ps(t)*(1-((2*f-1)-roundDown((2*f-1)/12,0)*12)/12)
+				}else{
+					Ps(t)*(1/2)
+				}
+			}else{
+				0
+			}
+		</formula>
+		<formula name="DividendContractorV" paras="t">
+			if(t&lt;m&amp;&amp;state==3){
+				set{t2=t}
+				set{t=0}
+				set{f=0}
+				set{t1=0}
+				set{f1=0}
+				ContractorYearV(t,0)
+			}else{
+				ContractorYearV(t,0)
+			}
+		</formula>
+		<formula name="Ps_month_sub" paras="t,f" fraction="0" desc="平残貯蓄保険料(公式)">
+			if(policyT%dividendYear!=0){
+				if(StateChanged==1&amp;&amp;state!=3){
+					Ps(t)*Keisankekka4(f)
+				}else{
+					if(state==1||state==6){
+						if(bonusDiv==1){
+							<!-- ボーナス併用払 -->
+							Bonus_Ps_month_m(t,f)+Bonus_Ps_month_p(t,f)
+							<formula name="Bonus_Ps_month_m" paras="t,f" fraction="0" desc="平残貯蓄保険料ボーナス併用払月払部分(t%x!=0)">
+								Bonus_Ps_m(t-1)*Keisankekka3(f)+Bonus_Ps_m(t)*Keisankekka4(f)
+							</formula>
+							<formula name="Bonus_Ps_month_p" paras="t,f" fraction="0" desc="平残貯蓄保険料ボーナス併用払ボーナス払部分(t%x!=0)">
+								if(f&lt;=bonus_k){
+									Bonus_Ps_p(t-1)*round((2*(12+f)-bonus_k-bonus_l-1)/12,10)
+								}elseIf(bonus_k&lt;f&amp;&amp;f&lt;=bonus_l){
+									Bonus_Ps_p(t-1)*round((2*(12-bonus_l+f)-1)/24,10)+Bonus_Ps_p(t)*round((2*(f-bonus_k)-1)/24,10)
+								}elseIf(bonus_l&lt;f){
+									Bonus_Ps_p(t)*round((2*f-bonus_k-bonus_l-1)/12,10)
+								}else{0}
+							</formula>
+						}elseIf(kaisu==2){
+							Ps(t)*Keisankekka1(f)
+						}elseIf(kaisu==3){
+							if(f&lt;=6){
+								Ps(t-1)*(Keisankekka1(f)+1/2)+Ps(t)*Keisankekka1(f)
+							}else{
+								Ps(t)*(Keisankekka2(f)-1/2)
+							}
+						}else{
+							Ps(t-1)*Keisankekka3(f)+Ps(t)*Keisankekka4(f)
+						}
+					}elseIf(kaisu==1||state&gt;=2){
+						if(t!=0){
+							Ps(t-1)*Keisankekka3(f)+Ps(t)*Keisankekka4(f)
+						}else{
+							Vs(t)*Keisankekka1(f)+Ps(t)*Keisankekka4(f)
+						}
+					}else{0}
+				}
+			}else{
+				if(state==1||state==6){
+					if(bonusDiv==1){
+						<!-- ボーナス併用払 -->
+						Bonus_Ps_month_m1(t,f)+Bonus_Ps_month_p1(t,f)
+						<formula name="Bonus_Ps_month_m1" paras="t,f" fraction="0" desc="平残貯蓄保険料ボーナス併用払月払部分(t%x=0)">
+							Bonus_Ps_m(t)*Keisankekka4(f)
+						</formula>
+						<formula name="Bonus_Ps_month_p1" paras="t,f" fraction="0" desc="平残貯蓄保険料ボーナス併用払ボーナス払部分(t%x=0)">
+							if(f&lt;=bonus_k){
+								0
+							}elseIf(bonus_k&lt;f&amp;&amp;f&lt;=bonus_l){
+								Bonus_Ps_p(t)*round((2*(f-bonus_k)-1)/24,10)
+							}elseIf(bonus_l&lt;f){
+								Bonus_Ps_p(t)*round((2*f-bonus_k-bonus_l-1)/12,10)
+							}else{0}
+						</formula>
+					}elseIf(kaisu==2){
+						Ps(t)*Keisankekka1(f)
+					}elseIf(kaisu==3){
+						if(f&lt;=6){
+							Ps(t)*Keisankekka1(f)
+						}else{
+							Ps(t)*(Keisankekka2(f)-1/2)
+						}
+					}else{
+						Ps(t)*Keisankekka4(f)
+					}
+				}elseIf(kaisu==1||state&gt;=2){
+					Ps(t)*Keisankekka4(f)
+				}else{0}
+			}
+		</formula>
+		<formula name="Dt" fraction="0" accessable="true" pvh="P" desc="1.未割当配当金残高">
+			set{t_bak=t}
+			if(policyT%dividendYear!=0){
+				<!-- 当事業年度が「Ｘ年ごとの応当日」でない場合 -->
+				if(contractorState!=0){
+					<!-- 現況≠消滅のとき -->
+					if(StateChanged==1&amp;&amp;state!=3){
+						<!-- 
+						当該事業年度中に以下のいずれかが発生した場合
+						・保険料払込期間の終了
+						・年金支払いの開始
+						・年金繰り下げ期間の開始
+						・保険期間の終了
+						 -->
+						(JVs_lastyear(t,f)*(1-Keisankekka1(f))+Ps_month_lastyear(t,f)
+							+
+						Vs(t)*Keisankekka1(f)+Ps_month(t,f))*Haitouyouritu1
+							+
+						Dt_lastyear*(1+id_nashu)
+					}else{
+						<!--
+						当該事業年度中に以下のいずれもが発生していない場合
+						・保険料払込期間の終了
+						・年金支払いの開始
+						・年金繰り下げ期間の開始
+						・保険期間の終了
+						-->
+						(JVs_lastyear(t,f)+Ps_month(t,f))*Haitouyouritu1+Dt_lastyear*(1+id_nashu)
+					}
+				}else{
+					<!-- 現況＝消滅のとき -->
+					if(isEndOfN!=1){
+						<!-- 当該事業年度中に保険期間の終了を迎えていない場合 -->
+						Dt_lastyear*(1+id_nashu)
+					}else{
+						<!-- 当該事業年度中に保険期間の終了を迎えている場合 -->
+						(JVs_lastyear(t,f)*(1-Keisankekka1(f))+Ps_month_lastyear(t,f))*Haitouyouritu1
+							+
+						Dt_lastyear*(1+id_nashu)
+					}
+				}
+			}else{
+				<!-- 当事業年度が「Ｘ年ごとの応当日」の場合 -->
+				if(contractorState!=0){
+					<!-- 現況≠消滅のとき -->
+					(Vs(t)*Keisankekka1(f)+Ps_month(t,f))*Haitouyouritu1
+				}else{
+					<!-- 現況＝消滅のとき -->
+					0
+				}
+			}
+		</formula>
+	</Dividend>
+</Formula-definition>

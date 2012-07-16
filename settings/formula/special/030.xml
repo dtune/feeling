@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+	<!-- 保険料　ここから -->
+	<Premium desc="保険料">
+		<formula name="x4Prate" xtime="4" desc="4倍体基準Prate">
+			stdPrate
+		</formula>
+		<formula name="x1Prate" xtime="1" desc="1倍体基準Prate">
+			stdPrate
+		</formula>
+		<formula name="Special_stdPrate" pvh="P" desc="特別条件付基準Prate">
+			round((specialLambda-1)*(x4Prate-x1Prate)/(specialLambda1-1),4)
+		</formula>
+		<formula name="Special_Premium" pvh="P" accessable="true" desc="特別条件付保険料/保険金額">
+			<!--Ｓ建てとして計算する -->
+			roundDown(SA*max(PrateByPaymode(Special_stdPrate,0),0),0)
+		</formula>
+		
+		<!--統計側依赖「統計側からの対応作業依頼.xls->NO.1,NO.2」-->
+		<formula name="x4sts_stdPL" xtime="4" desc="統計側特体生存Pレート">
+			PL
+		</formula>
+		<formula name="x4sts_stdPD" xtime="4" desc="統計側特体死亡Pレート">
+			PD
+		</formula>
+		<formula name="x1sts_stdPL" xtime="1" desc="統計側標体生存Pレート">
+			PL
+		</formula>
+		<formula name="x1sts_stdPD" xtime="1" desc="統計側標体死亡Pレート">
+			PD
+		</formula>
+		<formula name="sts_stdPLSpecial" fraction="4" desc="統計側生存特体Prate">
+			(specialLambda-1)/(specialLambda1-1)*(x4sts_stdPL-x1sts_stdPL)
+		</formula>
+		<formula name="sts_stdPDSpecial" fraction="4" desc="統計側死亡特体Prate">
+			(specialLambda-1)/(specialLambda1-1)*(x4sts_stdPD-x1sts_stdPD)
+		</formula>		
+		<formula name="stsPLSpecial" pvh="P" desc="統計側生存特別条件付保険料">
+			roundDown(SA*PrateByPaymode(sts_stdPLSpecial,0),0)
+		</formula>
+		<formula name="stsPDSpecial" pvh="P" desc="統計側死亡特別条件付保険料">
+			roundDown(SA*PrateByPaymode(sts_stdPDSpecial,0),0)
+		</formula>
+	</Premium>
+
+	<!-- 責任準備金　ここから -->
+	<ReserveFund desc="責任準備金">
+		<formula name="x4ContractorVrate" xtime="4" desc="4倍体契約者用レート">
+			ContractorVrate
+		</formula>
+		<formula name="x1ContractorVrate" xtime="1" desc="1倍体契約者用レート">
+			ContractorVrate
+		</formula>
+		<formula name="Special_ContractorVrate" pvh="P" accessable="true" fraction="3" desc="特体契約者レート">
+			(specialLambda-1)*(x4ContractorVrate-x1ContractorVrate)/(specialLambda1-1)
+		</formula>
+		<formula name="Special_Valuation" fraction="0" pvh="P" accessable="true" desc="特体契約者実額">
+			max(SA*Special_ContractorVrate,0)
+		</formula>
+		
+		<!-- 特体事業保険年度部分レート　ここから -->
+		<formula name="Special_yearPrate" pvh="P" desc="年払Prate(PD+PL)">
+			(x4Prate-x1Prate+stdPrate)*PayFactor(2,gen,1)-12*d
+		</formula>
+		
+		<formula name="x4_PD" xtime="4" pvh="P" desc="特体死亡年払いPD">
+			PD
+		</formula>		
+		<formula name="x4_PL" xtime="4" pvh="P" desc="特体年払生存PL">
+			PL
+		</formula>
+		
+		<formula name="x1_PD" pvh="P" xtime="1" desc="1倍体年払死亡PD">
+			PD
+		</formula>		
+		<formula name="x1_PL" pvh="P" xtime="1" desc="1倍体年払生存PL">
+			PL
+		</formula>
+		
+		<formula name="nomalPD" pvh="P" xtime="0" desc="標準体年払死亡PD">
+			PD
+		</formula>
+		<formula name="nomalPL" pvh="P" xtime="0" desc="標準体年払生存PL">
+			PL
+		</formula>
+		
+		
+		<formula name="Special_yearPD" pvh="P" xtime="0" desc="年払いPD">
+			(x4_PD-x1_PD+nomalPD)*PayFactor(2,gen,1)-12*d
+		</formula>
+		
+		<formula name="Special_yearPL" pvh="P" desc="年払いPL">
+			(x4_PL-x1_PL+nomalPL)*PayFactor(2,gen,1)
+		</formula>	
+		<formula name="Special_year_partV_D" paras="t" desc="事業保険年度部分Vrate死亡部分">
+			if(compareBase &lt;= Special_yearPrate){
+				(1+gamma2)*AT_xt_nt_D(x,n,t)+1W_xt_nt(x,n,t)+gamma1D*mt_a_nashu_xt_nm(t,n)
+					-
+				{(1+gamma2)*AT_x_n_D(x,n)+1W_x_n(x,n)+gamma1D*m_a_nashu_x_nm(n)}
+				/aT_x_n(x,m)*aT_xt_nt(x,m,t)
+			}else{
+				(1+gamma2)*AT_xt_nt_D(x,n,t)+1W_xt_nt(x,n,t)+gamma1D*mj_a_nashu_xj_km(t,n)
+				-Special_yearPD*aT_xt_nt(x,m,t)
+			}
+		</formula>
+		<formula name="Special_year_partV_L" paras="t" desc="事業保険年度部分Vrate生存部分">
+			if(compareBase &lt;= Special_yearPrate){
+				I*{A_xt_nt_l(x,n,t)+gamma1L*mj_a_nashu_xj_km(t,n)
+					-
+				{A_x_n_l(x,n)+gamma1L*f_a_x_n(m,x,n)}/a_x_n(x,m)*a_x_n(x+t,m-t)}
+			}else{
+				I*{A_xt_nt_l(x,n,t)+gamma1L*mj_a_nashu_xj_km(t,n)}-Special_yearPL*a_x_n(x+t,m-t)
+			}
+		</formula>
+		
+		<formula name="Special_year_partV_DL" paras="t" fraction="3" desc="生存と死亡部分">
+			Special_year_partV_D(t)+Special_year_partV_L(t)
+		</formula>
+		<formula name="x4BizYear" xtime="4" fraction="3" accessable="false" desc="4倍体事業年度末用Vレート">
+			if(state==1){
+				<!-- 保険料払込期間中 -->
+				Special_year_partV_DL(t)
+			}elseIf(state==2||state==6){
+				<!-- 保険料払込終了後　或は払込免除 -->
+				partPaidUpV_D(t)+partPaidUpV_L(t)
+			}elseIf(state==3){
+				<!-- 年金支払開始後 -->
+				BenifitStartedV
+			}else{
+				0
+			}
+		</formula>
+		<formula name="x1BizYear" xtime="1" fraction="3" accessable="false" desc="1倍体事業年度末用Vレート">
+			BizYearV(t,0)
+		</formula>
+		<formula name="Special_BizYearVate" pvh="if(kisoritsu==0){P}elseIf(kisoritsu==1){V}else{H}" fraction="3" accessable="true" desc="特体業年度末Vレート">
+			(specialLambda-1)*(x4BizYear-x1BizYear)/(specialLambda1-1)
+		</formula>
+		<formula name="Special_BizYearValuation" fraction="0" pvh="if(kisoritsu==0){P}elseIf(kisoritsu==1){V}else{H}" accessable="true" desc="特体業年度末実額">
+			SA*Special_BizYearVate
+		</formula>
+	</ReserveFund>
+</Formula-definition>

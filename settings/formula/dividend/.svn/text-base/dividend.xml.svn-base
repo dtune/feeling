@@ -1,0 +1,637 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+	<Dividend desc="配当金計算">
+		<formula name="v_r5" desc="現価率" fraction="5">
+			v
+		</formula>
+		<formula name="Keisankekka" paras="f" desc="計算結果" fraction="5">
+			(2*f-1)/24
+		</formula>
+		<formula name="Keisankekka1" paras="f" desc="計算結果1" fraction="10">
+			(2*f-1)/24
+		</formula>
+		<formula name="Keisankekka2" paras="f" desc="計算結果2" fraction="10">
+			(2*f-1)/12
+		</formula>
+		<formula name="Keisankekka3" paras="f" desc="計算結果3" fraction="10">
+			((12-f)*(12+f))/24
+		</formula>
+		<formula name="Keisankekka4" paras="f" desc="計算結果4" fraction="10">
+			f*f/24
+		</formula>
+		<formula name="Haitouyouritu1" desc="配当用率1" fraction="6">
+			id-rate
+		</formula>
+		<formula name="Keisankekka_Bonus" paras="f" fraction="5" desc="ボーナス払計算結果">
+			if(f&lt;bonus_k){
+				(2*f-1)/(20+4*psi)
+			}elseIf(f&lt;bonus_l){
+				(2*f+2*psi-3)/(20+4*psi)
+			}else{
+				(2*f+4*psi-5)/(20+4*psi)
+			}
+		</formula>
+		<formula name="Halfyear_Coefficient" fraction="5" desc="半年払換算係数">
+			1/(1+v_r5^(1/2))
+		</formula>
+		<formula name="Month_Coefficient" fraction="5" desc="月払換算係数">
+			1/((1-v_r5)/(1-v_r5^(1/12)))
+		</formula>
+		
+		<formula name="Ps_month_lastyear" paras="t,f" fraction="0" desc="前年度平残貯蓄保険料">
+			if(policyT%dividendYear!=0){
+				<!-- 払込終了後 あるいは年金支払開始あるいは繰り下げ期間中 -->
+				if(StateChanged==1&amp;&amp;state!=4){
+					set{state=1}
+					set{SA=SA_lastyear}
+					Ps_month_lastyear_sub(t-1,f)
+				<!-- 払込期間中 -->
+				}elseIf(t&lt;m&amp;&amp;state!=4){
+					set{state=1}
+					Ps_month_lastyear_sub(t-1,f)
+				}else{
+					Ps_month_lastyear_sub(t-1,f)
+				}
+			}else{
+				Ps_month(t-1,f)
+			}
+		</formula>
+		<formula name="Ps_month_lastyear_sub" paras="t,f" fraction="0" desc="前年度平残貯蓄保険料(公式)">
+			if(state==1||state==6){
+				if(bonusDiv==1){
+					<!-- ボーナス併用払 -->
+					Bonus_Ps_month_sub_m(t,f)+Bonus_Ps_month_sub_p(t,f)
+					<formula name="Bonus_Ps_month_sub_m" paras="t,f" fraction="0" desc="前年度平残貯蓄保険料ボーナス併用払月払部分(t%x!=0)">
+						Bonus_Ps_m(t)*Keisankekka3(f)
+					</formula>
+					<formula name="Bonus_Ps_month_sub_p" paras="t,f" fraction="0" desc="前年度平残貯蓄保険料ボーナス併用払ボーナス払部分(t%x!=0)">
+						if(f&lt;=bonus_k){
+							Bonus_Ps_p(t)*round((2*(12+f)-bonus_k-bonus_l-1)/12,10)
+						}elseIf(bonus_k&lt;f&amp;&amp;f&lt;=bonus_l){
+							Bonus_Ps_p(t)*round((2*(12-bonus_l+f)-1)/24,10)
+						}elseIf(bonus_l&lt;f){
+							0
+						}else{0}
+					</formula>
+				}elseIf(kaisu==2){
+					0
+				}elseIf(kaisu==3){
+					if(f&lt;=6){
+						Ps(t)*(Keisankekka1(f)+1/2)
+					}else{
+						0
+					}
+				}else{
+					Ps(t)*Keisankekka3(f)
+				}
+			}else{
+				set{SA=SA_lastyear}
+				Ps(t)*Keisankekka3(f)
+			}
+		</formula>
+		<formula name="Ps_month" paras="t,f" fraction="0" desc="平残貯蓄保険料">
+			Ps_month_sub(t,f)
+		</formula>
+		<formula name="Ps_month_sub" paras="t,f" fraction="0" desc="平残貯蓄保険料(公式)">
+			if(policyT%dividendYear!=0){
+				if(StateChanged==1){
+					Ps(t)*Keisankekka4(f)
+				}else{
+					if(state==1||state==6){
+						if(bonusDiv==1){
+							<!-- ボーナス併用払 -->
+							Bonus_Ps_month_m(t,f)+Bonus_Ps_month_p(t,f)
+							<formula name="Bonus_Ps_month_m" paras="t,f" fraction="0" desc="平残貯蓄保険料ボーナス併用払月払部分(t%x!=0)">
+								Bonus_Ps_m(t-1)*Keisankekka3(f)+Bonus_Ps_m(t)*Keisankekka4(f)
+							</formula>
+							<formula name="Bonus_Ps_month_p" paras="t,f" fraction="0" desc="平残貯蓄保険料ボーナス併用払ボーナス払部分(t%x!=0)">
+								if(f&lt;=bonus_k){
+									Bonus_Ps_p(t-1)*round((2*(12+f)-bonus_k-bonus_l-1)/12,10)
+								}elseIf(bonus_k&lt;f&amp;&amp;f&lt;=bonus_l){
+									Bonus_Ps_p(t-1)*round((2*(12-bonus_l+f)-1)/24,10)+Bonus_Ps_p(t)*round((2*(f-bonus_k)-1)/24,10)
+								}elseIf(bonus_l&lt;f){
+									Bonus_Ps_p(t)*round((2*f-bonus_k-bonus_l-1)/12,10)
+								}else{0}
+							</formula>
+						}elseIf(kaisu==2){
+							Ps(t)*Keisankekka1(f)
+						}elseIf(kaisu==3){
+							if(f&lt;=6){
+								Ps(t-1)*(Keisankekka1(f)+1/2)+Ps(t)*Keisankekka1(f)
+							}else{
+								Ps(t)*(Keisankekka2(f)-1/2)
+							}
+						}else{
+							Ps(t-1)*Keisankekka3(f)+Ps(t)*Keisankekka4(f)
+						}
+					}elseIf(kaisu==1||state&gt;=2){
+						if(t!=0){
+							Ps(t-1)*Keisankekka3(f)+Ps(t)*Keisankekka4(f)
+						}else{
+							Vs(t)*Keisankekka1(f)+Ps(t)*Keisankekka4(f)
+						}
+					}else{0}
+				}
+			}else{
+				if(state==1||state==6){
+					if(bonusDiv==1){
+						<!-- ボーナス併用払 -->
+						Bonus_Ps_month_m1(t,f)+Bonus_Ps_month_p1(t,f)
+						<formula name="Bonus_Ps_month_m1" paras="t,f" fraction="0" desc="平残貯蓄保険料ボーナス併用払月払部分(t%x=0)">
+							Bonus_Ps_m(t)*Keisankekka4(f)
+						</formula>
+						<formula name="Bonus_Ps_month_p1" paras="t,f" fraction="0" desc="平残貯蓄保険料ボーナス併用払ボーナス払部分(t%x=0)">
+							if(f&lt;=bonus_k){
+								0
+							}elseIf(bonus_k&lt;f&amp;&amp;f&lt;=bonus_l){
+								Bonus_Ps_p(t)*round((2*(f-bonus_k)-1)/24,10)
+							}elseIf(bonus_l&lt;f){
+								Bonus_Ps_p(t)*round((2*f-bonus_k-bonus_l-1)/12,10)
+							}else{0}
+						</formula>
+					}elseIf(kaisu==2){
+						Ps(t)*Keisankekka1(f)
+					}elseIf(kaisu==3){
+						if(f&lt;=6){
+							Ps(t)*Keisankekka1(f)
+						}else{
+							Ps(t)*(Keisankekka2(f)-1/2)
+						}
+					}else{
+						Ps(t)*Keisankekka4(f)
+					}
+				}elseIf(kaisu==1||state&gt;=2){
+					Ps(t)*Keisankekka4(f)
+				}else{0}
+			}
+		</formula>
+		
+		<formula name="Vs" paras="t" fraction="0" desc="保険年度末責任準備金">
+			if(state==7){
+				SAS*live(t,tEX)+SA*dead(t,tEX,fEX)
+			}else{
+				DividendContractorV(t)*SA
+			}
+		</formula>
+		<formula name="DividendContractorV" paras="t">
+			ContractorYearV(t,0)
+		</formula>
+		<formula name="JVs_lastyear" paras="t,f" fraction="0" desc="前事業年度末責任準備金">
+			if(StateChanged==1&amp;&amp;state!=4){
+				set{state=1}
+				set{SA=SA_lastyear}
+				JVs(t-1,f)
+			}elseIf(t&lt;m&amp;&amp;state!=4){
+				set{state=1}
+				JVs(t-1,f)
+			}elseIf(kaisu==1||state==2){
+				set{SA=SA_lastyear}
+				JVs(t-1,f)
+			}else{
+				JVs(t-1,f)
+			}
+		</formula>
+		<formula name="JVs" paras="t,f" fraction="0" desc="事業年度末責任準備金">
+			if(keisanPtn==3){
+				set{state=stateTemp}
+				Rs(t,f)+Us(t,f)
+			}else{
+				Rs(t,f)+Us(t,f)
+			}
+		</formula>
+		<formula name="Rs" paras="t,f" fraction="0" desc="事業年度末保険料積立金">
+			if(state==1&amp;&amp;bonusDiv==1){
+				SA*round((1-Keisankekka_Bonus(f))*DividendContractorV(t)+Keisankekka_Bonus(f)*DividendContractorV(t+1),4)
+			}else{
+				if(state==7){
+					SAS*round((1-Keisankekka(f))*live(t,tEX)+Keisankekka(f)*live(t+1,tEX),4)
+						+
+					SA*round((1-Keisankekka(f))*dead(t,tEX,fEX)+Keisankekka(f)*dead(t+1,tEX,fEX),4)
+				}else{
+					SA*round((1-Keisankekka(f))*DividendContractorV(t)+Keisankekka(f)*DividendContractorV(t+1),4)
+				}
+			}
+		</formula>
+		<formula name="Us" paras="t,f" fraction="0" desc="未経過貯蓄保険料">
+			if(state==1||state==6){
+				if(bonusDiv==1){
+					Bonus_Ps_m(t)*(1/2)
+				}elseIf(kaisu==2){
+					Ps(t)*(1-Keisankekka1(f))
+				}elseIf(kaisu==3){
+					Ps(t)*(1-((2*f-1)-roundDown((2*f-1)/12,0)*12)/12)
+				}else{
+					Ps(t)*(1/2)
+				}
+			}else{
+				0
+			}
+		</formula>
+		
+		<formula name="Ps" paras="t" fraction="0" desc="払込方法別貯蓄保険料">
+			if(state==1||state==6){
+				if(bonusDiv==1){
+					<!-- ボーナス併用払 -->
+					if(bonus_month==1){
+						if(contractDateM==7 || contractDateM==1){
+							Bonus_Ps_p(t)
+						}else{Bonus_Ps_m(t)}
+					}elseIf(bonus_month==2){
+						if(contractDateM==6 || contractDateM==12){
+							Bonus_Ps_p(t)
+						}else{Bonus_Ps_m(t)}
+					}else{
+						if(contractDateM==7 || contractDateM==12){
+							Bonus_Ps_p(t)
+						}else{Bonus_Ps_m(t)}
+					}
+					<formula name="Bonus_Ps_m" paras="t" fraction="0" desc="払込方法別貯蓄保険料ボーナス併用払月払部分">
+						Ps_m(t)*12/(10+2*psi)
+					</formula>
+					<formula name="Bonus_Ps_p" paras="t" fraction="0" desc="払込方法別貯蓄保険料ボーナス併用払ボーナス払部分">
+						Ps_hy(t)*2*(psi-1)/(10+2*psi)
+					</formula>
+				}elseIf(kaisu==2){
+					Ps_y(t)
+					<formula name="Ps_y" paras="t" fraction="0" desc="払込方法別貯蓄保険料年払部分">
+						round(Vs(t+1)*v_r5,0)-Vs(t)
+					</formula>
+				}elseIf(kaisu==3){
+					Ps_hy(t)
+					<formula name="Ps_hy" paras="t" fraction="0" desc="払込方法別貯蓄保険料半年払部分">
+						Ps_y(t)*Halfyear_Coefficient
+					</formula>
+				}else{
+					Ps_m(t)
+					<formula name="Ps_m" paras="t" fraction="0" desc="払込方法別貯蓄保険料月払部分">
+						Ps_y(t)*Month_Coefficient
+					</formula>
+				}
+			}elseIf(kaisu==1||state&gt;=2){
+				Ps_m(t)
+			}else{0}
+		</formula>
+
+		<formula name="Dt" fraction="0" accessable="true" pvh="P" desc="1.未割当配当金残高">
+			set{t_bak=t}
+			if(policyT%dividendYear!=0){
+				<!-- 当事業年度が「Ｘ年ごとの応当日」でない場合 -->
+				if(contractorState!=0){
+					<!-- 現況≠消滅のとき -->
+					if(StateChanged==1){
+						<!-- 
+						当該事業年度中に以下のいずれかが発生した場合
+						・保険料払込期間の終了
+						・年金支払いの開始
+						・年金繰り下げ期間の開始
+						・保険期間の終了
+						 -->
+						(JVs_lastyear(t,f)*(1-Keisankekka1(f))+Ps_month_lastyear(t,f)
+							+
+						Vs(t)*Keisankekka1(f)+Ps_month(t,f))*Haitouyouritu1
+							+
+						Dt_lastyear*(1+id_nashu)
+					}else{
+						<!--
+						当該事業年度中に以下のいずれもが発生していない場合
+						・保険料払込期間の終了
+						・年金支払いの開始
+						・年金繰り下げ期間の開始
+						・保険期間の終了
+						-->
+						(JVs_lastyear(t,f)+Ps_month(t,f))*Haitouyouritu1+Dt_lastyear*(1+id_nashu)
+					}
+				}else{
+					<!-- 現況＝消滅のとき -->
+					if(isEndOfN!=1){
+						<!-- 当該事業年度中に保険期間の終了を迎えていない場合 -->
+						Dt_lastyear*(1+id_nashu)
+					}else{
+						<!-- 当該事業年度中に保険期間の終了を迎えている場合 -->
+						(JVs_lastyear(t,f)*(1-Keisankekka1(f))+Ps_month_lastyear(t,f))*Haitouyouritu1
+							+
+						Dt_lastyear*(1+id_nashu)
+					}
+				}
+			}else{
+				<!-- 当事業年度が「Ｘ年ごとの応当日」の場合 -->
+				if(contractorState!=0){
+					<!-- 現況≠消滅のとき -->
+					(Vs(t)*Keisankekka1(f)+Ps_month(t,f))*Haitouyouritu1
+				}else{
+					<!-- 現況＝消滅のとき -->
+					0
+				}
+			}
+		</formula>
+
+		<formula name="AccDt" fraction="0" accessable="true" pvh="P" desc="5.アセットシェア">
+			set{id=accId}
+			set{id_nashu=accId_nashu}
+			if(policyT%dividendYear!=0){
+				Dt
+			}else{
+				Dt-round(Allocation*(1+id*Keisankekka1(f)),0)
+			}
+		</formula>
+
+		<formula name="Allocation_Keisan_01" fraction="10" desc="分配額計算結果１">
+			(2*f1-1)/24
+		</formula>
+		<formula name="Allocation_Keisan_02" fraction="10" desc="分配額計算結果２">
+			((12-f)*(12+2*f1-f))/24
+		</formula>
+		<formula name="Allocation_Keisan_03" fraction="10" desc="分配額計算結果３">
+			(2*(12*t1+f1-12*t-f)+1)/24
+		</formula>
+		<formula name="Allocation_Keisan_04" fraction="10" desc="分配額計算結果４">
+			f1*f1/24
+		</formula>
+		<formula name="Allocation_Keisan_05" fraction="10" desc="分配額計算結果５">
+			(f1-f)*(f1-f)/24
+		</formula>
+		<formula name="Allocation_Keisan_06" fraction="10" desc="分配額計算結果６">
+			(2*(12*t1+f1-12*t-f)-1)/24
+		</formula>
+		<formula name="Allocation_Keisan_07" fraction="10" desc="分配額計算結果７">
+			2*(12*t1+f1-12*t-f)/24
+		</formula>
+		<formula name="Allocation_Keisan_08" fraction="10" desc="分配額計算結果８">
+			(2*f1-1)/12
+		</formula>
+		<formula name="Ps_month_hoken_lastyear" paras="t,f" fraction="0" desc="前年度平残貯蓄保険料">
+			Ps_month_hoken_lastyear_sub(t1-1,f1)
+		</formula>
+		<formula name="Ps_month_hoken_lastyear_sub" paras="t,f" fraction="0" desc="前年度平残貯蓄保険料(割当済公式)">
+			if(state==1||state==6){
+				if(bonusDiv==1){
+					<!-- ボーナス併用払 -->
+					Bonus_Ps_month_hoken_sub_m(t,f)+Bonus_Ps_month_hoken_sub_p(t,f)
+					<formula name="Bonus_Ps_month_hoken_sub_m" paras="t,f" fraction="0" desc="前年度平残貯蓄保険料ボーナス併用払月払部分(割当済)">
+						if(t1==t+1){
+							Bonus_Ps_m(t1-1)*Allocation_Keisan_02
+						}else{0}
+					</formula>
+					<formula name="Bonus_Ps_month_hoken_sub_p" paras="t,f" fraction="0" desc="前年度平残貯蓄保険料ボーナス併用払ボーナス払部分(割当済)">
+						if(t1==t+1){
+							if(f&lt;=bonus_k&amp;&amp;f1&lt;=bonus_k){
+								Bonus_Ps_p(t1-1)*round((2*(12+f1)-bonus_k-bonus_l-1)/12,10)
+							}elseIf((bonus_k&lt;f&amp;&amp;f&lt;=bonus_l)&amp;&amp;f1&lt;=bonus_k){
+								Bonus_Ps_p(t1-1)*round((2*(12+f1-bonus_l)-1)/24,10)
+							}elseIf((bonus_k&lt;f&amp;&amp;f&lt;=bonus_l)&amp;&amp;(bonus_k&lt;f1&amp;&amp;f1&lt;=bonus_l)){
+								Bonus_Ps_p(t1-1)*round((2*(12+f1-bonus_l)-1)/24,10)+Bonus_Ps_p(t1)*round((2*(f1-bonus_k)-1)/24,10)
+							}elseIf(bonus_l&lt;f&amp;&amp;f1&lt;=bonus_k){
+								0
+							}elseIf(bonus_l&lt;f&amp;&amp;(bonus_k&lt;f1&amp;&amp;f1&lt;=bonus_l)){
+								0
+							}elseIf(bonus_l&lt;f&amp;&amp;bonus_l&lt;f1){
+								0
+							}else{0}
+						}else(0)
+					</formula>
+				}elseIf(kaisu==2){
+					0
+				}elseIf(kaisu==3){
+					if(t1==(t+1)){
+						if(f&lt;=6&amp;&amp;f1&lt;=6){
+							Ps(t1-1)*(Allocation_Keisan_01+1/2)
+						}else{
+							0
+						}
+					}else{0}
+				}else{
+					if(t1==(t+1)){
+						Ps(t1-1)*Allocation_Keisan_02
+					}else{
+						0
+					}
+				}
+			}elseIf(kaisu==1||state&gt;=2){
+				if(t1==t){
+					0
+				}elseIf(t1==(t+1)){
+					Ps(t1-1)*Allocation_Keisan_02
+				}else{0}
+			}else{0}
+		</formula>
+		<formula name="Ps_month_hoken" paras="t1,f1" fraction="0" desc="当年度平残貯蓄保険料">
+			if(isComeOfDate!=0){
+				if(t1==t){
+					Ps(t1)*Allocation_Keisan_05
+				}elseIf(t1==(t+1)){
+					Ps(t1)*Allocation_Keisan_04
+				}else{0}
+			}else{
+				if(state==1||state==6){
+					if(bonusDiv==1){
+						<!-- ボーナス併用払 -->
+						Bonus_Ps_month_hoken_m(t1)+Bonus_Ps_month_hoken_p(t1)
+						<formula name="Bonus_Ps_month_hoken_m" paras="t1" fraction="0" desc="当年度平残貯蓄保険料ボーナス併用払月払部分">
+							if(t1==t){
+								Bonus_Ps_m(t1)*Allocation_Keisan_05
+							}elseIf(t1==t+1){
+								Bonus_Ps_m(t1-1)*Allocation_Keisan_02+Bonus_Ps_m(t1)*Allocation_Keisan_04
+							}else{0}
+						</formula>
+						<formula name="Bonus_Ps_month_hoken_p" paras="t1" fraction="0" desc="当年度平残貯蓄保険料ボーナス併用払ボーナス払部分">
+							if(t1==t){
+								if((f&lt;=bonus_k&amp;&amp;f1&lt;=bonus_k)||((bonus_k&lt;f&amp;&amp;f&lt;=bonus_l)&amp;&amp;
+								(bonus_k&lt;f1&amp;&amp;f1&lt;=bonus_l))||(bonus_l&lt;f&amp;&amp;bonus_l&lt;f1)){
+									0
+								}elseIf(f&lt;=bonus_k&amp;&amp;(bonus_k&lt;f1&amp;&amp;f1&lt;=bonus_l)){
+									Bonus_Ps_p(t1)*round((2*(f1-bonus_k)-1)/24,10)
+								}elseIf(f&lt;=bonus_k&amp;&amp;f1&gt;bonus_l){
+									Bonus_Ps_p(t1)*round((2*f1-bonus_k-bonus_l-1)/12,10)
+								}elseIf((bonus_k&lt;f&amp;&amp;f&lt;=bonus_l)&amp;&amp;f1&gt;bonus_l){
+									Bonus_Ps_p(t1)*round((2*(f1-bonus_l)-1)/12,10)
+								}else{0}
+							}elseIf(t1==t+1){
+								if(f&lt;=bonus_k&amp;&amp;f1&lt;=bonus_k){
+									Bonus_Ps_p(t1-1)*round((2*(12+f1)-bonus_k-bonus_l-1)/12,10)
+								}elseIf((bonus_k&lt;f&amp;&amp;f&lt;=bonus_l)&amp;&amp;f1&lt;=bonus_k){
+									Bonus_Ps_p(t1-1)*round((2*(12+f1-bonus_l)-1)/24,10)
+								}elseIf((bonus_k&lt;f&amp;&amp;f&lt;=bonus_l)&amp;&amp;(bonus_k&lt;f1&amp;&amp;f1&lt;=bonus_l)){
+									Bonus_Ps_p(t1-1)*round((2*(12+f1-bonus_l)-1)/24,10)+Bonus_Ps_p(t1)*round((2*(f1-bonus_k)-1)/24,10)
+								}elseIf(bonus_l&lt;f&amp;&amp;f1&lt;=bonus_k){
+									0
+								}elseIf(bonus_l&lt;f&amp;&amp;(bonus_k&lt;f1&amp;&amp;f1&lt;=bonus_l)){
+									Bonus_Ps_p(t1)*round((2*(f1-bonus_k)-1)/24,10)
+								}elseIf(bonus_l&lt;f&amp;&amp;bonus_l&lt;f1){
+									Bonus_Ps_p(t1)*round((2*f1-bonus_k-bonus_l-1)/12,10)
+								}else{0}
+							}else(0)
+						</formula>
+					<!-- 年払い -->
+					}elseIf(kaisu==2){
+						if(t1==t){
+							0
+						}elseIf(t1==(t+1)){
+							Ps(t1)*Allocation_Keisan_01
+						}else{0}
+					<!-- 半年払い -->
+					}elseIf(kaisu==3){
+						if(t1==t){
+							if(f&gt;6||(f&lt;=6&amp;&amp;f1&lt;=6)){
+								0
+							}else{
+								Ps(t1)*(Allocation_Keisan_01-1/2)
+							}
+						}elseIf(t1==(t+1)){
+							if(f&lt;=6&amp;&amp;f1&lt;=6){
+								Ps(t1-1)*(Allocation_Keisan_01+1/2)+Ps(t1)*Allocation_Keisan_01
+							}elseIf(f&gt;6&amp;&amp;f1&lt;=6){
+								Ps(t1)*Allocation_Keisan_01
+							}else{
+								Ps(t1)*(Allocation_Keisan_08-1/2)
+							}
+						}else{0}
+					<!-- 月払い -->
+					}elseIf(kaisu==4){
+						if(t1==t){
+							Ps(t1)*Allocation_Keisan_05
+						}elseIf(t1==(t+1)){
+							Ps(t1-1)*Allocation_Keisan_02+Ps(t1)*Allocation_Keisan_04
+						}else{0}
+					}else{0}
+				}elseIf(kaisu==1||state&gt;=2){
+					if(t1==t){
+						Ps(t1)*Allocation_Keisan_05
+					}elseIf(t1==(t+1)){
+						Ps(t1-1)*Allocation_Keisan_02+Ps(t1)*Allocation_Keisan_04
+					}else{0}
+				}else{0}
+			}
+		</formula>
+		<formula name="Dt_nashu_Plus" fraction="0" desc="加算額">
+			set{t_bak=t}
+			if(isComeOfDate==1){
+				(JVs(t,f)*(1-Keisankekka(f))+Ps_month_hoken_lastyear(t1,f1)
+					+
+				Vs(t+1)*Allocation_Keisan_01+Ps_month_hoken(t1,f1))*Haitouyouritu1
+					+
+				Dt_thisyear*Allocation_Keisan_06*id_nashu
+			}elseIf(isComeOfDate==2){
+				(JVs(t,f)*(1-Keisankekka(f))+Ps_month_hoken_lastyear(t1,f1))*Haitouyouritu1
+					+
+				Dt_thisyear*Allocation_Keisan_06*id_nashu
+			}elseIf(isComeOfDate==3){
+				(JVs(t,f)*(1-Keisankekka(f))+Ps_month_hoken_lastyear(t1,f1))*Haitouyouritu1
+					+
+				Dt_thisyear*Allocation_Keisan_03*id_nashu
+			}else{
+				if(contractorState!=0){
+					if(isAnnuityBegin==1){
+						Ps_month_hoken(t1,f1)*Haitouyouritu1
+					}else{
+						if(StateDtPlus==1){
+							(JVs(t,f)*max{Allocation_Keisan_06,0}+Ps_month_hoken(t1,f1))*Haitouyouritu1
+								+
+							Dt_thisyear*max{Allocation_Keisan_06,0}*id
+						}else{
+							(JVs(t,f)*Allocation_Keisan_03+Ps_month_hoken(t1,f1))*Haitouyouritu1
+								+
+							Dt_thisyear*Allocation_Keisan_03*id_nashu
+						}
+					}
+				}else{
+					Dt_thisyear*Allocation_Keisan_06*id_nashu
+				}
+			}
+		</formula>
+		<formula name="Allocation" fraction="0" accessable="true" pvh="P" desc="3.割当済み分配額">
+			if(changeState==0){
+				max{round((Dt_thisyear+Dt_nashu_Plus)*0.75,0),0}
+			}elseIf(changeState==1){
+				max{round((Dt_thisyear+Dt_nashu_Plus)*round((SA-SA_nashu)/SA,10)*0.75,0),0}
+			}else{
+				max{round(Dt_thisyear+Dt_nashu_Plus,0),0}
+			}
+		</formula>
+
+		<formula name="Preallocation_Keisan_01" desc="未割当分配額計算結果１">
+			Allocation_Keisan_01
+		</formula>
+		<formula name="Preallocation_Keisan_02" fraction="10" desc="未割当分配額計算結果２">
+			Allocation_Keisan_08
+		</formula>
+		<formula name="Preallocation_Keisan_03" desc="未割当分配額計算結果３">
+			Allocation_Keisan_04
+		</formula>
+		<formula name="Ps_month_nashu" fraction="0" desc="当年度（分配後）平残貯蓄保険料">
+			<!-- 保険料払込中 -->
+			if(state==1||state==6){
+				if(bonusDiv==1){
+					<!-- ボーナス併用払 -->
+					Bonus_Ps_month_nashu_m(t1)+Bonus_Ps_month_nashu_p(t1)
+					<formula name="Bonus_Ps_month_nashu_m" paras="t1" fraction="0" desc="当年度（分配後）平残貯蓄保険料ボーナス併用払月払部分">
+						Bonus_Ps_m(t1)*Preallocation_Keisan_03
+					</formula>
+					<formula name="Bonus_Ps_month_nashu_p" paras="t1" fraction="0" desc="当年度（分配後）平残貯蓄保険料ボーナス併用払ボーナス払部分">
+						if(f1&lt;=bonus_k){
+							0
+						}elseIf(bonus_k&lt;f1&amp;&amp;f1&lt;=bonus_l){
+							Bonus_Ps_p(t1)*round((2*(f1-bonus_k)-1)/24,10)
+						}elseIf(bonus_l&lt;f1){
+							Bonus_Ps_p(t1)*round((2*f-bonus_k-bonus_l-1)/12,10)
+						}else{0}
+					</formula>
+				<!-- 年払い -->
+				}elseIf(kaisu==2){
+					Ps(t1)*Preallocation_Keisan_01
+				<!-- 半年払い -->
+				}elseIf(kaisu==3){
+					if(f1&lt;=6){
+						Ps(t1)*Preallocation_Keisan_01
+					}else{
+						Ps(t1)*(Preallocation_Keisan_02-1/2)
+					}
+				<!-- 月払い -->
+				}elseIf(kaisu==4){
+					Ps(t1)*Preallocation_Keisan_03
+				}else{0}
+			}elseIf(kaisu==1||state&gt;=2){
+				if(t1!=0){
+					Ps(t1)*Preallocation_Keisan_03
+				}else{
+					DividendContractorV(t1)*SA*Preallocation_Keisan_01+Ps(t1)*Preallocation_Keisan_03
+				}
+			}else{0}
+		</formula>
+		<formula name="D_nashu_t_nashu" fraction="0" accessable="true" pvh="P" desc="2.未割当分配額">
+			set{t_bak=t}
+			if(changeState==0){
+				max{round(D_nashu_t_nashu_sub*0.75,0),0}
+			}elseIf(changeState==1){
+				max{round(D_nashu_t_nashu_sub*round((SA-SA_nashu)/SA,10)*0.75,0),0}
+			}else{
+				max{D_nashu_t_nashu_sub,0}
+			}
+			<formula name="D_nashu_t_nashu_sub" fraction="0" desc="契約者配当金">
+				if(contractorState!=0){
+					if(payState==0){
+						0
+					}else{
+						(Vs(t)*Preallocation_Keisan_01+Ps_month_nashu)*Haitouyouritu1
+					}
+				}else{
+					0
+				}
+			</formula>
+		</formula>
+	
+		<formula name="DividendRate" fraction="7" desc="積立利率">
+			if(isValueChanged==1){
+				getElapsedDays(contractDate,changeDateA)*rateA/getDaysOfYear(contractDate,changeDateA)
+					+
+				getElapsedDays(changeDateB,divEndDate)*rateB/getDaysOfYear(changeDateB,divEndDate)
+			}else{
+				getElapsedDays(contractDate,divEndDate)*rateA/getDaysOfYear(contractDate,divEndDate)
+			}
+		</formula>
+		<formula name="DividendValue" fraction="0" accessable="true" pvh="P" desc="4.積立配当金">
+			DividendValueLastYear*(1+DividendRate)
+		</formula>
+	</Dividend>
+</Formula-definition>

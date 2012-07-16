@@ -1,0 +1,175 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+	<BizExpenses desc="事業費率の設定">
+		<!-- 2.年純保険料率 -->
+		<formula name="q1N" desc="年純保険料率(a.積立利率保証期間中)">
+			if(nj==1){
+				0.00001
+			}elseIf(nj==3){
+				0.00005
+			}elseIf(nj==5){
+				0.00015
+			}elseIf(nj==7){
+				0.00020
+			}else{
+				0.00030
+			}
+		</formula>
+		<!-- b.年金支払開始日以後 該当なし -->
+		<!-- 3.予定事業費率等 -->
+		<formula name="alpha1" desc="新契約費">
+			if(nj==1||nj==3||nj==5){
+				0.02
+			}elseIf(nj==7){
+				0.03
+			}else{
+				0.04
+			}
+		</formula>
+		<formula name="gamma1" value="0.002" desc="維持費（積立利率保証期間中）"/>
+		<formula name="gamma2" value="0.01" desc="維持費（年金支払開始日以後）"/>
+
+	</BizExpenses>
+	
+	<Common desc="商品内部の共通公式">
+		<!-- 043専用生命年金現価　ここから -->				
+		<formula name="a_g" paras="g" fraction="5">
+			(1-v^g)/(1-v)
+		</formula>
+		
+		<formula name="F" fraction="6" desc="年金原資">
+			(1-alpha1)*(1+ij_nashu)^nj
+		</formula>
+
+	</Common>
+	
+	<Premium desc="保険料">
+		<formula name="Srate" fraction="5" desc="保険料建（Ｐ建）の取扱">
+			F/(a_g*(1+gamma2))
+		</formula>
+		<!-- OL用計算公式 -->
+		<formula name="Premium" pvh="P" accessable="true" desc="１．保険料・保険金">
+			if(sptate==0){
+				0
+			}else{
+				roundUp(roundDown(SA*Srate,0)/10,0)*10
+			}
+		</formula>
+	</Premium>
+	
+	<ReserveFund desc="責任準備金">
+	<!--保険年度末保険料積立金 -->		
+		<formula name="Vrate_accu" paras="t" fraction="6" desc="保険年度末rate">
+			if(status==0){
+				<!-- 積立利率保証期間中 -->
+				P_Vrate(t)
+			}else{
+				<!-- 年金支払開始日以後 -->
+				a_g(g-t)*(1+gamma2)*Srate
+			}
+		</formula>
+		<formula name="Vrate" pvh="V" fraction="6" accessable="true" desc="１．保険年度末Vレート">
+			if(status==0){
+				Vrate_accu(t)
+			}else{
+				Vrate_accu(t2)
+			}			
+		</formula>		
+
+		<formula name="P_Vrate" paras="t">
+			if(j==0){
+				(1-alpha1)*(1+ij_nashu)^t
+			}else{
+				oVnj*(1+ij_nashu)^t
+			}
+		</formula>
+
+		<formula name="T2_Vrate" paras="t2" desc="年金支払開始日以後">
+			a_g(g-t2)*(1+gamma2)*Srate
+		</formula>
+				
+		<formula name="ContractorYearV" pvh="P" paras="t" fraction="6" desc="契約者Vレート">
+			if(status==0){
+			<!-- 積立利率保証期間中 -->
+				P_Vrate(t)
+			}else{
+			<!-- 年金支払開始日以後 -->
+				T2_Vrate(t)
+			}
+		</formula>
+		
+		<formula name="ContractorVrate" pvh="P" fraction="6" accessable="true"	desc="３．契約者用Vレート">
+				if(status==0){
+					(1-f_12(f))*ContractorYearV(t)+f_12(f)*ContractorYearV(t+1)
+				}else{
+					if(f2==0){
+						ContractorYearV(t2)
+					}else{
+						v^((12-f2)/12)*ContractorYearV(t2+1)
+					}
+				}
+		</formula>
+		
+		<formula name="BizYearV" paras="t" fraction="6" accessable="false" desc="事業末Vレート">
+			if(status==0){
+			<!-- 積立利率保証期間中 -->
+				P_Vrate(t)
+			}else{
+			<!-- 年金支払開始日以後 -->
+				T2_Vrate(t)
+			}
+		</formula>
+		<formula name="BizYearVate" pvh="V" accessable="true" desc="２．事業年度末Vレート">
+			if(status=0){
+				BizYearV(t)
+			}else{
+				BizYearV(t2)
+			}
+		</formula>
+		
+		<formula name="VrateValuation" fraction="0" pvh="H" accessable="true" desc="４．保険年度末実額">
+			SA*Vrate
+		</formula>
+		<formula name="Valuation" pvh="P" fraction="0" accessable="true" desc="５．契約者責任準備金実額">
+			SA*ContractorVrate
+		</formula>
+				
+		<formula name="BizYearValuation" pvh="V" fraction="0" accessable="true" desc="６．事業年度末実額">
+			SA*BizYearVate
+		</formula>
+		
+	</ReserveFund>
+	
+	<SurrenderFee desc="解約返戻金">	
+		<formula name="xi" paras="nj" desc="市場価格の変動率を考慮した定数(ξ(N))">
+			if(nj==7||nj==10){
+				0.00200
+			}else{
+				0.00150
+			}
+		</formula>
+		<formula name="kj" >
+			nj*12-(t*12+f)
+		</formula>
+		<formula name="sigma" desc="市場価格調整率">
+			1-{(1+ij_nashu)/(1+iw+xi(nj))}^(kj/12)
+		</formula>
+		<formula name="tWrate" pvh="P" paras="t" desc="解約返戻金レート">
+			if(status==0){
+				max(ContractorYearV(t),0)
+			}else{
+				0
+			}
+		</formula>
+		<formula name="Wrate" paras="t" pvh="P" accessable="true" fraction="6" desc="１．解約返戻金Wレート">
+			if(status==0){
+				min(round({(1-f_12(f))*tWrate(t)+f_12(f)*tWrate(t+1)},6)*(1-sigma)+0.000000000001,F)
+			}else{0}
+		</formula>
+		<formula name="CashValue" fraction="0" pvh="P" accessable="true" desc="２．解約返戻金実額">
+			SA*Wrate
+		</formula>
+	</SurrenderFee>
+</Formula-definition>

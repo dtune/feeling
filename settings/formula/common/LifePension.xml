@@ -1,0 +1,116 @@
+﻿<!DOCTYPE LifePension-formula PUBLIC "Formula" "Formula-definition.dtd">
+<!-- 生命年金　共通定義 -->
+<LifePension-formula>
+	<Common desc="商品内部の共通公式">
+		<formula name="Sx" paras="x">
+			sum(0,omega-x){N[x+index]}
+		</formula>
+		<formula name="a_x" paras="x" fraction="5">
+			N[x]/D[x]
+		</formula>
+		<formula name="a_k_x" paras="k,x">
+			round(N[x]/D[x]-(k-1)/(2*k),5)
+		</formula>
+		<formula name="a_x_n" paras="x,n" desc="始期払年金現価">
+			if(n&lt;=0){0}else{round((N[x]-N[x+n])/D[x],5)}
+		</formula>
+		<formula name="a_k_x_n" paras="k,x,n" fraction="5" desc="始期払k回年金現価">
+			(N[x]-N[x+n])/D[x]-(k-1)/(2*k)*(1-D[x+n]/D[x])
+		</formula>
+		<formula name="f_a_x" paras="f,x" fraction="5">
+			N[x+f]/D[x]
+		</formula>
+		<formula name="f_a_n" paras="f,n" fraction="5">
+			(v^f-v^n)/d
+		</formula>
+		<formula name="f_a_x_n" paras="f,x,n" fraction="5" desc="f年の据置年金現価">
+			(N[x+f]-N[x+n])/D[x]
+		</formula>
+		<formula name="ft_a_xt" paras="f,t,x" fraction="5">
+			N[x+f]/D[x+t]
+		</formula>
+		<formula name="ft_a_xt_n" paras="f,t,x,n" fraction="5">
+			(N[x+f]-N[x+n])/D[x+t]
+		</formula>
+		<formula name="Ia_n" paras="n" fraction="5">
+			1/(1-v)*((1-v^n)/(1-v)-n*v^n)
+		</formula>
+		<formula name="f_Ia_x" paras="f,x" fraction="5">
+			D[x+f]/D[x]*Ia_x(x+f)
+		</formula>
+		<formula name="Ia_x" paras="x" fraction="5">
+			Sx(x)/D[x]
+		</formula>
+		<formula name="Ia_x_m" paras="x,m" fraction="5">
+			1/D[x]*(Sx(x)-Sx(x+m)-m*N[x+m])
+		</formula>
+		<formula name="aT_x" paras="x" fraction="5" desc="始期払年金現価(解約率込)">
+			NT[x]/DT[x]
+		</formula>
+		<formula name="aT12_x" paras="x" fraction="5">
+			aT_x(x)-11/24
+		</formula>
+		<formula name="aT_x_n" paras="x,n" fraction="5" desc="解約込年金現価">
+			(NT[x]-NT[x+n])/DT[x]
+		</formula>
+		<formula name="aT12_x_n" paras="x,n" fraction="5" desc="始期払12回の年金現価">
+			(NT[x]-NT[x+n])/DT[x]-11/24*(1-DT[x+n]/DT[x])
+		</formula>
+		<formula name="aT_xt_nt" paras="x,n,t" fraction="5">
+			if(n-t&lt;=0){0}else{(NT[x+t]-NT[x+n])/DT[x+t]}
+		</formula>
+		<formula name="f_aT_x" paras="f,x" fraction="5">
+			NT[x+f]/DT[x]
+		</formula>
+		<formula name="f_aT_x_n" paras="f,x,n" fraction="5">
+			if(n-f&lt;=0){0}else{(NT[x+f]-NT[x+n])/DT[x]}
+		</formula>
+		<formula name="ft_aT_xf" paras="f,t,x" fraction="5">
+			NT[x+f]/DT[x+t]
+		</formula>
+		<formula name="ft_aT_xt_n" paras="f,t,x,n" fraction="5">
+			(NT[x+f]-NT[x+n])/DT[x+t]
+		</formula>
+		<formula name="f_a_n_k" paras="f,n,k" cacheable="true">
+			1/k*sum(1,k*n){v^(f+index/k)}
+		</formula>
+		<formula name="a_n_k" paras="n,k" cacheable="true" fraction="5">
+			1/k*sum(1,k*n){v^(index/k)}
+		</formula>
+		<formula name="a12_nt@end" paras="n,t" fraction="5">
+			sum(1,n-t){v^(index-1)*a_n_k(1,12)}
+		</formula>
+		<formula name="f_a_xy_n" paras="f,x,y,n" fraction="5">
+			1/(lx[x]*ly[y])*sum(1,n){v^(f+index-1)*lx[x+f+index-1]*ly[y+f+index-1]}
+		</formula>
+		<formula name="f_a_k_xy_n" paras="f,k,x,y,n" fraction="5">
+			1/(lx[x]*ly[y])*sum(1,n){v^(f+index-1)*lx[x+f+index-1]*ly[y+f+index-1]}
+			-(k-1)/(2*k)*(v^f*lx[x+f]*ly[y+f]-v^(f+n)*lx[x+f+n]*ly[y+f+n])/(lx[x]*ly[y])
+		</formula>
+		<formula name="f_a_k_n" paras="f,k,n" fraction="5">
+			1/k*sum(1,k*n){v^(f+(index-1)/k)}
+		</formula>
+		<formula name="f_a_k_n@end" paras="f,k,n" fraction="5">
+			1/k*sum(1,k*n){v^(f+index/k)}
+		</formula>
+		<!--追加算式 -->
+		<formula name="f_a_x@end" paras="f,x" fraction="5">
+			N[x+f+1]/D[x]			
+		</formula>
+		<formula name="f_a_k_x@end" paras="f,k,x" fraction="5">
+			N[x+f+1]/D[x]-(k-1)/(2*k)*(D[x+f+1]/D[x])
+		 </formula>
+		 <formula name="f_a_k_x_n@end" paras="f,k,x,n" fraction="5">
+		 	(N[x+f+1]-N[x+n+f+1])/D[x]-(k-1)/(2*k)*(D[x+f+1]-D[x+n+f+1])/D[x]
+		 </formula>
+		 <formula name="f_a_k_x_n" paras="f,k,x,n" fraction="5">
+		 	(N[x+f]-N[x+n+f])/D[x]-(k-1)/(2*k)*(D[x+f]-D[x+n+f])/D[x]
+		 </formula>
+		<formula name="f_a_k_x" paras="f,k,x" fraction="5">
+			N[x+f]/D[x]-(k-1)/(2*k)*(D[x+f]/D[x])
+		 </formula>
+		 <formula name="a_k_T_x_n" paras="k,x,n" fraction="5" desc="始期払K回の年金現価">
+			(NT[x]-NT[x+n])/DT[x]-(k-1)/(2*k)*(1-DT[x+n]/DT[x])
+		</formula>
+	</Common>
+</LifePension-formula>

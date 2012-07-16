@@ -1,0 +1,574 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+	<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+	<BizExpenses desc="事業費率の設定">
+		<!--予定事業費率 -->
+		<formula name="alpha1_ps" desc="新契約費の普死(alpha1_ps)" value="0.02" />
+		<formula name="alpha2_ps"  paras="k" desc="新契約費の普死(alpha2_ps)" fraction="8">
+			1/(omega-x+1)*sum(k,omega-x){sJ(index+1,k,k1)}*alpha1_ps
+		</formula>
+		<formula name="alpha_ps"  fraction="8" desc="新契約費の普死(alpha_ps)">
+			(12*k+1)*k/(24*(omega-x+1))*12*stdPrate*alpha1_ps+alpha2_ps(k)+0.000000000001
+         </formula>
+		<formula name="alpha_cs" fraction="8" desc="新契約費の長寿(alpha_cs)">
+			0.017*sum(1,omega-x){j_I_x(index,x)}
+		</formula>
+
+		<formula name="delta" fraction="8" desc="新契約費(delta)">
+			0.02*min(max(omega-x+1,10)/20,1) 
+        </formula>
+ 
+		<formula name="gamma_ps" desc="維持費普死(gamma_ps)" value="0.00205" />
+		<formula name="gamma_zs" desc="維持費災死(gamma_zs)" value="0.0001" />
+		<formula name="gamma_cs" fraction="8" desc="維持費長寿(gamma_cs)">
+			0.001*sum(1,omega-x+1){index/(omega-x+1)*j_I_x(index,x)}
+        </formula>
+		<formula name="gamma_paidup" value="0.002" desc="維持費払済(gamma_paidup)" />
+		<formula name="beta" value="0.03" desc="集金費(beta)" />
+		<formula name="zeta" value="0.025" desc="集金費(zeta)" />
+	</BizExpenses>
+	<Common desc="商品内部の共通公式">
+		<!-- これからは共通公式 -->
+		<formula name="k" value="2" desc="死亡給付金支払対象期間(k)"/>
+		<formula name="sJ" paras="j,k,k1"  desc="普通死亡保険金額割合(sJ)">
+			if(j&lt;=k){
+				0
+			}elseIf(j&gt;k&amp;&amp;j&lt;=k1){
+				j/(k1+1)
+			}else{1}
+		</formula>
+		<formula name="paymentLimited" value="1" desc="支払制限期間設定特則を付加した"/>
+		<formula name="longevity" value="0" desc="長寿祝金支払特則を付加した"/>
+		<formula name="j_I_x" paras="j,x" desc="長寿祝金の給付割合(j_I_x)">
+			<!--支払制限期間設定特則を付加した場合-->
+			if(paymentLimited==1 &amp;&amp; j&lt;=k1){
+				0
+			}else{
+				<!--長寿祝金支払特則を付加した場合-->
+				if(longevity==0){
+					if((x+j)==60){
+						if(x&lt;=55){0.10}else{0.00}
+					}elseIf((x+j)==70){
+						if(x&lt;=65){0.10}else{0.00}
+					}elseIf((x+j)==77){
+			            if(x&lt;=72){0.10}else{0.00}
+					}elseIf((x+j)==88){
+						0.10
+					}else{0}
+				<!--  長寿祝金支払特則を付加しない場合-->
+				}else{0}
+			}
+		</formula>
+		<formula name="s_I_x" paras="s" desc="実際の長寿祝金の給付割合(s_I_x)">
+			<!--支払制限期間設定特則を付加した場合-->
+			if(paymentLimited==1 &amp;&amp; s&lt;=k1){
+				0
+			}else{
+			<!--長寿祝金支払特則を付加した場合-->
+				if(longevity==0){
+					if((x+s)==60){
+						if(x&lt;=55){0.10}else{0.00}
+					}elseIf((x+s)==70){
+						if(x&lt;=65){0.10}else{0.00}
+					}elseIf((x+s)==77){
+			            if(x&lt;=72){0.10}else{0.00}
+					}elseIf((x+s)==88){
+						0.10
+					}else{0}
+			<!--長寿祝金支払特則を付加しない場合-->
+				}else{0}
+			}
+		</formula>
+		<formula name="h_t_sw" desc="死亡保障部分解約返戻金割合(h_t_sw)">
+			w_t_sw
+        </formula>
+		<formula name="h_t_cs" desc="長寿祝金部分解約返戻金割合(h_t_cs)">
+			w_t_cs
+		</formula>
+		<formula name="w_t_sw" value="0.7" desc="死亡保障部分低解約返戻金割合(w_t_sw)"/>
+		<formula name="w_t_cs" value="1" desc="長寿祝金部分低解約返戻金割合(w_t_cs)" />
+		 
+		<formula name="PrateByPaymode" paras="stdPrate,d" fraction="6" desc="払込方法別Prate(PrateByPaymode)">
+			<!-- 基準Prateと高額割引dより、払込方法別Prateを求める -->
+			<formula name="Discount" paras="d" desc="高額割引">
+				if(kaisu==1){0}
+				elseIf(kaisu==2){12*d}
+				elseIf(kaisu==3){6*d}
+				else{d}
+			</formula>
+			stdPrate*PayFactor(kaisu,gen,keiro)-Discount(d)
+		</formula>
+		<formula name="S2P" paras="SBasePrate" desc="S基準からP基準に変換する">
+			<!-- 普通の場合 -->
+			if(kaisu==1){
+				round(1/SBasePrate,4)
+			}else{
+				round(1/SBasePrate,2)
+			}
+		</formula>
+
+		<!--これからは「１．７．ｄ生命年金現価」の共通公式-->
+		<formula name="I_T12_x_k" paras="x,k" fraction="5" desc="生命年金現価a1">
+			 I_T_x_k(x,k)-round(11/24,5)*((2*(NT[x]-NT[x+k])+1/12*DT[x]-(k+1/12)*DT[x+k])/DT[x])
+		</formula>
+		<formula name="I_T_x_k" paras="x,k" fraction="5"  desc="生命年金現価a2">
+			(DT[x]+2*DT[x+1])/DT[x]
+	    </formula>
+		<formula name="k_T12_x" paras="x,k,k1" fraction="5"  desc="生命年金現価a3">
+			sum(k,omega-x){
+				sJ(index+1,k,k1)*j_T12_x_1(index,x)
+			}
+	    </formula>
+		<formula name="j_T12_x_1" paras="j,x" fraction="5"  desc="生命年金現価a4">
+			1/24*(
+				(13*DT[x+j]+11*DT[x+j+1])/DT[x]
+			)
+	    </formula>
+		<formula name="I_12_x_k" paras="x,k" fraction="5"  desc="生命年金現価a5">
+			Ia_x_m(x,k)-round(11/24,5)*((2*(N[x]-N[x+k])+1/12*D[x]-(k+1/12)*D[x+k])/D[x])  		
+		</formula>
+		<formula name="j_12_x_1" paras="j,x" fraction="5"  desc="生命年金現価a6">
+			1/24*((13*D[x+j]+11*D[x+j+1])/D[x])
+	    </formula>
+		<formula name="k_12_x" paras="x,k" fraction="5"  desc="生命年金現価a7">
+			sum(k,omega-x){sJ(index+1,k,k1)*j_12_x_1(index,x)}
+	    </formula>
+		<!--これからは「１．７．e.給付現価」の共通公式-->
+		<formula name="A_T_x" paras="x" fraction="6" desc="給付現価1">
+			MD[x]/DT[x]
+		</formula>
+		<formula name="IA_T12_x_k" paras="x,k,t" fraction="6" desc="給付現価2">
+			<!-- 11/24には(5*)必要ない -->
+			((RD[x+t]-RD[x+k]-(k-t)*MD[x+k])-11/24*(MD[x+t]-MD[x+k]))/DT[x+t]+0.0000000000001
+		</formula>
+		<formula name="IA_T_x_k" paras="x,k,t" fraction="6" desc="IAT_xt1_kt">
+			(RD[x+t]-RD[x+k]-(k-t)*MD[x+k])/DT[x+t]
+		</formula>
+		<formula name="A_T_x_k" paras="x,k,t" fraction="6" desc="AT_xt1_kt">
+			(MD[x+t]-MD[x+k])/DT[x+t]+0.0000000000001
+		</formula>
+		<formula name="IA_12_x_k" paras="x,k" fraction="6" desc="給付現価5">
+			((R[x]-R[x+k]-k*M[x+k])-11/24*(M[x]-M[x+k]))/D[x]
+		</formula>
+		<formula name="k_t_A_x_t" paras="x,t,k,k1" fraction="6" desc="給付現価6">
+			(sum(k,omega-x){sJ(index+1,k,k1)*C[x+index]})/D[x+t]
+		 </formula>
+		<formula name="A_x_t" paras="x,t,k1" fraction="6" desc="給付現価7">
+			sum(t,omega-x){sJ(index+1,k,k1)*C[x+index]}/D[x+t]
+		 </formula>
+		<formula name="k_t_A_T_x_t" paras="x,t,k,k1" fraction="6" desc="給付現価8">
+			<!-- 最後の.1は加算必要ない -->
+			(sum(k,omega-x){sJ(index+1,k,k1)*CD[x+index]})/DT[x+t]+0.000000000001
+		</formula>
+		<formula name="A_T_x_t" paras="x,t,k1" fraction="6" desc="給付現価9">
+			sum(t,omega-x){sJ(index+1,k,k1)*CD[x+index]}/DT[x+t]
+		</formula>
+		<formula name="IA_12_x_k_zs" paras="x,k" fraction="6" desc="給付現価10">
+			(RZ[x]-RZ[x+k]-k*MZ[x+k])/D[x]-round(11/24,5)*(MZ[x]-MZ[x+k])/D[x]
+		</formula>
+		<formula name="A_1_x_k_zs" paras="x,k" fraction="6" desc="給付現価11">
+			(MZ[x]-MZ[x+k])/D[x]
+		</formula>
+		<formula name="IA_1_x_k_zs" paras="x,k" fraction="6" desc="給付現価12">
+			(RZ[x]-RZ[x+k]-k*MZ[x+k])/D[x]
+		</formula>
+		<formula name="k_t_A_x_t_zs" paras="x,k,k1,t" fraction="6" desc="給付現価13">
+			sum(k,omega-x){(1-sJ(index+1,k,k1))*CZ[x+index]}/D[x+t]
+		</formula>
+		<formula name="A_x_t_zs" paras="x,k,k1,t" fraction="6" desc="給付現価14">
+			sum(t,omega-x){(1-sJ(index+1,k,k1))*CZ[x+index]}/D[x+t]
+		</formula>
+		<formula name="IA_T12_x_k_zs" paras="x,k" fraction="6" desc="IA災死T_12_xt1_kt">
+			(RZT[x]-RZT[x+k]-k*MZT[x+k])/DT[x]-round(11/24,5)*(MZT[x]-MZT[x+k])/DT[x]+0.0000000000001
+		</formula>
+		<formula name="A_T_x_k_zs" paras="x,k" fraction="6" desc="A災死T_xt1_kt">
+			(MZT[x]-MZT[x+k])/DT[x]+0.0000000000001
+		</formula>
+		<formula name="IA_T_x_k_zs" paras="x,k" fraction="6" desc="給付現価17">
+			(RZT[x]-RZT[x+k]-k*MZT[x+k])/DT[x]
+		</formula>
+		<formula name="k_t_A_T_x_t_zs" paras="x,k,k1,t" fraction="6" desc="kt_A災死T_dash_xt">
+			<!-- 最後の.1は加算必要ない -->
+			sum(k,omega-x){(1-sJ(index+1,k,k1))*CZT[x+index]}/DT[x+t]+0.000000000001
+		</formula>
+		<formula name="A_T_x_t_zs" paras="x,k,k1,t" fraction="6" desc="給付現価19">
+			sum(t,omega-x){(1-sJ(index+1,k,k1))*CZT[x+index]}/DT[x+t]
+		</formula>
+		<formula name="A_1_x_t_k_t" paras="x,n,t" fraction="6" desc="給付現価20">
+			((M[x+t]-M[x+n])/D[x+t])
+		 </formula>
+
+		<formula name="A_T_x_t_n_t" paras="x,n,t" fraction="6" desc="給付現価21">
+			DT[x+n]/DT[x+t]
+		 </formula>
+		<formula name="A_1_x_t_k_t_zs" paras="x,n,t" fraction="6" desc="給付現価22">
+			(MZ[x+t]-MZ[x+n])/D[x+t]
+		 </formula>
+	</Common>
+	<Premium desc="保険料">
+		<!-- 3.1.a基準Prate -->
+		<formula name="stdPrate" pvh="P" fraction="6" desc="基準Ｐレート">
+			if(kaisu&gt;=2){
+				{k_t_A_T_x_t(x,0,k,k1)+A_T_x_k_zs(x,k)+k_t_A_T_x_t_zs(x,k,k1,0)+W_x_sw(x,0)+W_x_cs(x,0)
+					+
+				round(sum(1,omega-x+1){j_I_x(index,x)*A_T_x_t_n_t(x,index,0)},6)
+					+
+				alpha2_ps(k)+alpha_cs+(gamma_ps-gamma_zs)*k_T12_x(x,k,k1)+(gamma_zs+gamma_cs)*aT12_x(x)
+				}
+					/
+				{12*((1-beta-zeta-delta)*aT12_x(x)-IA_T12_x_k(x,k,0)+IA_T12_x_k_zs(x,k)
+				-(12*k+1)*k/(24*(omega-x+1))*alpha1_ps-I_T12_x_k(x,k)*(gamma_ps-gamma_zs))}
+			}else{0}
+		</formula>
+		<formula name="Prate" pvh="P" accessable="true" desc="１．保険料レート">
+			PrateByPaymode(stdPrate,0)
+		</formula>
+		<!-- 3.1.b保険料年払Prate -->
+		<formula name="PaidUpP" desc="保険料年払Prate">
+			stdPrate*PayFactor(2,gen,1)
+		</formula>
+		<!-- OL用計算公式 -->
+		<formula name="Premium" pvh="P" paras="stdPrate" accessable="true" desc="２．保険料・保険金">
+			if(sptate==0){
+				roundDown(SA*max{PrateByPaymode(stdPrate,0),0},0)
+			}else{
+				roundUp(
+						roundDown(
+							SA*S2P(PrateByPaymode(stdPrate,0))
+							,0)/1000
+					,0)*1000
+			}
+		</formula>
+		<formula name="teisuu1" paras="x,k">
+			12*paiBaseMonth(x,k)
+		</formula>
+		<formula name="teisuu2" paras="x,k,k1">
+			((IA_12_x_k(x,k)-IA_12_x_k_zs(x,k))*teisuu1(x,k)+k_t_A_x_t(x,0,k,k1)+A_1_x_k_zs(x,k)+k_t_A_x_t_zs(x,k,k1,0))/a_x(x)
+		</formula>
+		<formula name="teisuu3" paras="x,k" fraction="8">
+			(12*k+1)*k/(24*(omega-x+1))*teisuu1(x,k)*alpha1_ps+alpha2_ps(k)
+		</formula>
+		<formula name="teisuu4" paras="x,k">
+			teisuu3(x,k)/a_x(x)
+		</formula>
+		<!--これからは「１．７．f死亡保障解約給付現価」の共通公式-->
+		<formula name="t_W_x_sw" paras="x,t" desc="死亡保障解約給付現価(死亡部分)(t_W_x_sw)">
+			if(t&gt;=0 &amp;&amp;t&lt;k){
+				(IA_12_x_k(x+t,k-t)+t*A_1_x_t_k_t(x,k,t)-IA_12_x_k_zs(x+t,k-t)-t*A_1_x_t_k_t_zs(x,k,t))*teisuu1(x,k)
+				   +
+				k_t_A_x_t(x,t,k,k1)+A_1_x_k_zs(x+t,k-t)+k_t_A_x_t_zs(x,k,k1,t)
+				   -
+				teisuu2(x,k,k1)*a_x(x+t)
+				   -
+				teisuu4(x,k)*a_x(x+t)
+			}elseIf(t&gt;=k&amp;&amp;t&lt;=(omega-x)){
+				A_x_t(x,t,k1)+A_x_t_zs(x,k,k1,t)
+					-
+				teisuu2(x,k,k1)*a_x(x+t)
+					-
+				teisuu4(x,k)*a_x(x+t)
+			}else{0}
+			<formula name="paiBaseMonth" fraction="6" paras="x,k" desc="π基月">
+				{k_t_A_x_t(x,0,k,k1)+A_1_x_k_zs(x,k)+k_t_A_x_t_zs(x,k,k1,0)
+				+paiBaseMonth_sub1+alpha2_ps(k)+alpha_cs
+				+(gamma_ps-gamma_zs)*k_12_x(x,k)+(gamma_zs+gamma_cs)*a_k_x(12,x)}	
+				    /
+				paiBaseMonth_sub2
+			<formula name="paiBaseMonth_sub1" paras="x,k" fraction="6">
+				sum(1,omega-x+1){j_I_x(index,x)*A_x_n_l(x,index)}
+			</formula>
+			<formula name="paiBaseMonth_sub2" paras="x,k">
+				12*((1-beta-zeta-delta)*a_k_x(12,x)-IA_12_x_k(x,k)+IA_12_x_k_zs(x,k)
+				-(12*k+1)*k/(24*(omega-x+1))*alpha1_ps
+				-I_12_x_k(x,k)*(gamma_ps-gamma_zs))		
+			</formula>
+			</formula>
+			<formula name="alpha1_nashu" paras="t" desc="普死(alpha1_nashu)">
+				(12*k+1)*k/(24*(omega-x+1))*12*paiBaseMonth(x,k)*alpha1_ps+alpha2_ps(k)
+			</formula> 
+		</formula>
+		<formula name="t_W_x_cs" paras="x,t" desc="死亡保障解約給付現価(長寿部分)(t_W_x_cs)">
+			if(t&gt;=0&amp;&amp;t&lt;=(omega-x)){
+			round(sum(t,omega-x+1){j_I_x(index,x)*A_xt_nt_l(x,index,t)},6)
+			-(round(sum(1,omega-x+1){j_I_x(index,x)*A_x_n_l(x,index)},6))/a_x(x)*a_x(x+t)
+			-(alpha_cs/a_x(x)*a_x(x+t))
+			}else{0}     
+		</formula>
+		<!--これからは「１．７．g.解約給付現価」の共通公式-->
+		<formula name="W_x_sw" paras="x,t" desc="解約給付現価死亡部分">
+			sum(t,omega-x){CW[x+index]/DT[x+t]*t_1_2_W_x_sw(x,index)*h_t_sw}
+			<formula name="t_1_2_W_x_sw" paras="x,index">
+				(t_W_x_sw(x,index)+t_W_x_sw(x,index+1))/2
+           </formula>
+		</formula>
+
+		<formula name="W_x_cs" paras="x,t" desc="解約給付現価長寿部分">
+			sum(t,omega-x){CW[x+index]/DT[x+t]*t_1_2_W_x_cs(x,index)*h_t_cs}
+			<formula name="t_1_2_W_x_cs" paras="x,index">
+				(t_W_x_cs(x,index)-j_I_x(index,x)+t_W_x_cs(x,index+1))/2
+			</formula>
+		</formula>
+	</Premium>
+	<ReserveFund desc="保険積立金">
+		<!-- a.保険年度末保険料積立金rate -->
+		<formula name="year_partV" paras="t,z" desc="保険料払込期間中 VTレート">
+			max(
+			if(t&gt;=0&amp;&amp;t&lt;k){
+				round(
+					(IA_T12_x_k(x,k,t)+t*A_T_x_k(x,k,t)-IA_T12_x_k_zs(x+t,k-t)-t*A_T_x_k_zs(x+t,k-t))*12*stdPrate
+						+
+					k_t_A_T_x_t(x,t,k,k1)+A_T_x_k_zs(x+t,k-t)+k_t_A_T_x_t_zs(x,k,k1,t)+W_x_sw(x,t)
+						-
+					(
+						(IA_T12_x_k(x,k,0)-IA_T12_x_k_zs(x,k))*12*stdPrate
+							+
+						k_t_A_T_x_t(x,0,k,k1)+A_T_x_k_zs(x,k)+k_t_A_T_x_t_zs(x,k,k1,0)+W_x_sw(x,0)
+					)
+					/aT_x(x)*aT_x(x+t)
+				,4)
+					+
+				round(
+					round(sum(t,omega-x+1){j_I_x(index,x)*A_T_x_t_n_t(x,index,t)},6)+W_x_cs(x,t)
+						-
+					(round(sum(1,omega-x+1){j_I_x(index,x)*A_T_x_t_n_t(x,index,0)},6)+W_x_cs(x,0))/aT_x(x)*aT_x(x+t)
+				,4)
+				-if(z==0){0}else{(alpha_ps+alpha_cs)/aT_x_n(x,z)*aT_xt_nt(x,z,t)} 
+			} elseIf(t&gt;=k&amp;&amp;t&lt;=omega-x) {
+				round(
+					A_T_x_t(x,t,k1)+A_T_x_t_zs(x,k,k1,t)+W_x_sw(x,t)
+						-
+					((IA_T12_x_k(x,k,0)-IA_T12_x_k_zs(x,k))*12*stdPrate+k_t_A_T_x_t(x,0,k,k1)+A_T_x_k_zs(x,k)+k_t_A_T_x_t_zs(x,k,k1,0)
+						+
+					W_x_sw(x,0))/aT_x(x)*aT_x(x+t)
+				,4)
+					+
+				round(
+					round(sum(t,omega-x+1){j_I_x(index,x)*A_T_x_t_n_t(x,index,t)},6)+W_x_cs(x,t)
+						-
+					(round(sum(1,omega-x+1){j_I_x(index,x)*A_T_x_t_n_t(x,index,0)},6)+W_x_cs(x,0))/aT_x(x)*aT_x(x+t)
+				,4)
+				-if(z==0){0}else{(alpha_ps+alpha_cs)/aT_x_n(x,z)*aT_xt_nt(x,z,t)}
+			}else{0}
+			,0)
+		</formula>
+		<formula name="PaidupV" fraction="4" paras="t" desc="払済保険 VTレート">
+			A_x(x+t)+gamma_paidup*a_x(x+t)
+		</formula>
+		
+		<formula name="Vrate_accu" paras="t,z" desc="保険年度末rate">
+			if(state==1){
+				year_partV(t,z)
+			}elseIf(state==4){
+			<!-- 上記以外 -->
+				PaidupV(t)
+			}else{0}
+		</formula>
+		<formula name="Vrate" pvh="H" fraction="4" accessable="true" desc="１．保険年度末Vレート">
+			Vrate_accu(t,0)
+		</formula>
+		<formula name="ContractorYearV" paras="t,z" fraction="4" pvh="P" desc="契約者Vレート">
+			Vrate_accu(t,z)
+		</formula>
+		<formula name="ContractorVrate" pvh="P" fraction="4" accessable="true" desc="３．契約者用Vレート">
+			if(state==1){
+				if(f1&gt;0){
+					(1-f_12(f1))*(ContractorYearV(t1,z)-j_I_x(t1,x))+f_12(f1)*ContractorYearV(t1+1,z)-s_I_x(blSIx(x,birthday,contractDate,standardDate))
+				}elseIf(flg==1){
+					set{t1=t1-1}
+					set{f1=12}
+					(1-f_12(f1))*(ContractorYearV(t1,z)-j_I_x(t1,x))+f_12(f1)*ContractorYearV(t1+1,z)-s_I_x(blSIx(x,birthday,contractDate,standardDate))
+				}else{
+					ContractorYearV(t1,z)
+				}
+			}elseIf(state==4){
+		          (1-f_12(f))*ContractorYearV(t,z)+f_12(f)*ContractorYearV(t+1,z)
+			}else{0}
+		</formula>
+		
+		<formula name="BizYearV" paras="t,z" accessable="false" desc="事業末Vレート">
+			<!-- ０≦ｔ＜ｋのとき -->
+			<formula name="DeadV" paras="t" fraction="4" desc="死亡部分">
+				(IA_T12_x_k(x,k,t)+t*A_T_x_k(x,k,t)-IA_T12_x_k_zs(x+t,k-t)-t*A_T_x_k_zs(x+t,k-t))*12*stdPrate
+						+
+					k_t_A_T_x_t(x,t,k,k1)+A_T_x_k_zs(x+t,k-t)+k_t_A_T_x_t_zs(x,k,k1,t)+W_x_sw(x,t)
+						-
+					(
+						(IA_T12_x_k(x,k,0)-IA_T12_x_k_zs(x,k))*12*stdPrate
+							+
+						k_t_A_T_x_t(x,0,k,k1)+A_T_x_k_zs(x,k)+k_t_A_T_x_t_zs(x,k,k1,0)+W_x_sw(x,0)
+					)/aT_x(x)*aT_x(x+t)
+			</formula>
+			<formula name="DeadVrate" paras="t" desc="死亡純保険料">
+				((IA_T12_x_k(x,k,0)-IA_T12_x_k_zs(x,k))*12*stdPrate
+							+
+				k_t_A_T_x_t(x,0,k,k1)+A_T_x_k_zs(x,k)+k_t_A_T_x_t_zs(x,k,k1,0)+W_x_sw(x,0)
+				)/aT_x(x)
+			</formula>
+			<formula name="LongevityV" paras="t" fraction="4" desc="長寿部分">
+				round(sum(t,omega-x+1){j_I_x(index,x)*A_T_x_t_n_t(x,index,t)},6)+W_x_cs(x,t)
+						-
+				(round(sum(1,omega-x+1){j_I_x(index,x)*A_T_x_t_n_t(x,index,0)},6)+W_x_cs(x,0))/aT_x(x)*aT_x(x+t)
+			</formula>
+			<formula name="LongevityVrate" paras="t" desc="長寿純保険料">
+				(round(sum(1,omega-x+1){j_I_x(index,x)*A_T_x_t_n_t(x,index,0)},6)+W_x_cs(x,0))/aT_x(x)
+			</formula>
+			
+			<!-- ｋ≦ｔ≦ω－ｘのとき  -->
+			<formula name="DeadV_Back" paras="t" fraction="4" desc="死亡部分">
+				A_T_x_t(x,t,k1)+A_T_x_t_zs(x,k,k1,t)+W_x_sw(x,t)
+						-
+				((IA_T12_x_k(x,k,0)-IA_T12_x_k_zs(x,k))*12*stdPrate+k_t_A_T_x_t(x,0,k,k1)+A_T_x_k_zs(x,k)+k_t_A_T_x_t_zs(x,k,k1,0)
+						+
+				W_x_sw(x,0))/aT_x(x)*aT_x(x+t)
+			</formula>
+			<formula name="DeadVrate_Back" paras="t" desc="死亡純保険料">
+				((IA_T12_x_k(x,k,0)-IA_T12_x_k_zs(x,k))*12*stdPrate+k_t_A_T_x_t(x,0,k,k1)+A_T_x_k_zs(x,k)+k_t_A_T_x_t_zs(x,k,k1,0)
+						+
+				W_x_sw(x,0))/aT_x(x)
+			</formula>
+			<formula name="LongevityV_Back" paras="t" fraction="4" desc="長寿部分">
+				round(sum(t,omega-x+1){j_I_x(index,x)*A_T_x_t_n_t(x,index,t)},6)+W_x_cs(x,t)
+						-
+				(round(sum(1,omega-x+1){j_I_x(index,x)*A_T_x_t_n_t(x,index,0)},6)+W_x_cs(x,0))/aT_x(x)*aT_x(x+t)
+			</formula>
+			<formula name="LongevityVrate_Back" paras="t" desc="長寿純保険料">
+				(round(sum(1,omega-x+1){j_I_x(index,x)*A_T_x_t_n_t(x,index,0)},6)+W_x_cs(x,0))/aT_x(x)
+			</formula>
+			if(state==1){
+				if(t&gt;=0&amp;&amp;t&lt;k){
+					if(PaidUpP&lt;(DeadVrate+LongevityVrate)){
+						max(
+							(DeadV(t)+LongevityV(t))+(DeadVrate(t)+LongevityVrate(t))*aT_x(x+t)
+							-PaidUpP*aT_x(x+t)-if(z==0){0}else{(alpha_ps+alpha_cs)/aT_x_n(x,z)*aT_xt_nt(x,z,t)}
+						,0)
+					}else{
+						max(DeadV(t)+LongevityV(t)-if(z==0){0}else{(alpha_ps+alpha_cs)/aT_x_n(x,z)*aT_xt_nt(x,z,t)},0)
+					}
+				}elseIf(t&gt;=k&amp;&amp;t&lt;=omega-x){
+					if(PaidUpP&lt;(DeadVrate_Back+LongevityVrate_Back)){
+						max(
+							(DeadV_Back(t)+LongevityV_Back(t))+(DeadVrate_Back(t)+LongevityVrate_Back(t))*aT_x(x+t)
+							-PaidUpP*aT_x(x+t)-if(z==0){0}else{(alpha_ps+alpha_cs)/aT_x_n(x,z)*aT_xt_nt(x,z,t)}
+						,0)
+					}else{
+						max(DeadV_Back(t)+LongevityV_Back(t)-if(z==0){0}else{(alpha_ps+alpha_cs)/aT_x_n(x,z)*aT_xt_nt(x,z,t)},0)
+					}
+				}else{0}
+			<!-- 払済 -->
+			}elseIf(state==4){
+			    PaidupV(t)
+			}else{0}
+		</formula>
+		
+		<formula name="calBizYearV" fraction="4" desc="事業末用Vレート">
+			BizYearV(t,z)
+		</formula>
+	</ReserveFund>
+	
+	<SurrenderFee desc="解約返戻金">
+		<formula name="tSigmaSW" paras="t"  desc="tSigma死亡">
+			0.015*((12*k+1)*k/(24*(omega-x+1))*12*stdPrate
+			   +
+			sum(k,omega-x){sJ(index+1,k,k1)/(omega-x+1)})
+			   *
+			max(1-t/(min((omega-x+1),10)),0)
+		</formula>
+		<formula name="tSigmaCS" paras="t" desc="tSigma長寿">
+			0.013*sum(1,omega-x+1){j_I_x(index,x)}
+			   *
+			max(1-t/(min((omega-x+1),10)),0) 
+		</formula>
+		<formula name="t_V_x_sw" paras="t" pvh="P" desc="解約返戻金死亡部分" fraction="4">
+			if(t&gt;=0&amp;&amp;t&lt;k){
+				(IA_12_x_k(x+t,k-t)+t*A_1_x_t_k_t(x,k,t)-IA_12_x_k_zs(x+t,k-t)-t*A_1_x_t_k_t_zs(x,k,t))*12*paiBaseMonth(x,k)
+				+k_t_A_x_t(x,t,k,k1)+A_1_x_k_zs(x+t,k-t)+k_t_A_x_t_zs(x,k,k1,t)
+				-(
+				((IA_12_x_k(x,k)-IA_12_x_k_zs(x,k))*12*paiBaseMonth(x,k)
+				   +
+				k_t_A_x_t(x,0,k,k1)+A_1_x_k_zs(x,k)+k_t_A_x_t_zs(x,k,k1,0))
+				/a_x(x)*a_x(x+t))
+			}elseIf(t&gt;=k&amp;&amp;t&lt;=omega-x){
+				A_x_t(x,t,k1)+A_x_t_zs(x,k,k1,t)-(((IA_12_x_k(x,k)-IA_12_x_k_zs(x,k))*12*paiBaseMonth(x,k)
+				   +
+				k_t_A_x_t(x,0,k,k1)+A_1_x_k_zs(x,k)+k_t_A_x_t_zs(x,k,k1,0))
+				  /
+				a_x(x)*a_x(x+t))
+			}elseIf(x+t&gt;omega){
+				1
+			}else{0}
+		</formula>
+		<formula name="t_V_x_cs" paras="t" pvh="P" desc="解約返戻金長寿祝金部分" fraction="4">
+		if(t&gt;=0&amp;&amp;t&lt;=(omega-x)){
+			round(sum(t,omega-x+1){j_I_x(index,x)*A_x_n_l(x+t,index-t)},6)
+			   -
+			round(sum(1,omega-x+1){j_I_x(index,x)*A_x_n_l(x,index)},6)
+			   /
+			a_x(x)*a_x(x+t)
+		}elseIf(x+t&gt;omega){
+				0
+		}else{0}
+	    </formula>
+		<formula name="tWrate" paras="t1" pvh="P" desc="解約返戻金Wレート" fraction="4">
+			if(state==1){
+			<!-- 保険料払込期間中 -->
+				max(((t_V_x_sw(t1)-tSigmaSW(t1))*h_t_sw+(t_V_x_cs(t1)-j_I_x(t1,x)-tSigmaCS(t1))*h_t_cs),0)
+			<!-- 払済 -->
+			}elseIf(state==4){
+			      tWrate_paidUp(t1)
+			}else{0}
+		</formula>
+
+		<formula name="t1Wrate" paras="t" pvh="P" desc="解約返戻金t1Wレート" fraction="4">
+			if(state==1){
+			<!-- 保険料払込期間中 -->
+				max(((t_V_x_sw(t+1)-tSigmaSW(t+1))*h_t_sw+(t_V_x_cs(t+1)-tSigmaCS(t+1))*h_t_cs),0)
+			<!-- 払済 -->
+			}elseIf(state==4){
+			    tWrate_paidUp(t)
+			}else{0}
+		</formula>
+		
+		<formula name="tWrate_paidUp" paras="t" desc="払済tWレート">
+			max(ContractorYearV(t,0),0)
+		</formula>
+		
+		<formula name="Wrate" pvh="P" accessable="true" fraction="4"
+			desc="１．解約返戻金Wレート">
+			<!--2010/04/01から解約返戻金rate  -->
+			if(PremiumAbolishSign==1){
+				if(state==1){
+				    if(12*t1+f1&lt;12*t+f){
+				          min(tf12Wrate0401(t1,f1),(12*t1+f1)*stdPrate)
+				     }else{
+				          min(tf12Wrate0401(t,f),(12*t+f)*stdPrate)
+				     }
+				}elseIf(state==4){
+				   Wrate_paidUp(t)
+				}else{0}
+			<!-- 2010/03/31まで解約返戻金rate -->
+			}else{
+				if(state==1&amp;&amp;flg==0){
+				    min(tf12Wrate0331,(12*t1+f1)*stdPrate)
+				}elseIf(state==1&amp;&amp;flg==1){
+					set{t1=t1-1}
+					set{f1=12}
+					min(tf12Wrate0331,(12*t1+f1)*stdPrate)
+				}elseIf(state==4){
+				     Wrate_paidUp(t)
+				}else{0}
+			}
+			<formula name="tf12Wrate0401" paras="t,f" desc="tf12Wrate0401">
+				(1-f_12(f))*tWrate(t)+f_12(f)*t1Wrate(t)-s_I_x(blSIx(x,birthday,contractDate,standardDate))*h_t_cs
+			 </formula>
+			<formula name="tf12Wrate0331" desc="tf12Wrate0331">
+				v^ve*round((1-f_12(f1))*tWrate(t1)+f_12(f1)*t1Wrate(t1)-s_I_x(blSIx(x,birthday,contractDate,standardDate))*h_t_cs,4)
+			</formula>
+		</formula>
+		
+		<formula name="Wrate_paidUp"  paras="t" fraction="4" desc="払済Wレート">
+			((1-f_12(f)))*tWrate_paidUp(t)+f_12(f)*tWrate_paidUp(t+1)
+		</formula>
+
+	</SurrenderFee>
+</Formula-definition>

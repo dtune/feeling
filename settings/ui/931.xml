@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Calculation-definition SYSTEM "Calculation-definition.dtd">
+<Calculation-definition>
+	<Categories>
+		<Category>
+			<name>Premium</name>
+			<label>保険料Pレート</label>
+			<RateKeys>
+				n,g1,g2,x,sex,kaisu,sptate,SA,insuranceCode,annuityType,contractDate
+	</RateKeys>
+		</Category>
+		<Category>
+			<name>ReserveFund</name>
+			<label>保険料積立金Vレート</label>
+			<RateKeys>
+				n,g2,g1,x,sex,kaisu,
+				t,f,SA,insuranceCode,annuityType,kisoritsu,contractDate
+  	</RateKeys>
+		</Category>
+		<Category>
+			<name>UnpaidAnnuity</name>
+			<label>未払年金</label>
+			<RateKeys>
+				gen,kaisu,t,f,g1,g2,annuityType,x,n,insuranceCode,contractDate
+    </RateKeys>
+		</Category>
+	<Category>
+			<name>Dividend</name>
+			<label>配当金</label>
+			<RateKeys>
+				n,g2,g1,x,sex,kaisu,
+				SA,insuranceCode,annuityType,payState,
+				policyCode,SA_nashu,bonusDiv,bonus_month,psi,effectBeginDate,
+				contractorState,responsibilityDate,changeState,contractDate,divEndDate,policyKaisu,policyContractDate,
+				SA_lastyear,Dt_lastyear,Dt_thisyear,DividendValueLastYear,keisanPtn
+    </RateKeys>
+		</Category>
+	</Categories>
+</Calculation-definition>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+	
+	<DeathBenefit desc="死亡給付金">
+	
+		<formula name="monthPrate" desc="月払Prate">
+			stdPrate*PayFactor(4,gen,1)
+		</formula>
+		
+		<formula name="deathSinglePrate" desc="一時払Prate">
+			stdPrate
+		</formula>
+		
+		<formula name="deathIndemnity" pvh="P" accessable="true" desc="死亡給付金">
+			if(kaisu==1){
+				roundDown(deathSinglePrate*SA,0)
+			}else{
+				if(state==2){
+					<!-- 払込期間終了後 -->
+					roundDown(monthPrate*12*m*SA,0)
+				}elseIf(state==1){
+					<!-- 払込中 -->
+					if(PremiumAbolishSign==1){
+						roundDown(monthPrate*(12*t+f)*SA,0)
+					}elseIf(PremiumAbolishSign==0){
+						roundDown(monthPrate*(12*t1+f1)*SA,0)
+					}else{
+						0
+					}
+				}elseIf(state==5){
+					<!--年金繰り下げ中 -->
+					round(SA*round((1-f_12(f3))*BenifitPostponingV(t3)+f_12(f3)*BenifitPostponingV(t3+1),4),0)
+				}else{
+					0
+				}
+			}
+		</formula>
+		
+		<formula name="bonusF" desc="払込月数">
+			set{bonusMonth1=if(bonus_month==1){1}elseIf(bonus_month==2){6}else{7}}
+			set{bonusMonth2=if(bonus_month==1){7}else{12}}
+			set{KaiyakuMonth=termAccruedDate%100}
+			set{bonusM1=if(bonusMonth1&lt;contractDateM){bonusMonth1+12}else{bonusMonth1}}
+			set{bonusM2=if(bonusMonth2&lt;contractDateM){bonusMonth2+12}else{bonusMonth2}}
+			set{KaiyakuM=if(KaiyakuMonth&lt;contractDateM){KaiyakuMonth+12}else{KaiyakuMonth}}
+
+			if (KaiyakuM &gt; bonusM1 &amp;&amp; KaiyakuM &gt; bonusM2) {
+				f1+psi*2-2 
+			} elseIf (KaiyakuM &gt; bonusM1 || KaiyakuM &gt; bonusM2) {
+				f1+psi-1
+			} else {
+				f1
+			}
+		</formula>
+		
+		<formula name="bonus_deathIndemnity" pvh="P" accessable="true" desc="ボーナス併用払死亡給付金">
+			if(state==2){
+				roundDown(monthPrate*12*m*SA,0)
+			}elseIf(state==1){
+				roundUp(monthPrate*(t1*payMonths+bonusF)*12/payMonths*SA,0)
+			}else{0}
+		</formula>
+	</DeathBenefit>
+</Formula-definition>

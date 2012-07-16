@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+	<BizExpenses desc="事業費率の設定">
+		<!-- 予定発生率等 STR -->
+		<!-- 世帯7の予定災害入院無事故率の追加（11/8/2）S -->
+		<formula name="sgn_lam" desc="予定災害入院無事故率">
+			if(disasterNotSecurity==0){
+				if(gen==7){0.989766}
+				else{0.986454}
+			}else{1}
+		</formula>
+		<!-- 世帯7の予定災害入院無事故率の追加（11/8/2）E -->
+		<!-- 世帯7の予定災害手術無事故率の追加（11/8/2）S -->
+		<formula name="sgs_lam" desc="予定災害手術無事故率">
+			if(disasterNotSecurity==0){
+				if(gen==7){0.998010}
+				else{0.999447}
+			}else{1}
+		</formula>
+		<!-- 世帯7の予定災害手術無事故率の追加（11/8/2）E -->
+		<!-- 世帯7の予定疾病手術無事故率の追加（11/8/2）S -->
+		<formula name="sps_lam" desc="予定疾病手術無事故率">
+			if(gen==7){0.989234}
+				else{0.997095}
+		</formula>
+		<!-- 世帯7の予定疾病手術無事故率の追加（11/8/2）E -->		
+		<!-- 予定発生率等 END -->
+		<!-- 予定事業費率 STR -->
+		<formula name="gamma" value="0.001" desc="維持費γ"/>
+		<formula name="beta" value="0.100" desc="集金費β"/>
+		<formula name="zeta" desc="集金費ζ">
+			if(gen==2){0.03}else{0.025}
+		</formula>
+		<formula name="epsilon" value="0.003" desc="免費用ε"/>
+		<formula name="gamma_nashu" value="0.001" desc="保険料払込終了後の維持費率"/>
+		<!-- 予定事業費率 END -->
+	</BizExpenses>
+	<Common desc="商品内部の共通公式">
+		<!-- 無事故給付現価 STR -->
+		<formula name="ET_x_n" paras="x,n">
+			ET_x_n_j(x,n,0)
+		</formula>
+		<formula name="E_x_n_j" paras="x,n,j">
+			L[x+n]/L[x+j]*D[x+n]/D[x+j]*(sgn_lam*sgs_lam*sps_lam)^(n-j)
+		</formula>
+		<formula name="ET_x_n_j" paras="x,n,j">
+			L[x+n]/L[x+j]*DT[x+n]/DT[x+j]*(sgn_lam*sgs_lam*sps_lam)^(n-j)
+		</formula>
+		<formula name="LAM_x_j" paras="x,j">
+			L[x]/(L[x+j]*(sgn_lam*sgs_lam*sps_lam)^j)
+		</formula>
+		<!-- 無事故給付現価 END -->
+	</Common>
+	<Premium desc="保険料">
+		<!-- 高額割引率 -->
+		<formula name="d" desc="高額割引率" accessable="false">
+			0
+		</formula>
+		<!-- 保険料(P基礎) STR -->
+		<formula name="stdPrate" pvh="P" fraction="4" accessable="false" desc="基準保険料レート">
+			<!--(ET_x_n+gamma*aT12_x_n(x,n))/(12*(1-beta-zeta-epsilon)*aT12_x_n(x,n))-->
+			<!-- 現行SYSTEMの算式 -->
+			(ET_x_n(x,n)+gamma*aT12_x_n(x,m)+gamma_nashu*f_aT_x_n(m,x,n))
+			/(12*(1-beta-zeta-epsilon)*aT12_x_n(x,m))
+		</formula>
+		<!-- 保険料(P基礎) END -->
+		<!-- 保険料rate STR -->
+		<formula name="Discount" paras="d" desc="高額割引" accessable="false">
+			if(kaisu==1){0}
+			elseIf(kaisu==2){12*d}
+			elseIf(kaisu==3){6*d}
+			else{d}
+		</formula>
+		<formula name="PrateByPaymode" paras="stdPrate,d" fraction="4" accessable="false" desc="払込方法別Prate">
+			stdPrate*PayFactor(kaisu,gen,keiro)-Discount(d)
+		</formula>
+		<formula name="Prate" pvh="P" accessable="true" desc="１．保険料レート">
+			PrateByPaymode(stdPrate,0)
+		</formula>
+		<formula name="S2P" paras="SBasePrate" desc="S基準からP基準に変換する">
+			<!-- 普通の場合 -->
+			round(1/SBasePrate,2)
+		</formula>
+		<formula name="Premium" pvh="P" accessable="true" desc="２．保険料・保険金">
+			if(sptate==0){roundDown(SA*Prate,0)}
+			else{roundUp(roundDown(SA*S2P(Prate),0)/1000,0)*1000}
+		</formula>
+		<!-- 保険料rate END -->
+		<!-- 保険料建（Ｐ建）の取扱 STR -->
+		<!-- 保険料建（Ｐ建）の取扱 END -->
+	</Premium>
+	<ReserveFund desc="責任準備金">
+		<!-- 保険年度末保険料積立金rate STR -->
+		<formula name="Jikonasi" paras="t" accessable="false" desc="無事故の場合">
+			if(t==0){0}
+			else{
+				<!-- max(ET_x_n_j(x,n,t)-ET_x_n(x,n)*LAM_x_j(x,t)/aT_x_n(x,n)*aT_xt_nt(x,n,t),0) -->
+				max(ET_x_n_j(x,n,t)+gamma*LAM_x_j(x,t)*f_aT_x_n(m,x+t,n)
+				-
+				(ET_x_n(x,n)+gamma*f_aT_x_n(m,x,n))*LAM_x_j(x,t)*aT_xt_nt(x,m,t)/aT_x_n(x,m),0)
+			}
+		</formula>
+		
+		<formula name="Vrate_accu" paras="t" fraction="4" desc="保険年度末rate">
+			if(accidentUmu==0){
+				<!-- 無事故の場合 -->
+				Jikonasi(t)
+			}else{
+				<!-- 有事故の場合 -->
+				0
+			}
+		</formula>
+		<formula name="Vrate" pvh="if(gen==2){V}else{H}" fraction="4" accessable="true" desc="１．保険年度末Vレート">
+			Vrate_accu(t)
+		</formula>
+		<!-- 保険年度末保険料積立金rate END -->
+		
+		<!-- 契約者用Vrate STR -->
+		<formula name="ContractorYearV" pvh="P" paras="t" fraction="4" accessable="false" desc="保険年度末Vrate">
+			Vrate_accu(t)
+		</formula>
+		<formula name="ContractorVrate" pvh="P" fraction="4" accessable="true" desc="３．契約者用Vレート">
+			if(f==0){
+				ContractorYearV(t)
+			}else{
+				(1-f_12(f1))*ContractorYearV(t1)+f_12(f1)*ContractorYearV(t1+1)	
+			}
+		</formula>
+		<!-- 契約者用Vrate END -->
+		
+		<formula name="BizYearV" paras="t,z" fraction="4" accessable="false" desc="事業末Vレート">
+			if(accidentUmu==0){
+				<!-- 無事故の場合 -->
+				if(state==6){
+					<!-- 保険料払込免除契約 -->
+					round(E_x_n_j(x,n,t)+gamma*LAM_x_j(x,t)*a_x_n(x+t,n-t),4)
+				}else{
+					<!-- 下記以外 -->
+					Jikonasi(t)
+				}
+			}else{
+				<!-- 有事故の場合 -->
+				0
+			}
+		</formula>
+		
+		<formula name="VrateValuation" pvh="if(gen==2){V}else{H}" accessable="true" desc="４．保険年度末実額">
+			SA*Vrate
+		</formula>
+		<formula name="Valuation" pvh="P" fraction="0" accessable="true" desc="５．契約者責任準備金実額">
+			SA*ContractorVrate
+		</formula>
+		<formula name="BizYearValuation" pvh="if(kisoritsu==0){P}elseIf(kisoritsu==1){V}else{H}" fraction="0" accessable="true" desc="６．事業年度末実額">
+			SA*BizYearV
+		</formula>
+		
+	</ReserveFund>
+	<SurrenderFee desc="解約返戻金">
+		<!-- Wrate STR -->
+		<formula name="sigma" paras="t" accessable="false">
+			0.03*round(min(n/10,1),3)*max(1-t/min(n,10),0)
+		</formula>
+		<formula name="tWrate" fraction="4" paras="t" pvh="P" accessable="false" desc="Wrate">
+			max{ContractorYearV(t)-sigma(t),0}
+		</formula>
+		<!-- Wrate END -->
+		<!-- 解約返戻金rate STR -->
+		<formula name="Wrate" pvh="P" fraction="4" accessable="true" desc="１．解約返戻金Wレート">
+			if(PremiumAbolishSign==1){
+				<!-- 契約始期日 2010/04/01 から -->
+				if(kaiyakuUmu==0){
+					<!-- 解約返戻金なし -->
+					0
+				}else{
+					<!-- 解約返戻金あり -->
+					if(accidentUmu==0){
+					<!-- 無事故の場合 -->
+						if(12*t1+f1-12*t-f&lt;0){
+							<!-- 払込年月数-経過年月数<0の場合、t,fをt1,f1に読み替え -->
+							((1-f_12(f1))*tWrate(t1)+f_12(f1)*tWrate(t1+1))+0.000000000001
+						}
+						else{
+							((1-f_12(f))*tWrate(t)+f_12(f)*tWrate(t+1))+0.000000000001
+						}
+					}else{
+						0
+					}
+				}
+			}
+			elseIf(contractDate&gt;=20080202){
+				<!-- 契約始期日 2008/02/02 から2010/03/31まで -->
+				if(kaiyakuUmu==0){
+					<!-- 解約返戻金なし -->
+					0
+				}else{
+					<!-- 解約返戻金あり -->
+					if(accidentUmu==0){
+						<!-- 無事故の場合 -->
+						v^ve*round((1-f_12(f1))*tWrate(t1)+f_12(f1)*tWrate(t1+1),4)+0.000000000001
+					}else{
+						<!-- 有事故の場合 -->
+						0
+					}
+				}
+			}
+			else{
+				<!-- 契約始期日 2008/02/01まで -->
+				if(kaiyakuUmu==0){
+					<!-- 解約返戻金なし -->
+					0
+				}else{
+					<!-- 解約返戻金あり -->
+					if(accidentUmu==0){
+						<!-- 無事故の場合 -->
+						Wrate_Overbar
+					}else{
+						0
+					}
+				}
+			}
+		</formula>
+		<formula name="Wrate_Overbar">
+			v^ve*round((1-f_12(f1))*min{tWrate(t1),Jikonasi_W(t1)}+f_12(f1)*min{tWrate(t1+1),Jikonasi_W(t1+1)},4)+0.000000000001
+		</formula>
+		<formula name="Jikonasi_W" fraction="4" paras="t" pvh="V" desc="無事故の場合">
+			Jikonasi(t)
+		</formula>
+		
+		<formula name="CashValue" fraction="0" pvh="P" accessable="true" desc="２．解約返戻金実額">
+            SA*Wrate
+		</formula>
+		<!-- 解約返戻金rate END -->
+	</SurrenderFee>
+</Formula-definition>

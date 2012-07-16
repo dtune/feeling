@@ -1,0 +1,319 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+	<BizExpenses desc="事業費率の設定">
+		<formula name="alpha1">
+			if(kaisu==1){
+				if(gen==7){
+					0.0340
+				}elseIf(gen==8){
+					0.0260
+				}else{
+					0.0370
+				}
+			}else{
+				roundDown{min((0.01+0.001*m),0.025),8}
+			}
+		</formula>
+		<formula name="alpha2" paras="t">
+			if(kaisu==1 &amp;&amp; t&lt;=10){0.0008}else{0}
+		</formula>
+		<formula name="gammap">
+			roundDown(0.00155*m,8)
+		</formula>
+		<!-- 固定値であれば、下記のように属性valueのところを書いてください -->
+		<formula name="gamma1">
+			if(gen&gt;=7){0.0023}
+			else{0.002}
+		</formula>
+		<formula name="gamma2" value="0.01"/>
+		<formula name="gamma3">
+			if(gen&gt;=7){0.0023}
+			else{0.002}
+		</formula>
+		<formula name="beta" value="0.03"/>
+		<formula name="zeta" value="0.025"/>
+		<formula name="q1" value="0.000548" desc="予定災害死亡率q'"/>
+	</BizExpenses>
+	
+	<Common desc="商品内部の共通公式">
+	<!-- ご注意: 計算公式については、レートキーや計算基礎がパラメータとして書くことは必要ない -->
+		<formula name="F" fraction="3" desc="年金原資">
+			a_g(g)*(1+gamma2)
+		</formula>
+		<formula name="a_g" paras="g" fraction="5">
+			(1-v^g)/(1-v)
+		</formula>
+
+		<formula name="Vpn" paras="t" cacheable="true" desc="一時払いの保険料積立金">
+ 
+			set{i=0}
+			set{t_Vpn=1-alpha1}
+			while(i&lt;t){
+				set{i=i+1}
+				set{e=alpha2(i)+gamma1}
+				if(t_Vpn&lt;=1){
+					set{j=50+i-1}
+					t_Vpn={t_Vpn*(1+rate-e)-(qx[j]+0.1*q1)*(1+rate-e)^(1/2)}/(1-qx[j])
+				}else{
+					t_Vpn=t_Vpn*(1+rate-e)*(1-1.1*q1)/(1-q1)
+				}
+			}
+
+		</formula>
+		<formula name="mVpn" paras="t,f,m" cacheable="true" desc="分割払いの保険料積立金">
+			<formula name="m_pai_n_month">
+			 	1-alpha1-gammap-beta-zeta
+			</formula>
+			set{t_mVpn=0}
+			if(12*t+f&lt;=12*m){
+				set{i=0}
+				while(i&lt;12*t+f){
+					set{i=i+1}
+					t_mVpn=(t_mVpn+m_pai_n_month)*((1+rate)^(1/12))*(1-1.1*(q1/12))/(1-q1/12)
+				}
+			}else{
+				set{i=0}
+				while(i&lt;12*m){
+					set{i=i+1}
+					t_mVpn=(t_mVpn+m_pai_n_month)*((1+rate)^(1/12))*(1-1.1*(q1/12))/(1-q1/12)
+				}
+				set{j=m}
+				while(j&lt;t){
+					set{j=j+1}
+					t_mVpn=t_mVpn*(1+rate-gamma1)*(1-1.1*q1)/(1-q1)
+				}
+			}
+		</formula>
+
+		<!-- 042商品の端数処理が5 -->
+		<formula name="PrateByPaymode" paras="stdPrate,d" fraction="5" desc="払込方法別Prate">
+			<!-- 基準Prateと高額割引dより、払込方法別Prateを求める -->
+			<formula name="Discount" paras="d" desc="高額割引">
+				if(kaisu==1){0}
+				elseIf(kaisu==2){12*d}
+				elseIf(kaisu==3){6*d}
+				else{d}
+			</formula>
+			stdPrate*PayFactor(kaisu,gen,keiro)-Discount(d)
+		</formula>
+		
+		<formula name="S2P" paras="SBasePrate" desc="S基準からP基準に変換する">
+				<!-- 普通の場合 -->
+				if(kaisu==1){
+					round(1/SBasePrate,5)
+				}else{
+					round(1/SBasePrate,3)
+				}
+		</formula>
+				
+	</Common>
+	
+	<Premium desc="保険料">
+		<formula name="stdPrate" limitedSex="male" desc="基準Ｐレート">
+			if(kaisu==1){singlePrate}else{MultiPrate}
+			<formula name="singlePrate" fraction="4" desc="一時払いPrate">
+				F/Vpn(n)
+			</formula>
+			<formula name="MultiPrate" fraction="5" desc="分割払いPrate">
+				F/mVpn(n,0,m)
+			</formula>
+		</formula>
+		
+		<formula name="Prate" accessable="true" pvh="P" desc="１．保険料レート">
+			PrateByPaymode(stdPrate,0)
+		</formula>
+		
+		<formula name="Premium" pvh="P" accessable="true" desc="２．保険料・保険金">
+			if(sptate==0){
+				<!-- 042商品の割引がゼロ -->
+				roundDown(SA*PrateByPaymode(stdPrate,0),0)
+			}else{
+				roundUp(roundDown(SA*S2P(PrateByPaymode(stdPrate,0)),0)/10,0)*10
+			}
+		</formula>
+	</Premium>
+	
+	<ReserveFund desc="保険積立金">
+		<formula name="SingleV" paras="t" fraction="4" desc="一時払VTレート">
+			round(Vpn(t),4)*stdSinglePrate
+			<!-- round(Vpn(t),4) -->
+		<formula name="stdSinglePrate" limitedSex="male" pvh="if(gen&lt;=4){P}else{H}"
+			 fraction="4" desc="積立金計算用の標準Pレート（一時払い）">
+				F/Vpn(n)
+			</formula>
+		</formula>
+		
+		<formula name="MultiV" paras="t" fraction="4" desc="分割払VTレート">
+			mVpn(t,0,m)*stdMultiPrate
+			<formula name="stdMultiPrate" limitedSex="male" fraction="5"
+			 desc="積立金計算用の標準Pレート（分割払い）">
+				F/mVpn(n,0,m)
+			</formula>
+		</formula>
+		
+		<formula name="PaidupV" paras="t" fraction="4" desc="払済保険VTレート">
+			F/({(1+rate-gamma1)*(1-1.1*q1)/(1-q1)}^(n-t))
+		</formula>
+		<formula name="BenifitPostponingV" paras="t3" fraction="4" desc="年金支払開始日の繰り下げ中のVTレート">
+			{v^(l-t3)+gamma3*a_g(l-t3)}*F
+		</formula>
+		<formula name="BenifitStartedV" paras="t2" fraction="3" desc="年金支払開始日後のVTレート">
+			a_g(g-t2)*(1+gamma2)
+		</formula>
+		
+		<formula name="Vrate_accu" paras="t" desc="保険年度末rate">
+			if(state==4){
+				<!-- 払済 -->
+				PaidupV(t)
+			}elseIf(state==5){
+				<!-- 繰り下げ中 -->
+				BenifitPostponingV(t)
+			}elseIf(state==3){
+				<!-- 年金開始後 -->
+				BenifitStartedV(t)
+			}else{
+				if(kaisu==1){
+					<!-- 一時払 -->
+					SingleV(t)
+				}else{
+					<!-- 分割払 -->
+					MultiV(t)
+				}
+			}
+		</formula>
+		<!-- baseは特に指定しないと、呼び出し元の基礎をそのまま使う -->
+		<formula name="Vrate" pvh="H" accessable="true" desc="１．保険年度末Vレート">
+			if(state==3){
+				Vrate_accu(t2)
+			}elseIf(state==5){
+				Vrate_accu(t3)
+			}else{
+			Vrate_accu(t)
+			}
+		</formula>
+		
+		<formula name="ContractorYearV" paras="t" pvh="P" fraction="4" desc="保険年度契約者VTレート">
+			if(state==4){
+				<!-- 払済 -->
+				PaidupV(t)
+			}elseIf(state==5){
+				<!-- 繰り下げ中 -->
+				BenifitPostponingV(t)
+			}elseIf(state==3){
+				<!-- 年金開始後 -->
+				BenifitStartedV(t)
+			}else{
+				if(kaisu==1){
+					round(Vpn(t),4)
+				}else{MultiV(t)}
+			}
+		</formula>
+		<formula name="ContractorVrate" fraction="4" pvh="P" accessable="true" desc="３．契約者用Vレート">
+			if(state==4){
+				<!-- 払済 -->
+				(1-f_12(f))*ContractorYearV(t)+f_12(f)*ContractorYearV(t+1)
+			}elseIf(state==5){
+				<!-- 繰り下げ中 -->
+				(1-f_12(f3))*ContractorYearV(t3)+f_12(f3)*ContractorYearV(t3+1)
+			}elseIf(state==3){
+				<!-- 年金開始後 -->
+				if(f2==0){
+					ContractorYearV(t2)
+				}else{
+					round(v^((12-f2)/12)*ContractorYearV(t2+1),3)
+				}				
+			}else{
+				if(kaisu==1){
+					<!-- 一時払 -->
+					(1-f_12(f))*ContractorYearV(t)+f_12(f)*ContractorYearV(t+1)
+				}else{
+					if(state==1){
+						<!-- 払込中 -->
+						(1-f_12(f1))*ContractorYearV(t1)+f_12(f1)*ContractorYearV(t1+1)
+					}else{
+						<!-- 払込終了 -->
+						(1-f_12(f))*ContractorYearV(t)+f_12(f)*ContractorYearV(t+1)
+					}
+				}
+			}
+		</formula>
+		
+		<formula name="BizYearV" paras="t" fraction="4" accessable="false" desc="事業末Vレート">
+			if(state==4){
+				<!-- 払済 -->
+				PaidupV(t)
+			}elseIf(state==5){
+				<!-- 繰り下げ中 -->
+				BenifitPostponingV(t)
+			}elseIf(state==3){
+				<!-- 年金開始後 -->
+				BenifitStartedV(t)
+			}else{
+				if(kaisu==1){
+					<!-- 一時払 -->
+					SingleV(t)
+				}else{
+					<!-- 分割払 -->
+					MultiV(t)
+				}
+			}
+		</formula>
+		<formula name="BizYearVate" pvh="if(kisoritsu==0){P}elseIf(kisoritsu==1){V}else{H}" accessable="true" desc="２．事業年度末Vレート">			
+			if(state==3){
+				BizYearV(t2)
+			}elseIf(state==5){
+				BizYearV(t3)
+			}else{
+				BizYearV(t)
+			}
+		</formula>
+
+	</ReserveFund>
+	
+	<SurrenderFee desc="解約返戻金">
+		<formula name="Wrate" pvh="P" fraction="4" accessable="true" desc="１．解約返戻金Wレート">
+			if(state==4){
+				<!-- 払済 -->
+				(1-f_12(f))*PaidupV(t)+f_12(f)*PaidupV(t+1)
+			}elseIf(state==5){
+				<!-- 繰り下げ中 -->
+				(1-f_12(f3))*BenifitPostponingV(t3)+f_12(f3)*BenifitPostponingV(t3+1)
+			}elseIf(state==3){
+				<!-- 年金開始後は取り扱わない -->
+				0
+			}else{
+				if(kaisu==1){
+					<!-- 一時払 -->
+					(1-f_12(f))*round(Vpn(t),4)+f_12(f)*round(Vpn(t+1),4)
+				}else{
+					if(state==1){
+						<!-- 払込中：契約日より計算式が違い -->
+						if(PremiumAbolishSign==1){
+							if((12*t1+f1-12*t-f)&lt;0){
+								(1-f_12(f1))*WT_inpaid(t1)+f_12(f1)*WT_inpaid(t1+1)
+							}else{
+								(1-f_12(f))*WT_inpaid(t)+f_12(f)*WT_inpaid(t+1)
+							}		
+						}else{
+							v^ve*round((1-f_12(f1))*WT_inpaid(t1)+f_12(f1)*WT_inpaid(t1+1),4)
+						}
+					}else{
+						<!-- 払込終了 -->
+						(1-f_12(f))*MultiV(t)+f_12(f)*MultiV(t+1)
+					}
+				}
+			}
+			<!-- 0930取込、端数処理４＊を追加 -->
+			<formula name="WT_inpaid" paras="t" fraction="4" desc="分割払込中Wレート">
+				max(MultiV(t)-sigma(t),0)
+				<formula name="sigma" paras="t">
+					min(0.01+0.001*m,0.025)*stdPrate
+					*12*m*0.75*max(1-t/min(m,10),0)
+				</formula>
+			</formula>
+		</formula>
+	</SurrenderFee>
+	
+</Formula-definition>

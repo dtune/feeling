@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+	<UnpaidAnnuity desc="未払年金">
+		<formula name="bringUp_rate" paras="t,f" desc="養育年金の一時支払金rate" fraction="4">
+			if(f==0){
+				a_g(n-t)*(1+gamma_2nashu)
+			}else{
+				v^((12-f)/12)*round((1+gamma_2nashu)*a_g(n-t+1),4)
+			}
+		</formula>
+		<formula name="UnpaidAnnuity" pvh="P" fraction="0" accessable="true" desc="養育年金の一時支払金">
+			bringUp_rate(t,f)*(bringUpS/2)
+		</formula>
+	</UnpaidAnnuity>
+</Formula-definition>

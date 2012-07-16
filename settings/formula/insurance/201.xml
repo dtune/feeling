@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+	<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+	<BizExpenses desc="事業費率の設定">	  
+		 <!-- 予定事業費率 -->
+		 <formula name="e" desc="予定事業費率(e)" value="0.00015"/>
+		 <formula name="zeta" desc="集金費(zeta)">
+		       if(gen==1){
+				0.04
+		       }elseIf(gen==2){
+		       	0.03
+		       }else{
+		       	0.025
+		       }
+		 </formula>
+		 <formula name="epsilon" desc="保険料払込免除(epsilon)">
+		        if(m==n){0.002}
+		        elseIf(m&lt;=5){0.0005}
+		        elseIf(m&gt;10){0.002}
+		        else{0.001}
+		 </formula>
+		
+	</BizExpenses>
+	<Common desc="商品内部の共通公式">
+	     <formula name="S_i" desc="災害死亡保険金額１に対する給付割合(S_i)" paras="i">
+	          if(i==1){1.0}
+	          elseIf(i==2){0.7}
+	          elseIf(i==3){0.5}
+	          elseIf(i==4){0.3}
+	          elseIf(i==5){0.15}
+	          elseIf(i==6){0.10}
+	          else{0}
+	     </formula>
+	     
+	     	<!-- 生命年金　共通定義 -->
+	    <formula name="vq" paras="x">
+    		1-v*(1-qx[x])
+    	</formula>
+    	
+    	<formula name="vqe" paras="x,n">
+    		(v*(1-qx[x]))^n
+    	</formula>
+		<formula name="a_x_n" paras="x,n" fraction="5">
+			if(n&lt;=0){0}else{(1-vqe(x,n))/vq(x)}
+		</formula>
+		<formula name="a_k_x_n" paras="k,x,m" fraction="5" desc="始期払k回年金現価">
+			(1-vqe(x,m))/vq(x)-(k-1)/(2*k)*(1-vqe(x,m))
+		</formula>
+ 
+		<formula name="f_a_x_n" paras="m,x,n" fraction="5">
+			vqe(x,m)*(1-vqe(x,n-m))/vq(x)
+		</formula>
+	    
+		<formula name="PrateByPaymode" paras="stdPrate,d" fraction="6"  desc="払込方法別Prate">
+			<!-- 基準Prateと高額割引dより、払込方法別Prateを求める -->
+			<formula name="Discount" paras="d" desc="高額割引">
+				if(kaisu==1){0}
+				elseIf(kaisu==2){12*d}
+				elseIf(kaisu==3){6*d}
+				else{d}
+			</formula>
+			stdPrate*PayFactor(kaisu,gen,keiro)-Discount(d)
+		</formula>
+
+		<formula name="S2P" paras="SBasePrate" desc="S基準からP基準に変換する">
+			<!-- 普通の場合 -->
+			if(kaisu==1){round(1/SBasePrate,4)}
+			else{round(1/SBasePrate,2)}
+		</formula>
+	</Common>
+	<Premium desc="保険料">
+	<!--共通子定義   -->
+	 <formula name="Sum_qsi_Principal" desc="Sum_qsi_Principal(0-6)">
+		      if(sex==0){0.00050145}
+		      else{0.0003122}
+	 </formula>
+	 <formula name="Sum_qsi_Sponse" desc="Sum_qsi_Sponse(0-6)" >
+		      if(sex==0){0.0003122}
+		      else{0.00050145}
+	 </formula>
+	 
+	 <formula name="Sum_qsi_Child" desc="Sum_qsi_Child(0-6)" value="0.000406825"/>
+	 
+	<formula name="Prate_LumpPay_Principal" limitedAge="40" desc="一時払本人部分基準レート" fraction="5">
+		v^(1/2)*Sum_qsi_Principal*a_x_n(x,n)+e*a_x_n(x,n)
+	</formula>
+	<formula name="Prate_LumpPay_Spouse" limitedAge="40"  desc="一時払配偶者部分基準レート" fraction="5">
+		Sy/100*(v^(1/2)*Sum_qsi_Sponse*a_x_n(x,n)+e*a_x_n(x,n))
+	</formula>
+	<formula name="Prate_LumpPay_Child" limitedAge="40" desc="一時払子部分基準レート" fraction="5">
+		Sz/100*(v^(1/2)*Sum_qsi_Child*a_x_n(x,n)*2+e*a_x_n(x,n)*2)
+	</formula>
+	<formula name="Prate_InstallPay_Principal" limitedAge="40" fraction="6" desc="分割払本人部分基準レート">
+	        <!-- 全期払の場合はｎ＝ｍ＝１-->
+	        if(n==m){
+	         (v^(1/2)*Sum_qsi_Principal*a_x_n(x,1)+e*a_k_x_n(12,x,1))
+	       　　　　　　　　 /(12*(1-zeta-epsilon)*a_k_x_n(12,x,1))
+	        }
+	        else{ 
+	        (v^(1/2)*Sum_qsi_Principal*a_x_n(x,n)+e*a_k_x_n(12,x,m)+e*f_a_x_n(m,x,n))
+	        /(12*(1-zeta-epsilon)*a_k_x_n(12,x,m))
+	        }
+	</formula>
+	<formula name="Prate_InstallPay_Spouse" limitedAge="40"   desc="分割払配偶者部分基準レート" fraction="6">
+	          <!-- 全期払の場合はｎ＝ｍ＝１-->
+	        if(n==m){
+	        Sy/100*((v^(1/2)*Sum_qsi_Sponse*a_x_n(x,1)+e*a_k_x_n(12,x,1))
+	        　　　　　/(12*(1-zeta-epsilon)*a_k_x_n(12,x,1)))
+	        }
+	        else{
+	        Sy/100*((v^(1/2)*Sum_qsi_Sponse*a_x_n(x,n)+e*a_k_x_n(12,x,m)+e*f_a_x_n(m,x,n))
+	        　　　　　/(12*(1-zeta-epsilon)*a_k_x_n(12,x,m)))
+	        }
+	</formula>
+	<formula name="Prate_InstallPay_Child" limitedAge="40" desc="分割払子部分基準レート" fraction="6">
+	         <!-- 全期払の場合はｎ＝ｍ＝１-->
+	        if(n==m){Sz/100*
+	         ((v^(1/2)*Sum_qsi_Child*a_x_n(x,1)+e*a_k_x_n(12,x,1))*2
+	        /(12*(1-zeta-epsilon)*a_k_x_n(12,x,1)))
+	        }
+	        else{
+	        Sz/100*
+	        ((v^(1/2)*Sum_qsi_Child*a_x_n(x,n)+e*a_k_x_n(12,x,m)+e*f_a_x_n(m,x,n))*2
+	        /(12*(1-zeta-epsilon)*a_k_x_n(12,x,m)))
+	        }
+	</formula>
+		<!-- 基準Ｐrate(型別) -->
+		<formula name="Prate" pvh="P" accessable="true" desc="１．保険料レート">
+			PrateByPaymode(stdPrate,0)
+		</formula>
+		<formula name="stdPrate" pvh="P" accessable="false" desc="基準保険料レート">
+		     <!-- 本人型 -->
+		      if(contractorType==1){
+		           if(kaisu==1){Prate_LumpPay_Principal}
+		           else{Prate_InstallPay_Principal}
+		            <!-- 本人配偶者子型 -->
+		      }elseIf(contractorType==3){
+		          if(kaisu==1){Prate_LumpPay_Principal+Prate_LumpPay_Spouse+Prate_LumpPay_Child}
+		          else{Prate_InstallPay_Principal+Prate_InstallPay_Spouse+Prate_InstallPay_Child}
+		           <!-- 本人配偶者型 -->   
+		      }elseIf(contractorType==2){
+		           if(kaisu==1){Prate_LumpPay_Principal+Prate_LumpPay_Spouse}
+		           else{Prate_InstallPay_Principal+Prate_InstallPay_Spouse}
+		       <!-- 本人子型 -->
+		       }elseIf(contractorType==4){
+		          if(kaisu==1){Prate_LumpPay_Principal+Prate_LumpPay_Child}
+		          else{Prate_InstallPay_Principal+Prate_InstallPay_Child}  
+		      }else{0}
+		</formula>
+        <formula name="Premium" pvh="P" accessable="true" desc="２．保険料・保険金">
+			<!-- 高額割引がゼロ 100円の位を切り上げ--> 
+			if(sptate==0){
+         	<!--Ｐレートはゼロより小さい場合、ゼロとする  -->
+			   roundDown(SA*max{Prate,0},0)
+			}else{
+			   roundUp(roundDown(SA*S2P(Prate),0)/1000,0)*1000
+		     }    
+	   </formula>
+	   
+	</Premium>
+	<ReserveFund desc="保険積立金">
+		 <formula name="Vrate_sub_self" paras="x,n">
+		    v^(1/2)*Sum_qsi_Principal*a_x_n(x,n)+e*a_x_n(x,n)
+		 </formula>
+		 <formula name="V_self_term" paras="t" limitedAge="40" fraction="4" desc="本人部分レート.期間中">
+		 	max(Vrate_sub_self(40,n-t)-Vrate_sub_self(x,n)/a_x_n(x,m)*a_x_n(40,m-t),0)
+		 </formula>
+		 <formula name="V_self_paid" paras="t" limitedAge="40" fraction="4" desc="本人部分レート.終了後">
+		 	Vrate_sub_self(40,n-t)
+		 </formula>
+		 
+		 <formula name="Vrate_sub_mate" paras="x,n">
+			v^(1/2)*Sum_qsi_Sponse*a_x_n(x,n)+e*a_x_n(x,n)
+		 </formula>
+		 <formula name="V_mate_term" paras="t" limitedAge="40" fraction="4" desc="配偶者部分レート.期間中">
+		 	max((Vrate_sub_mate(40,n-t)-Vrate_sub_mate(x,n)/a_x_n(x,m)*a_x_n(40,m-t))*Sy/100,0)
+		 </formula>
+		 <formula name="V_mate_paid" paras="t" limitedAge="40" fraction="4" desc="配偶者部分レート.終了後">
+		 	Sy/100*Vrate_sub_mate(40,n-t)
+		 </formula>
+		 
+		 <formula name="Vrate_sub_Child" paras="x,n">
+		    v^(1/2)*Sum_qsi_Child*a_x_n(x,n)+e*a_x_n(x,n)
+		 </formula>
+		 <formula name="V_Child_term" paras="t" limitedAge="40" fraction="4" desc="子部分レート.期間中">
+		 	max((Vrate_sub_Child(40,n-t)-Vrate_sub_Child(x,n)/a_x_n(x,m)*a_x_n(40,m-t))*Sz/100*2,0)
+		 </formula>
+		 <formula name="V_Child_paid" paras="t" limitedAge="40" fraction="4" desc="子部分レート.終了後">
+		 	Sz/100*Vrate_sub_Child(40,n-t)*2
+		 </formula>
+		 
+		 <formula name="Vrate_term" paras="t" desc="保険料払込期間中">
+		      <!-- 本人型 -->
+			if(contractorType==1){
+				V_self_term(t)
+		      <!-- 本人配偶者型 -->
+			}elseIf(contractorType==2){
+				V_self_term(t)+V_mate_term(t)
+		       <!-- 本人配偶者子型 -->
+			}elseIf(contractorType==3){
+		       	V_self_term(t)+V_mate_term(t)+V_Child_term(t)      
+			  <!-- 本人子型 -->
+			}elseIf(contractorType==4){
+				V_self_term(t)+V_Child_term(t)
+			}else{
+				0
+			}
+		 </formula>
+		 
+		 <formula name="Vrate_paid" paras="t" desc="保険料払込期間終了後">
+		      <!-- 本人型 -->
+			if(contractorType==1){
+				V_self_paid(t)
+		      <!-- 本人配偶者型 -->
+			}elseIf(contractorType==2){
+				V_self_paid(t)+V_mate_paid(t)
+		      <!-- 本人配偶者子型 -->
+			}elseIf(contractorType==3){
+		       	V_self_paid(t)+V_mate_paid(t)+V_Child_paid(t)      
+			  <!-- 本人子型 -->
+			}elseIf(contractorType==4){
+				V_self_paid(t)+V_Child_paid(t)
+			}else{
+				0
+			}
+		 </formula>
+		 
+		 <formula name="Vrate_accu" paras="t" fraction="4" desc="保険年度末rate">
+			if(state==1||state==6){
+				Vrate_term(t)
+			}elseIf(state==2||kaisu==1){
+				Vrate_paid(t)
+			}else{
+				0
+			}
+		</formula>
+		 <!-- 保険年度末Vレート  -->
+		 <formula name="Vrate" pvh="if(gen&gt;2){H}else{V}" paras="t" fraction="4" accessable="true" desc="１．保険年度末Vレート">
+			Vrate_accu(t)
+		 </formula>
+
+		 <!-- 契約者用Vレート -->
+		<formula name="ContractorYearV" pvh="P" paras="t" fraction="4" desc="保険年度契約者VTレート">
+			Vrate_accu(t)
+		</formula>
+
+		<formula name="ContractorVrate" pvh="P" fraction="4" accessable="true" desc="３．契約者用Vレート">
+			if(state==1||state==6){
+				(1-f_12(f1))*ContractorYearV(t1)+f_12(f1)*ContractorYearV(t1+1)
+			}elseIf(state==2||kaisu==1){
+				(1-f_12(f))*ContractorYearV(t)+f_12(f)*ContractorYearV(t+1)
+			}else{
+				0
+			}
+		</formula> 
+		
+		<!-- 事業年度末Vレート  -->
+		<formula name="BizYearV" paras="t" fraction="4" accessable="false" desc="事業末Vレート">
+			if(state==1){
+				Vrate_term(t)
+			}elseIf(state==2||state==6||kaisu==1){
+				Vrate_paid(t)
+			}else{
+				0
+			}
+		</formula>
+		
+		<formula name="BizYearVate" pvh="if(kisoritsu==0){P}elseIf(kisoritsu==1){V}else{H}" accessable="true" desc="２．事業年度末Vレート">
+			BizYearV(t)
+		</formula>
+		
+	</ReserveFund>
+
+	<SurrenderFee desc="解約返戻金">
+		<formula name="tSigma" paras="t" desc="解約控除率">
+				 if(t&lt;3){1-m/n}
+				 else{1}
+		</formula>
+        <formula name="tWrate" paras="t" pvh="P" desc="解約返戻金Wレート">
+			if(state==1 || state==6){
+				<!-- 払込期間中　または　免除 -->
+				max{ContractorYearV(t),0}
+			}elseIf(state==2||kaisu==1){
+				<!-- 払込終了後  一時払  -->
+				max{ContractorYearV(t),0} 
+			}else{0}
+		</formula>
+		<formula name="Wrate" fraction="4" pvh="P" accessable="true" desc="１．解約返戻金Wレート">
+			if(state==1||state==6){
+				if(PremiumAbolishSign==1){
+					if(12*t1+f1&lt;12*t+f){
+						if(t1&lt;3){
+							round((1-f_12(f1))*tWrate(t1)+f_12(f1)*tWrate(t1+1),4)*(n-m)/n
+						}else{
+							(1-f_12(f1))*tWrate(t1)+f_12(f1)*tWrate(t1+1)
+						}
+					}else{
+						if(t&lt;3){
+							round((1-f_12(f))*tWrate(t)+f_12(f)*tWrate(t+1),4)*(n-m)/n
+						}else{
+							(1-f_12(f))*tWrate(t)+f_12(f)*tWrate(t+1)
+						}
+					}
+				}else{
+					if(t1&lt;3){
+						v^ve*round((1-f_12(f1))*tWrate(t1)+f_12(f1)*tWrate(t1+1),4)*(n-m)/n
+					}else{
+						v^ve*round((1-f_12(f1))*tWrate(t1)+f_12(f1)*tWrate(t1+1),4)
+					}
+				}
+			}elseIf(state==2||kaisu==1){
+				(1-f_12(f))*tWrate(t)+f_12(f)*tWrate(t+1)
+			}else{0}
+		</formula>
+	</SurrenderFee>
+</Formula-definition>

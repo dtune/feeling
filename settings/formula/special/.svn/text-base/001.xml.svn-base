@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+	<!-- 保険料　ここから -->
+	<Premium desc="保険料">
+		<formula name="x4Prate" xtime="4" desc="4倍体基準Prate">
+			stdPrate
+		</formula>
+		<formula name="x1Prate" xtime="1" desc="1倍体基準Prate">
+			stdPrate
+		</formula>
+		<formula name="Special_stdPrate" pvh="P" accessable="false" desc="特別条件付基準Prate">
+			if(kaisu==1){
+				round((specialLambda-1)*(x4Prate-x1Prate)/(specialLambda1-1)+0.000000000001,5)
+			}else{
+				round((specialLambda-1)*(x4Prate-x1Prate)/(specialLambda1-1)+0.000000000001,6)
+			}
+		</formula>
+		<formula name="Special_Prate" pvh="P" desc="特別条件付Prate">
+			PrateByPaymode(Special_stdPrate,0)
+		</formula>
+
+		<formula name="Special_Premium" pvh="P" accessable="true" desc="４.特別条件付保険料/保険金額">
+			<!--Ｓ建てとして計算する -->
+			roundDown(SA*max(PrateByPaymode(Special_stdPrate,0),0),0)
+		</formula>
+		
+		<formula name="Special_Bonus_Prate" pvh="P" fraction="6" desc="特別条件付ボーナス払基準Prate">
+			(psi-1)*bonus_lambda*(Special_Bonus_month_Prate)
+		</formula>
+		<formula name="Special_Bonus_month_Prate" pvh="P" fraction="6" desc="ボーナス月払保険料rateS">
+			if(gen==2){
+				if(keiro==1){
+					5.85/(psi+4.85)*Special_stdPrate
+				}elseIf(keiro==2){
+					0.985*5.85/(0.985*(psi-1)+5.85)*Special_stdPrate
+				}else{0}
+			}elseIf(gen==1){
+				if(keiro==1){
+					5.80/(psi+4.80)*Special_stdPrate
+				}elseIf(keiro==2){
+					0.985*5.80/(0.985*(psi-1)+5.80)*Special_stdPrate
+				}else{0}
+			}else{
+				if(keiro==1){
+					5.87/(psi+4.87)*Special_stdPrate
+				}elseIf(keiro==2){
+					0.985*5.87/(0.985*(psi-1)+5.87)*Special_stdPrate
+				}else{0}
+			}
+		</formula>
+
+		<formula name="Special_Bonus_Premium" pvh="P" accessable="true" desc="特体ボーナス払保険料/保険金額">
+			if(sptate==0){
+				roundDown(SA*max(Special_Bonus_Prate,0),0)
+			}else{
+				roundUp(roundDown(SA*S2P(Special_Bonus_Prate),0)/1000,0)*1000
+			}
+	   </formula>
+	</Premium>
+
+	<!-- 責任準備金　ここから -->
+	<ReserveFund desc="責任準備金">
+		<formula name="x4ContractorVrate" xtime="4" desc="4倍体契約者用レート">
+			ContractorVrate
+		</formula>
+		
+		<formula name="x1ContractorVrate" xtime="1" desc="1倍体契約者用レート">
+			ContractorVrate
+		</formula>
+
+		<formula name="Special_ContractorVrate" pvh="P" accessable="true" fraction="4" desc="特体契約者レート">
+			(specialLambda-1)*(x4ContractorVrate-x1ContractorVrate)/(specialLambda1-1)
+		</formula>
+		<formula name="Special_Valuation" pvh="P" fraction="0" accessable="true" desc="特体契約者実額">
+			max(SA*Special_ContractorVrate,0)
+		</formula>
+		
+		<formula name="normalPrate" pvh="P" xtime="0" fraction="6" desc="標準体Prate">
+			PayFactor(2,gen,1)*stdPrate-12*d
+		</formula>
+		
+		<formula name="special_yearPrate" pvh="P" fraction="6" desc="比較用の特体年払Prate">
+			round((x4Prate-x1Prate)*PayFactor(2,gen,1),6)+normalPrate
+		</formula>
+		
+		<formula name="x4BizYear" xtime="4" fraction="4" accessable="false" desc="4倍体事業年度末用Vレート">
+			set{z=0}
+			<!-- 保険料払込期間中 -->
+			if(state==1){
+			<!-- 平準払 -->
+				  if(step==0){
+				        <!-- 終身払 -->
+				       if(m==99) {
+				           if(round(A_x(x)/a_x(x),6)&lt;special_yearPrate){
+				               Vrate_endofYear_kkc(t,z)
+				           }else{
+				               max((A_x(x+t)-special_yearPrate*a_x(x+t)
+					            -
+			                  if(z==0){0}else{alpha/a_x_n(x,z)*a_x_n(x+t,z-t)}),0)
+				           }
+			           <!-- 有期払 -->       
+				       }else {
+				          if(round((A_x(x)+gamma_nashu*f_a_x(m,x))/a_x_n(x,m),6)&lt;special_yearPrate){
+	        		               Vrate_endofYear_kkc(t,z)	
+	          	          }else{
+	          		            max(
+	              		        A_x(x+t)+gamma_nashu*a_x(x+t)-(special_yearPrate+gamma_nashu)*a_x_n(x+t,m-t)
+	              		           -
+	              		       if(z==0){0}else{alpha/a_x_n(x,z)*a_x_n(x+t,z-t)},0)
+	                         }
+				       }
+					   <!--ステップ払  -->
+				  }else{
+					      <!-- 終身払 -->
+					      if(m==99){
+					           if(round(A_x(x)/M_a_x_m(x,m1),6)&lt;special_yearPrate){
+	        		               Vrate_endofYear_kkc(t,z)	
+	          	                 }else{
+							        max(A_x(x+t)-M_a_x_t_m_t(x,m1,t)
+							        *(special_yearPrate
+							        +(alpha+gamma*a_x_n(x,m1))/M_a_x_m(x,m1))
+							        +a_x_n(x+t,m1-t)*(alpha+gamma*a_x_n(x,m1))/a_x_n(x,m1)
+							              -
+						           if(z==0){0}else{alpha/a_x_n(x,z)*a_x_n(x+t,z-t)},0)
+							   }     
+					       <!-- 有期払 -->
+					       }else{
+					            set{e1=(A_x(x)+gamma_nashu*f_a_x(m,x))/M_a_x_m(x,m1)}
+					            if(round(e1,6)&lt;special_yearPrate){
+	        		                  Vrate_endofYear_kkc(t,z)	
+	          	               }else{
+		                             <!--	 max((A_x(x+t)+gamma_nashu*f_a_x(m1-t,x+t)-->
+		                              <!--	 -M_a_x_t_m_t(x,m1,t)*(min((A_x(x)+gamma_nashu*f_a_x(m1,x))-->
+								     max(A_x(x+t)+gamma_nashu*a_x(x+t)-M_a_x_t_m_t(x,m1,t)*(special_yearPrate+(alpha+gamma*a_x_n(x,m1))/M_a_x_m(x,m1))
+								     +a_x_n(x+t,m1-t)*(alpha+gamma*a_x_n(x,m1))/a_x_n(x,m1)
+								         -
+						             if(z==0){0}else{alpha/a_x_n(x,z)*a_x_n(x+t,z-t)},0) 
+						       }
+				           }
+				       }
+			  <!-- 保険料払込期間中,保険料払込免除 (一時払,払済保険を含む)-->
+			}elseIf(state==2||state==6||kaisu==1||state==4){
+			       Vrate_endofYear_kksl(t)
+			 <!-- 延長定期保険 -->	
+			}elseIf{state==7}{
+			     if(SAS!=0){live(t,tEX)}
+			     else{dead(t,tEX,fEX)}
+			}else{0}
+		</formula>
+		
+		<formula name="x1BizYear" xtime="1" fraction="4" accessable="false" desc="1倍体事業年度末用Vレート">
+			BizYearV(t,0)
+		</formula>
+		<formula name="Special_BizYearVate" pvh="if(kisoritsu==0){P}elseIf(kisoritsu==1){V}else{H}" fraction="4" accessable="true" desc="特体事業年度末レート">
+			(specialLambda-1)*(x4BizYear-x1BizYear)/(specialLambda1-1)
+		</formula>
+		<formula name="Special_BizYearValuation" fraction="0" pvh="if(kisoritsu==0){P}elseIf(kisoritsu==1){V}else{H}" accessable="true" desc="特体業年度末実額">
+			SA*Special_BizYearVate
+		</formula>
+	</ReserveFund>
+</Formula-definition>

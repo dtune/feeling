@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Calculation-definition SYSTEM "Calculation-definition.dtd">
+
+<Calculation-definition>
+	<Categories>
+		<Category>
+			<name>Premium</name>
+			<label>保険料Pレート</label>
+			<RateKeys>
+				n,m,x,sex,kaisu,keiro,sptate,contractUpdType,SA,contractDate
+	</RateKeys>
+		</Category>
+		<Category>
+			<name>ReserveFund</name>
+			<label>保険料積立金Vレート</label>
+			<RateKeys>
+				n,m,x,sex,kaisu,t,f,t1,f1,state,contractUpdType,SA,kisoritsu,z,contractDate
+  	</RateKeys>
+		</Category>
+		<Category>
+			<name>SurrenderFee</name>
+			<label>解約返戻金Wレート</label>
+			<RateKeys>
+				n,m,x,sex,kaisu,state,t,f,t1,f1,contractDate,contractUpdType,SA,PremiumAbolishSign
+    </RateKeys>
+		</Category>
+	</Categories>
+</Calculation-definition>

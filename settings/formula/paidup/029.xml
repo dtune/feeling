@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+
+	<!-- 払済　ここから -->
+	<Paidup desc="払済">
+		<formula name="Vrate_Paidup" fraction="4">
+			(1-f_12(f))*Single2V(t)+f_12(f)*Single2V(t+1)
+		</formula>
+
+		<formula name="Vrate_PaidEnd">
+			(1-f_12(f))*Single1V(t)+f_12(f)*Single1V(t+1)
+		</formula>
+
+		<formula name="paidup_Premium" pvh="P" fundCode="029" accessable="true" desc="１．払済保険金額">
+			roundUp(
+				roundDown(min((SurrenderFeeS-L)/Vrate_Paidup,paidupLimitS),0)
+			,0-3)
+		</formula>
+		
+		<formula name="paidup_SurrenderFee" pvh="P" fundCode="029" accessable="true" desc="２．解約払戻金">
+			roundDown((SurrenderFeeS-L)-paidupLimitS*Vrate_PaidEnd,0)
+		</formula>
+	</Paidup>
+</Formula-definition>

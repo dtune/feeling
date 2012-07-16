@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+	<BizExpenses desc="事業費率の設定">
+		<!-- 予定発生率 STR -->
+		<!-- TODO予定手術発生率（valuetableのような定義されますが、ただ性能上は遅い） -->
+		<formula name="rou_z"  desc="予定疾病入院率（子部分）">
+			if(gen==7){0.016604}else{0.039557}
+		</formula>
+		<formula name="Tz" paras="i" desc="予定疾病入院給付日数（子部分）">
+			if(i==120){if(gen==7){11.2}else{14.7}}
+			elseIf(i==360){if(gen==7){11.3}else{17.2}}
+			elseIf(i==730){if(gen==7){11.3}else{18.1}}
+			else{0}
+		</formula>
+		<formula name="eta_40"  desc="予定手術発生率40">
+			if(gen==7){0.007341}else{0.003317}
+		</formula>
+		<formula name="eta_20"  desc="予定手術発生率20">
+			if(gen==7){0.043262}else{0.008931}
+		</formula>
+		<formula name="eta_10"  desc="予定手術発生率10">
+			if(gen==7){0.046841}else{0.014168}
+		</formula>
+		<!-- 予定発生率 END -->
+		<!-- 予定事業費率 STR -->
+		<formula name="hos_e_i" paras="i" desc="入院eレート">
+			if(i==120){0.200}
+			elseIf(i==360){0.257}
+			elseIf(i==730){0.286}
+			else{0}
+		</formula>
+		<formula name="surgery_e" value="0.040" desc="手術eレート"/>
+		<formula name="beta" value="0.10" desc="集金費β"/>
+		<formula name="beta1" value="0.07" desc="集金費β'"/>
+		<formula name="zeta" desc="集金費ζ">
+			if(gen==1){0.04}
+			elseIf(gen==2){0.03}
+			else{0.025}
+		</formula>
+		<formula name="epsilon" paras="ptn" desc="保険料払込免除ε">
+			<!-- 手術給付金部分および子に相当するとき、上位公式からptn=1を渡す -->
+			if(m1==n1 &amp;&amp; ptn==1){0.002}
+			elseIf(m1&lt;=5){0.0005}
+			elseIf(m1&gt;5 &amp;&amp; m1&lt;=10){0.001}
+			elseIf(10&lt;m1){0.002}
+			else(0)
+		</formula>
+		<!-- 予定事業費率 END -->
+		
+	</BizExpenses>
+
+	<Common desc="商品内部の共通公式">
+		<formula name="Tx" paras="i,x,t" desc="給付日付に応じて基数を返す">
+			if(i==120){TX1[x+t]}
+			elseIf(i==360){TX2[x+t]}
+			else{TX3[x+t]}
+		</formula>
+		<formula name="Ty" paras="i,x,t">
+			Tx(i,x,t)
+		</formula>
+
+		<!-- 年金現価 STR -->
+		<formula name="hos_A_x_n" paras="x,n" fraction="6" desc="入院給付年金現価（本人）">
+			{MS(i,x)-MS(i,x+n)}/D[x]
+			<formula name="MS" paras="i,idx" desc="給付金タイプに応じて基数を返す">
+				if(i==120){MS1[idx]}
+				elseIf(i==360){MS2[idx]}
+				else{MS3[idx]}
+			</formula>
+		</formula>
+		<formula name="hos_A_y_n" paras="x,n" desc="入院給付年金現価（配偶）">
+			hos_A_x_n(x,n)
+		</formula>
+		<formula name="surgery_A_1" desc="手術給付年金現価">
+			v^(1/2)*(eta_40*40+eta_20*20+eta_10*10)
+		</formula>
+		<!-- 年金現価 END -->
+
+		<formula name="S2P" paras="sbasedRate" desc="S基準からP基準に変換する">
+			if(sptate==0){
+				sbasedRate
+			}else{
+				round(1/sbasedRate,2)
+			}
+		</formula>
+		<formula name="PrateByPaymode" paras="stdPrate,d" fraction="3" desc="払込方法別Prate">
+			<!-- 基準Prateと高額割引dより、払込方法別Prateを求める -->
+			<formula name="Discount" paras="d" desc="高額割引">
+				if(kaisu==1){0}
+				elseIf(kaisu==2){12*d}
+				elseIf(kaisu==3){6*d}
+				else{d}
+			</formula>
+			stdPrate*PayFactor(kaisu,gen,keiro)-Discount(d)
+		</formula>
+		
+		<formula name="n1">
+			if(n==99){omega-x+1}else{n}
+		</formula>
+		<formula name="m1">
+			if(m==99){omega-x+1}else{m}
+		</formula>
+		<!-- limit40 STR -->
+		<formula name="vq" paras="x">
+			1-v*(1-qx[40])
+    	</formula>
+    	<formula name="vqe" paras="x,n">
+    		(v*(1-qx[40]))^n
+    	</formula>
+        <formula name="a_x_n_40" paras="x,n" fraction="5">
+			if(n&lt;=0){0}else{(1-vqe(x,n))/vq(x)}
+		</formula>
+		<formula name="a_x_n_40_hospital" paras="n" fraction="5">
+			if(n&lt;=0){0}else{(1-vqe(40,n))/vq(40)}
+		</formula>
+		<formula name="a_k_x_n_40" paras="x,m,k" fraction="5" desc="始期払k回年金現価">
+			(1-vqe(x,m))/vq(x)-(k-1)/(2*k)*(1-vqe(x,m))
+		</formula>
+		<formula name="f_a_x_n_40" paras="x,n,m" fraction="5">
+			vqe(x,m)*(1-vqe(x,n-m))/vq(x)
+		</formula>
+		<!-- limit40 END -->
+	</Common>
+
+	<Premium desc="保険料">
+		<!-- 保険料(部分) STR -->
+		<!-- 一時払 STR -->
+		<!-- 本人部分 STR -->
+		<formula name="single_hos_P_self" desc="一時払本人疾病入院給付金部分">
+			1/(1-beta1)*{hos_A_x_n(x,n1)+hos_e_i(i)*a_x_n(x,n1)}
+		</formula>
+		<formula name="single_sur_P_self" desc="一時払本人手術給付金部分">
+			1/(1-beta1)*{surgery_A_1+surgery_e}*a_x_n_40(x,n1)
+		</formula>
+		<!-- 本人部分 END -->
+		<!-- 配偶者部分 STR -->
+		<formula name="single_hos_P_mate" desc="一時払配偶者疾病入院給付金部分">
+			1/(1-beta1)*{hos_A_y_n(x,n1)+hos_e_i(i)*a_x_n(x,n1)}
+		</formula>
+		<formula name="single_sur_P_mate" desc="一時払配偶者手術給付金部分">
+			1/(1-beta1)*{surgery_A_1+surgery_e}*a_x_n_40(x,n1)
+		</formula>
+		<!-- 配偶者部分 END -->
+		<!-- 子部分 STR -->
+		<formula name="single_hos_P_child" desc="一時払子疾病入院給付金部分">
+			1/(1-beta1)*{v^(1/2)*rou_z*Tz(i)+hos_e_i(i)}*a_x_n_40(x,n1)
+		</formula>
+		<formula name="single_sur_P_child" desc="一時払子手術給付金部分">
+			1/(1-beta1)*{surgery_A_1+surgery_e}*a_x_n_40(x,n1)
+		</formula>
+		<!-- 子部分 END -->
+		<!-- 一時払 END -->
+
+		<!-- 分割払 STR -->
+		<!-- 本人部分 STR -->
+		<formula name="multi_hos_P_self" desc="分割払本人疾病入院給付金部分">
+			{hos_A_x_n(x,n1)+hos_e_i(i)*a_k_x_n(12,x,m1)+hos_e_i(i)*f_a_x_n(m1,x,n1)}
+			/{12*(1-beta-zeta-epsilon(0))*a_k_x_n(12,x,m1)}
+		</formula>
+		<formula name="multi_sur_P_self" desc="分割払本人手術給付金部分">
+			<!-- 全期払の場合は m=n=1 -->
+			if(m1==n1){multi_sur_P_self_mn(1,1)}
+			else{multi_sur_P_self_mn(m1,n1)}
+			<formula name="multi_sur_P_self_mn" paras="m,n">
+				{surgery_A_1*a_x_n_40(x,n)+surgery_e*a_k_x_n_40(x,m,12)+surgery_e*f_a_x_n_40(x,n,m)}
+				/{12*(1-beta-zeta-epsilon(1))*a_k_x_n_40(x,m,12)}
+			</formula>
+		</formula>
+		<!-- 本人部分 END -->
+		<!-- 配偶者部分 STR -->
+		<formula name="multi_hos_P_mate" desc="分割払配偶者疾病入院給付金部分">
+			{hos_A_y_n(x,n1)+hos_e_i(i)*a_k_x_n(12,x,m1)+hos_e_i(i)*f_a_x_n(m1,x,n1)}
+			/{12*(1-beta-zeta-epsilon(0))*a_k_x_n(12,x,m1)}
+		</formula>
+		<formula name="multi_sur_P_mate" desc="分割払配偶者手術給付金部分">
+			<!-- 全期払の場合は m=n=1 -->
+			if(m1==n1){multi_sur_P_mate_mn(1,1)}
+			else{multi_sur_P_mate_mn(m1,n1)}
+			<formula name="multi_sur_P_mate_mn" paras="m,n">
+				{surgery_A_1*a_x_n_40(x,n)+surgery_e*a_k_x_n_40(x,m,12)+surgery_e*f_a_x_n_40(x,n,m)}
+				/{12*(1-beta-zeta-epsilon(1))*a_k_x_n_40(x,m,12)}
+			</formula>
+		</formula>
+		<!-- 配偶者部分 END -->
+		<!-- 子部分 STR -->
+		<formula name="multi_hos_P_child" desc="分割払子疾病入院給付金部分">
+			<!-- 全期払の場合は m=n=1 -->
+			if(m1==n1){multi_hos_P_child_mn(1,1)}
+			else{multi_hos_P_child_mn(m1,n1)}
+			<formula name="multi_hos_P_child_mn" paras="m,n">
+				{v^(1/2)*rou_z*Tz(i)*a_x_n_40(x,n)+hos_e_i(i)*a_k_x_n_40(x,m,12)+hos_e_i(i)*f_a_x_n_40(x,n,m)}
+				/{12*(1-beta-zeta-epsilon(1))*a_k_x_n_40(x,m,12)}
+			</formula>
+		</formula>
+		<formula name="multi_sur_P_child" desc="分割払子手術給付金部分">
+			<!-- 全期払の場合は m=n=1 -->
+			if(m1==n1){multi_sur_P_child_mn(1,1)}
+			else{multi_sur_P_child_mn(m1,n1)}
+			<formula name="multi_sur_P_child_mn" paras="m,n">
+				{surgery_A_1*a_x_n_40(x,n)+surgery_e*a_k_x_n_40(x,m,12)+surgery_e*f_a_x_n_40(x,n,m)}
+				/{12*(1-beta-zeta-epsilon(1))*a_k_x_n_40(x,m,12)}
+			</formula>
+		</formula>
+		<!-- 子部分 END -->
+		<!-- 分割払 END -->
+		<!-- 保険料(部分) END -->
+
+		<!-- 型別基準保険料 STR -->
+		<!-- 手術給付金部分被保険者の年齢にかかわらず一律40歳死亡率 -->
+		<formula name="P_self" fraction="3" desc="本人部分P">
+			if(kaisu==1){
+				single_hos_P_self+single_sur_P_self
+			}else{
+				multi_hos_P_self+multi_sur_P_self
+			}
+		</formula>
+		<!-- 手術給付金部分被保険者の年齢にかかわらず一律40歳死亡率 -->
+		<!-- 配偶者部分　性別より基数の切り替えが必要 -->
+		<formula name="P_mate" fraction="3" desc="配偶者部分P">
+			Sy/100*
+			if(kaisu==1){
+				single_hos_P_mate+single_sur_P_mate
+			}else{
+				multi_hos_P_mate+multi_sur_P_mate
+			}
+		</formula>
+		<!-- 子に相当する部分については、被保険者の年齢にかかわらず一律40歳死亡率 -->
+		<!-- 子の性別は本人と同じとする -->
+		<formula name="P_child" fraction="3" desc="子部分P">
+			Sz/100*2*
+			if(kaisu==1){
+				single_hos_P_child+single_sur_P_child
+			}else{
+				multi_hos_P_child+multi_sur_P_child
+			}
+		</formula>
+		<formula name="stdPrate" desc="基準保険料レート" accessable="false" pvh="P">
+			if(contractorType==1){P_self}
+			elseIf(contractorType==2){P_self+P_mate}
+			elseIf(contractorType==3){P_self+P_mate+P_child}
+			else{P_self+P_child}
+		</formula>
+		<formula name="Prate" pvh="P" accessable="true" desc="１．保険料レート">
+			PrateByPaymode(stdPrate,0)
+		</formula>
+		<!-- 型別基準保険料 END -->
+		<formula name="Premium" pvh="P" accessable="true" desc="２．保険料・保険金">
+			if(sptate==0){
+				roundDown(SA*Prate,0)
+			}else{
+				roundUp(roundDown(SA*S2P(Prate),0)/1000,0)*1000
+			}
+		</formula>
+	</Premium>
+	
+	<ReserveFund desc="保険積立金">
+		<!-- 疾病入院給付金部分 STR -->
+		<formula name="hos_V_self_1" paras="t" desc="疾病入院給付金部分（本人部分）(期間中/免除)">
+			<!-- 保険料払込期間中　または　保険料払込免除契約 -->
+			hos_A_x_n(x+t,n1-t)+hos_e_i(i)*a_x_n(x+t,n1-t)
+			-(hos_A_x_n(x,n1)+hos_e_i(i)*a_x_n(x,n1))/a_x_n(x,m1)*a_x_n(x+t,m1-t)
+		</formula>
+		<formula name="hos_V_self_2" paras="t" desc="疾病入院給付金部分（本人部分）(終了後/一時払)">
+			<!-- 保険料払込期間終了後　または　一時払  -->
+			hos_A_x_n(x+t,n1-t)+hos_e_i(i)*a_x_n(x+t,n1-t)
+		</formula>
+		<formula name="hos_V_mate_1" paras="t" desc="疾病入院給付金部分（配偶部分）(期間中/免除)">
+			hos_A_y_n(x+t,n1-t)+hos_e_i(i)*a_x_n(x+t,n1-t)
+			-(hos_A_y_n(x,n1)+hos_e_i(i)*a_x_n(x,n1))/a_x_n(x,m1)*a_x_n(x+t,m1-t)
+		</formula>
+		<formula name="hos_V_mate_2" paras="t" desc="疾病入院給付金部分（配偶部分）(終了後/一時払)">
+			<!-- 保険料払込期間終了後　または　一時払  -->
+			hos_A_y_n(x+t,n1-t)+hos_e_i(i)*a_x_n(x+t,n1-t)
+		</formula>
+		<formula name="hos_V_child_1" paras="t" desc="疾病入院給付金部分（子部分）(期間中/免除)">
+			<!-- 保険料払込期間中　または　保険料払込免除契約 -->
+			<!-- x+t=40 -->
+			(v^(1/2)*rou_z*Tz(i)+hos_e_i(i))*a_x_n_40(40,n1-t)
+			-(v^(1/2)*rou_z*Tz(i)+hos_e_i(i))*a_x_n_40(40,n1)/a_x_n_40(40,m1)*a_x_n_40(40,m1-t)
+		</formula>
+		<formula name="hos_V_child_2" paras="t" desc="疾病入院給付金部分（子部分）(終了後/一時払)">
+			<!-- 保険料払込期間終了後　または　一時払  -->
+			<!-- x+t=40 -->
+			(v^(1/2)*rou_z*Tz(i)+hos_e_i(i))*a_x_n_40(40,n-t)
+		</formula>
+		<!-- 疾病入院給付金部分 END -->
+
+		<!-- 手術給付金部分 STR -->
+		<formula name="sur_V_self_1" paras="t" desc="手術給付金部分（本人部分）(期間中/免除)">
+			<!-- 保険料払込期間中　または　保険料払込免除契約 -->
+			<!-- x+t=40 -->
+			(surgery_A_1+surgery_e)*a_x_n_40(40,n1-t)
+			-(surgery_A_1+surgery_e)*a_x_n_40(40,n1)/a_x_n_40(40,m1)*a_x_n_40(40,m1-t)
+		</formula>
+		<formula name="sur_V_self_2" paras="t" desc="手術給付金部分（本人部分）(終了後/一時払)">
+			<!-- 保険料払込期間終了後　または　一時払  -->
+			<!-- x+t=40 -->
+			(surgery_A_1+surgery_e)*a_x_n_40(40,n1-t)
+		</formula>
+		<formula name="sur_V_mate_1" paras="t" desc="手術給付金部分（配偶部分）(期間中/免除)">
+			<!-- 保険料払込期間中　または　保険料払込免除契約 -->
+			<!-- x+t=40 -->
+			(surgery_A_1+surgery_e)*a_x_n_40(x,n1-t)
+			-(surgery_A_1+surgery_e)*a_x_n_40(40,n1)/a_x_n_40(40,m1)*a_x_n_40(40,m1-t)
+		</formula>
+		<formula name="sur_V_mate_2" paras="t" desc="手術給付金部分（配偶部分）(終了後/一時払)">
+			<!-- 保険料払込期間終了後　または　一時払  -->
+			<!-- x+t=40 -->
+			(surgery_A_1+surgery_e)*a_x_n_40(40,n1-t)
+		</formula>
+		<formula name="sur_V_child_1" paras="t" desc="手術給付金部分（子部分）(期間中/免除)">
+			<!-- 保険料払込期間中　または　保険料払込免除契約 -->
+			<!-- x+t=40 -->
+			(surgery_A_1+surgery_e)*a_x_n_40(40,n1-t)
+			-(surgery_A_1+surgery_e)*a_x_n_40(40,n1)/a_x_n_40(40,m1)*a_x_n_40(40,m1-t)
+		</formula>
+		<formula name="sur_V_child_2" paras="t" desc="手術給付金部分（子部分）(終了後/一時払)">
+			<!-- 保険料払込期間終了後　または　一時払  -->
+			<!-- x+t=40 -->
+			(surgery_A_1+surgery_e)*a_x_n_40(40,n1-t)
+		</formula>
+		<!-- 手術給付金部分 END -->
+		
+		<formula name="Vrate_term" paras="t" fraction="2" desc="保険料払込期間中">
+		      <!-- 本人型 -->
+			if(contractorType==1){
+				round(max(hos_V_self_1(t)+sur_V_self_1(t),0),2)
+		      <!-- 本人配偶者型 -->
+			}elseIf(contractorType==2){
+				round(max(hos_V_self_1(t)+sur_V_self_1(t),0),2)
+						+
+				round(max(Sy/100*{hos_V_mate_1(t)+sur_V_mate_1(t)},0),2)
+		       <!-- 本人配偶者子型 -->
+			}elseIf(contractorType==3){
+		       	round(max(hos_V_self_1(t)+sur_V_self_1(t),0),2)
+						+
+				round(max(Sy/100*{hos_V_mate_1(t)+sur_V_mate_1(t)},0),2)
+						+
+				round(max(Sz/100*2*{hos_V_child_1(t)+sur_V_child_1(t)},0),2)
+			  <!-- 本人子型 -->
+			}elseIf(contractorType==4){
+				round(max(hos_V_self_1(t)+sur_V_self_1(t),0),2)
+						+
+				round(max(Sz/100*2*{hos_V_child_1(t)+sur_V_child_1(t)},0),2)
+			}else{
+				0
+			}
+		 </formula>
+		 
+		 <formula name="Vrate_paid" paras="t" fraction="2" desc="保険料払込期間終了後">
+		      <!-- 本人型 -->
+			if(contractorType==1){
+				round(max(hos_V_self_2(t)+sur_V_self_2(t),0),2)
+		      <!-- 本人配偶者型 -->
+			}elseIf(contractorType==2){
+				round(max(hos_V_self_2(t)+sur_V_self_2(t),0),2)
+						+
+				round(max(Sy/100*{hos_V_mate_2(t)+sur_V_mate_2(t)},0),2)
+		       <!-- 本人配偶者子型 -->
+			}elseIf(contractorType==3){
+		       	round(max(hos_V_self_2(t)+sur_V_self_2(t),0),2)
+						+
+				round(max(Sy/100*{hos_V_mate_2(t)+sur_V_mate_2(t)},0),2)
+						+
+				round(max(Sz/100*2*{hos_V_child_2(t)+sur_V_child_2(t)},0),2)
+			  <!-- 本人子型 -->
+			}elseIf(contractorType==4){
+				round(max(hos_V_self_2(t)+sur_V_self_2(t),0),2)
+						+
+				round(max(Sz/100*2*{hos_V_child_2(t)+sur_V_child_2(t)},0),2)
+			}else{
+				0
+			}
+		 </formula>
+
+		 <formula name="Vrate_accu" paras="t" fraction="2" desc="保険年度末rate">
+			if(state==1||state==6){
+				Vrate_term(t)
+			}elseIf(state==2||kaisu==1){
+				Vrate_paid(t)
+			}else{
+				0
+			}
+		</formula>
+		 <!-- 保険年度末Vレート  -->
+		 <formula name="Vrate" pvh="if(gen&gt;2){H}else{V}" paras="t" fraction="2" accessable="true" desc="１．保険年度末Vレート">
+			Vrate_accu(t)
+		 </formula>
+
+		 <!-- 契約者用Vレート -->
+		<formula name="ContractorYearV" pvh="P" paras="t" fraction="2" desc="保険年度契約者VTレート">
+			Vrate_accu(t)
+		</formula>
+
+		<formula name="ContractorVrate" pvh="P" fraction="2" accessable="true" desc="３．契約者用Vレート">
+			if(state==1||state==6){
+				(1-f_12(f1))*ContractorYearV(t1)+f_12(f1)*ContractorYearV(t1+1)
+			}elseIf(state==2||kaisu==1){
+				(1-f_12(f))*ContractorYearV(t)+f_12(f)*ContractorYearV(t+1)
+			}else{
+				0
+			}
+		</formula> 
+		
+		<!-- 事業年度末Vレート  -->
+		<formula name="BizYearV" paras="t" fraction="2" accessable="false" desc="事業末Vレート">
+			if(state==1){
+				Vrate_term(t)
+			}elseIf(state==2||state==6||kaisu==1){
+				Vrate_paid(t)
+			}else{
+				0
+			}
+		</formula>
+		
+		<formula name="BizYearVate" pvh="if(kisoritsu==0){P}elseIf(kisoritsu==1){V}else{H}" accessable="true" desc="２．事業年度末Vレート">
+			BizYearV(t)
+		</formula>
+		
+	</ReserveFund>
+	
+	<SurrenderFee desc="解約返戻金">
+		<formula name="tWrate" paras="t">
+			max(ContractorYearV(t),0)
+		</formula>
+		<formula name="Wrate" pvh="P" fraction="2" accessable="true" desc="１．解約返戻金Wレート">
+			if(state==1||state==6){
+				<!-- 保険料払込期間中　または　保険料払込免除契約 -->
+				if(PremiumAbolishSign==1){
+					if(12*t1+f1&lt;12*t+f){
+						tSigma(t1)*round((1-f_12(f1))*tWrate(t1)+f_12(f1)*tWrate(t1+1),2)
+					}else{
+						tSigma(t)*round((1-f_12(f))*tWrate(t)+f_12(f)*tWrate(t+1),2)
+					}
+				}else{
+					v^ve*tSigma(t1)*round((1-f_12(f1))*tWrate(t1)+f_12(f1)*tWrate(t1+1),2)
+				}+0.000000000001
+			}elseIf(state==2||kaisu==1){
+				<!-- 保険料払込期間終了後　または　一時払  -->
+				(1-f_12(f))*tWrate(t)+f_12(f)*tWrate(t+1)
+			}else{0}
+			<formula name="tSigma" paras="t" desc="解約控除率">
+				if(t&lt;3){1-m1/n1}
+				else{1}
+			</formula>
+		</formula>
+	</SurrenderFee>
+</Formula-definition>

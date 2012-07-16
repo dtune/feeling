@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Calculation-definition SYSTEM "Calculation-definition.dtd">
+<Calculation-definition>
+<Categories>
+  <Category>
+  	<name>Premium</name>
+  	<label>保険料Pレート</label>
+	<RateKeys>
+		deathIndex
+	</RateKeys>
+  </Category>
+  <Category>
+    <name>ReserveFund</name>
+  	<label>保険料積立金Vレート</label>
+  	<RateKeys>
+  		deathIndex
+  	</RateKeys>
+  </Category>
+</Categories>
+</Calculation-definition>

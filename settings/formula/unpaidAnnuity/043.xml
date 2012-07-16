@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+	<UnpaidAnnuity desc="未払年金">	
+		<formula name="AnnuityRate" fraction="6" desc="未払年金の現価">
+			if(t2==0 &amp;&amp; f2==0){
+			<!--年金原資-->
+				F
+			}elseIf(f2==0){
+				T2_Vrate(t2)
+			}else{
+				v^((12-f2)/12)*round(T2_Vrate(t2+1),6)
+			}
+		</formula>
+		
+		<formula name="UnpaidAnnuity" pvh="P" accessable="true" desc="年金一括払">
+			AnnuityRate
+		</formula>
+	</UnpaidAnnuity>
+</Formula-definition>

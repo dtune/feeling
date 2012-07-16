@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+	<UnpaidAnnuity desc="未払年金">
+		<formula name="UnpaidAnnuity" pvh="P" fraction="4" accessable="true" desc="年金の一時支払">
+			annuity
+		</formula>
+		<formula name="UnpaidAnnuityRate" pvh="P" fraction="0" accessable="true" desc="遺族年金の一時支払金">
+			UnpaidAnnuity*monthSA
+		</formula>
+		<formula name="UnpaidAnnuity_single" pvh="P" accessable="true" fraction="0" desc="年金の一部一時支払">
+			(monthS-monthS_nashu)*UnpaidAnnuity
+		</formula>
+	</UnpaidAnnuity>
+</Formula-definition>

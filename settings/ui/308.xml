@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Calculation-definition SYSTEM "Calculation-definition.dtd">
+
+<Calculation-definition>
+	<Categories>
+		<Category>
+			<name>Premium</name>
+			<label>保険料Pレート</label>
+			<RateKeys>
+				n,m,x,sex,kaisu,keiro,sptate,h,k,SA,teizoKbn,partOnetime,dividend,contractDate
+	</RateKeys>
+		</Category>
+		<Category>
+			<name>ReserveFund</name>
+			<label>保険料積立金Vレート</label>
+			<RateKeys>
+				n,m,x,sex,kaisu,state,t,f,t1,f1,t2,f2,SA,h,k,teizoKbn,partOnetime,dividend,kisoritsu,z,contractDate,AnnuityBeginDate
+  	</RateKeys>
+		</Category>
+		<Category>
+			<name>SurrenderFee</name>
+			<label>解約返戻金Wレート</label>
+			<RateKeys>
+				n,m,x,sex,kaisu,state,t,f,t1,f1,contractDate,SA,h,k,teizoKbn,partOnetime,dividend
+    </RateKeys>
+		</Category>
+		<Category>
+			<name>Dividend</name>
+			<label>配当金</label>
+			<RateKeys>
+				n,m,x,sex,kaisu,state,SA,teizoKbn,partOnetime,dividend,h,k,l,payState,
+				policyCode,SA_nashu,bonusDiv,bonus_month,psi,effectBeginDate,oldAnnuityBuyDate,newAnnuityBuyDate,
+				contractorState,responsibilityDate,changeState,contractDate,divEndDate,policyKaisu,policyContractDate,
+				SA_lastyear,Dt_lastyear,Dt_thisyear,DividendValueLastYear,AnnuityBeginDate,keisanPtn
+    </RateKeys>
+		</Category>
+		<Category>
+			<name>UnpaidAnnuity</name>
+			<label>未払年金</label>
+			<RateKeys>
+				gen,kaisu,teizoKbn,t1,t2,f1,f2,n,partOnetime,k,h,dividend,monthSA,monthS,monthS_nashu,contractDate
+    </RateKeys>
+		</Category>
+	</Categories>
+</Calculation-definition>

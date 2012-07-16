@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 157
+/svn/nttd/!svn/ver/25308/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/src/jp/co/nttdata/rate/model/datalayout
+END
+DataLayoutManager.java
+K 25
+svn:wc:ra_dav:version-url
+V 180
+/svn/nttd/!svn/ver/25308/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/src/jp/co/nttdata/rate/model/datalayout/DataLayoutManager.java
+END
+DataLayoutBeanFactory.java
+K 25
+svn:wc:ra_dav:version-url
+V 184
+/svn/nttd/!svn/ver/20807/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/src/jp/co/nttdata/rate/model/datalayout/DataLayoutBeanFactory.java
+END
+DataLayout.java
+K 25
+svn:wc:ra_dav:version-url
+V 173
+/svn/nttd/!svn/ver/20807/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/src/jp/co/nttdata/rate/model/datalayout/DataLayout.java
+END
+InputDataCategory.java
+K 25
+svn:wc:ra_dav:version-url
+V 180
+/svn/nttd/!svn/ver/20807/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/src/jp/co/nttdata/rate/model/datalayout/InputDataCategory.java
+END
+DataLayoutDeclaration.java
+K 25
+svn:wc:ra_dav:version-url
+V 184
+/svn/nttd/!svn/ver/20807/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/src/jp/co/nttdata/rate/model/datalayout/DataLayoutDeclaration.java
+END

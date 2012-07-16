@@ -1,0 +1,27 @@
+<!ELEMENT BizExpenses ( formula+ ) >
+<!ATTLIST BizExpenses desc CDATA #REQUIRED >
+
+<!ELEMENT Common ( formula+ ) >
+<!ATTLIST Common desc CDATA #REQUIRED >
+
+<!ELEMENT Formula-definition ( Common*, Paidup* ) >
+
+<!ELEMENT Paidup ( formula+ ) >
+<!ATTLIST Paidup desc CDATA #REQUIRED >
+
+<!ELEMENT formula ( #PCDATA | formula )* >
+<!ATTLIST formula accessable ( true | false ) #IMPLIED >
+<!ATTLIST formula mate ( true | false ) #IMPLIED >
+<!ATTLIST formula cacheable ( true | false ) #IMPLIED >
+<!ATTLIST formula disaster ( true | false ) #IMPLIED >
+<!ATTLIST formula desc CDATA #IMPLIED >
+<!ATTLIST formula name CDATA #REQUIRED >
+<!ATTLIST formula fundCode CDATA #IMPLIED >
+<!ATTLIST formula pvh CDATA #IMPLIED >
+<!ATTLIST formula limitedAge CDATA #IMPLIED >
+<!ATTLIST formula limitedSex ( male | female ) #IMPLIED >
+<!ATTLIST formula paras CDATA #IMPLIED >
+<!ATTLIST formula value NMTOKEN #IMPLIED >
+<!ATTLIST formula fraction CDATA #IMPLIED >
+
+

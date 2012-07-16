@@ -1,0 +1,122 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE RateKey-definition SYSTEM "RateKey-definition.dtd">
+<RateKey-definition>
+  	<!-- レートキーのUI属性 -->
+ 	<RateKeys>
+ 		<RateKey name="policyCode" label="主契約コード" type="combo"
+			displayOrder="72" selectedIndex="0">
+			<items>
+				<item label="004/005" value="004"/>
+				<item label="008" value="008"/>
+				<item label="009" value="009"/>
+				<item label="011" value="011"/>
+				<item label="013" value="013"/>
+				<item label="017" value="017"/>
+				<item label="042" value="042"/>
+			</items>
+		</RateKey>
+		<RateKey name="policyContractDate" label="主契約契約日" type="text"
+			required="true" initValue="20100331" displayOrder="73">
+			<rule min="19600000" max="21001231" validateDate="true"/>
+		</RateKey>
+		<RateKey name="policyKaisu" label="主契約払込回数" type="combo" required="true"
+			displayOrder="74" selectedIndex="0">
+			<items>
+				<item label="一時払" value="1" />
+				<item label="年払" value="2" />
+				<item label="半年払" value="3" />
+				<item label="月払" value="4" />
+			</items>
+		</RateKey>
+		<RateKey name="contractorState" label="契約現況" type="radio"
+			required="true" displayOrder="75" selectedIndex="1">
+			<items>
+				<item label="消滅" value="0"/>
+				<item label="存在" value="1"/>
+			</items>
+		</RateKey>
+		<RateKey name="changeState" label="異動状態" type="combo"
+			displayOrder="77" selectedIndex="2">
+			<items>
+				<item label="解約、解除等ペナルティ" value="0"/>
+				<item label="減額" value="1"/>
+				<item label="-" value="2"/>
+			</items>
+		</RateKey>
+		<RateKey name="divEndDate" label="配当基準日" type="text"
+			required="true" initValue="20110331" displayOrder="79">
+			<rule min="19600000" max="21001231" validateDate="true"/>
+		</RateKey>
+		<RateKey name="SA_lastyear" label="前年度基本S" type="text" required="true"
+			displayOrder="80" initValue="10000">
+			<rule min="0" max="999999999" step="1" />
+		</RateKey>
+		<RateKey name="Dt_lastyear" label="前年度未割当残高" type="text"
+			required="true" initValue="0" displayOrder="81">
+			<rule min="-100000000" max="100000000" step="1"/>
+		</RateKey>
+		<RateKey name="Dt_thisyear" label="当年度未割当残高" type="text"
+			required="true" initValue="0" displayOrder="82">
+			<rule min="-100000000" max="100000000" step="1"/>
+		</RateKey>
+		<RateKey name="payState" label="分配後保険料入金状態" type="radio"
+			required="true" displayOrder="83" selectedIndex="1">
+			<items>
+				<item label="なし" value="0"/>
+				<item label="あり" value="1"/>
+			</items>
+		</RateKey>
+        <RateKey name="oldAnnuityBuyDate" label="旧年金買増年月日" type="text" displayOrder="84">
+			<rule min="19960930" max="21001231" step="1" validateDate="true" />
+		</RateKey>
+        <RateKey name="newAnnuityBuyDate" label="最新年金買増年月" type="text" displayOrder="85">
+			<rule min="19960930" max="21001231" step="1" validateDate="true" />
+		</RateKey>
+        <RateKey name="effectBeginDate" label="効力発生日" type="text" displayOrder="87">
+			<rule min="19960930" max="21001231" step="1" validateDate="true" />
+		</RateKey>
+		<RateKey name="DividendValueLastYear" label="前年度積立配当金" type="text"
+			required="true" initValue="0" displayOrder="88">
+			<rule min="-100000000" max="100000000" step="1"/>
+		</RateKey>
+        <RateKey name="SA_nashu" label="減額保険金額" type="text"
+			required="true" displayOrder="89" initValue="0">
+			<rule min="0" max="100000000" step="1"/>
+        </RateKey>
+		<RateKey name="bonusDiv" label="ボーナス併用払" type="radio"
+			required="true" displayOrder="93" selectedIndex="0">
+			<items>
+				<item label="なし" value="0"/>
+				<item label="あり" value="1"/>
+			</items>
+		</RateKey>
+		<RateKey name="psi" label="ボーナス倍数" type="combo"
+		required="true" displayOrder="94">
+			<items>
+				<item label="3" value="3"/>
+				<item label="5" value="5"/>
+				<item label="7" value="7"/>
+			</items>
+		</RateKey>
+		<RateKey name="bonus_month" label="ボーナス月" type="combo"
+			required="true" displayOrder="95">
+			<items>
+				<item label="1月/7月" value="1"/>
+				<item label="6月/12月" value="2"/>
+				<item label="7月/12月" value="3"/>
+			</items>
+			<rule min="1" max="3" step="1"/>
+		</RateKey>
+		<RateKey name="keisanPtn" label="計算対象" type="combo"
+			required="true" displayOrder="96">
+			<items>
+				<item label="未割当配当金残高" value="1"/>
+				<item label="未割当分配額" value="2"/>
+				<item label="割当済み分配額" value="3"/>
+				<item label="積立配当金" value="4"/>
+				<item label="アセットシェア" value="5"/>
+			</items>
+			<rule min="1" max="3" step="1"/>
+		</RateKey>
+    </RateKeys>
+</RateKey-definition>

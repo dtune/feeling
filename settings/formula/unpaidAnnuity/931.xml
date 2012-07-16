@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+	<UnpaidAnnuity desc="未払年金">
+		<formula name="AnnuitylifePension" paras="t" desc="終身年金">
+			(1+gamma2)*(sum_Ia(t))
+		</formula>
+		<formula name="AnnuityVrate_accu" paras="t" desc="保険年度末rate">
+             if(insuranceCode==934||insuranceCode==933){AnnuitylifePension(t)}
+             else{certainAnnuity(t)}
+        </formula>
+		<formula name="AnnuityRate" fraction="3" desc="未払年金の現価">
+			if(f==0){
+				AnnuityVrate_accu(t)
+			}else{
+				v^((12-f)/12)*round(AnnuityVrate_accu(t+1),3)
+			}
+		</formula>
+		
+		<formula name="UnpaidAnnuity" pvh="P" accessable="true" desc="年金一括払">
+			AnnuityRate
+		</formula>
+	</UnpaidAnnuity>
+</Formula-definition>

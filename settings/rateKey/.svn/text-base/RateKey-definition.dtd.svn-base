@@ -1,0 +1,32 @@
+<!ELEMENT Constraint EMPTY >
+<!ATTLIST Constraint condition CDATA #REQUIRED >
+<!ATTLIST Constraint keys CDATA #REQUIRED >
+<!ATTLIST Constraint desc CDATA #IMPLIED >
+
+<!ELEMENT Constraints ( Constraint+ ) >
+
+<!ELEMENT RateKey ( items | rule )* >
+<!ATTLIST RateKey displayOrder NMTOKEN #REQUIRED >
+<!ATTLIST RateKey initValue NMTOKEN #IMPLIED >
+<!ATTLIST RateKey label CDATA #REQUIRED >
+<!ATTLIST RateKey name NMTOKEN #REQUIRED >
+<!ATTLIST RateKey required NMTOKEN #IMPLIED >
+<!ATTLIST RateKey selectedIndex NMTOKEN #IMPLIED >
+<!ATTLIST RateKey type (text | radio | combo) #REQUIRED >
+
+<!ELEMENT RateKey-definition ( Constraints*, RateKeys ) >
+
+<!ELEMENT RateKeys ( RateKey+ ) >
+
+<!ELEMENT item EMPTY >
+<!ATTLIST item label CDATA #REQUIRED >
+<!ATTLIST item value NMTOKEN #REQUIRED >
+
+<!ELEMENT items ( item+ ) >
+
+<!ELEMENT rule EMPTY >
+<!ATTLIST rule max NMTOKEN #REQUIRED >
+<!ATTLIST rule min NMTOKEN #REQUIRED >
+<!ATTLIST rule specialValues CDATA #IMPLIED >
+<!ATTLIST rule step NMTOKEN #IMPLIED >
+<!ATTLIST rule validateDate ( true | false ) #IMPLIED >

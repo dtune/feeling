@@ -1,0 +1,12 @@
+<!ELEMENT RateTable ( keys, set+ ) >
+<!ATTLIST RateTable desc NMTOKEN #REQUIRED >
+<!ATTLIST RateTable name NMTOKEN #REQUIRED >
+
+<!ELEMENT RateTable-definition ( RateTable+ ) >
+
+<!ELEMENT key ( #PCDATA ) >
+<!ATTLIST key desc NMTOKEN #IMPLIED >
+
+<!ELEMENT keys ( key+ ) >
+
+<!ELEMENT value ( #PCDATA ) >

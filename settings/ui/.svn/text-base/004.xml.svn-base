@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Calculation-definition SYSTEM "Calculation-definition.dtd">
+<Calculation-definition>
+<Categories>
+  <Category>
+  	<name>Premium</name>
+  	<label>保険料Pレート</label>
+	<RateKeys>
+		annuityType,n,m,g,theta,x,annuityY,sex,kaisu,keiro,sptate,SA,partOnetime,contractDate
+	</RateKeys>
+  </Category>
+  <Category>
+    <name>ReserveFund</name>
+  	<label>保険料積立金Vレート</label>
+  	<RateKeys>
+  		annuityType,n,m,g,theta,x,annuityY,sex,kaisu,state,benefitRequest,
+  		t,f,t1,f1,t2,f2,t3,f3,l,SA,SD,paidupS,partOnetime,kisoritsu,z,contractDate
+  	</RateKeys>
+  </Category>
+  <Category>
+   	<name>SurrenderFee</name>
+  	<label>解約返戻金Wレート</label>
+  	<RateKeys>
+  		annuityType,n,m,g,theta,x,annuityY,sex,kaisu,state,benefitRequest,
+  		t,f,t1,f1,t2,f2,t3,f3,l,SA,SD,paidupS,contractDate,partOnetime,PremiumAbolishSign
+    </RateKeys>
+  </Category>
+  <Category>
+   	<name>Paidup</name>
+  	<label>払済Ｓ</label>
+  	<RateKeys>
+  		annuityType,n,m,g,theta,x,annuityY,sex,kaisu,t,f,deathBenefitS,SurrenderFeeS,L,contractDate
+    </RateKeys>
+  </Category>
+  <Category>
+   	<name>Dividend</name>
+  	<label>配当金</label>
+  	<RateKeys>
+  		annuityType,n,m,g,theta,x,annuityY,sex,kaisu,state,benefitRequest,l,SA,SD,paidupS,
+  		bonusDiv,bonus_month,psi,partOnetime,effectBeginDate,payState,
+  		contractorState,changeState,contractDate,divEndDate,SA_nashu,
+  		SA_lastyear,Dt_lastyear,Dt_thisyear,DividendValueLastYear,AnnuityBeginDate,keisanPtn
+    </RateKeys>
+  </Category>
+  <Category>
+   	<name>UnpaidAnnuity</name>
+  	<label>未払年金</label>
+  	<RateKeys>
+  		kaisu,t2,f2,g,theta,annuityType,partOnetime,annuityY,contractDate
+    </RateKeys>
+  </Category>
+  <Category>
+  	<name>DeathBenefit</name>
+  	<label>死亡給付金</label>
+  	<RateKeys>
+  		annuityType,n,m,g,theta,x,annuityY,sex,kaisu,keiro,SA,partOnetime,state,t,t1,f,f1,t3,f3,l,PremiumAbolishSign,psi,contractDate,termAccruedDate,bonus_month
+    </RateKeys>
+  </Category>
+  <Category>
+  	<name>BasicAnnuity</name>
+  	<label>基本年金額</label>
+  	<RateKeys>
+  		kaisu,l,annuityY,g,annuityType,theta,contractDate,SA
+    </RateKeys>
+  </Category>
+</Categories>
+</Calculation-definition>

@@ -1,0 +1,21 @@
+<!ELEMENT DefaultFundationGroup ( FundationPattern+ ) >
+<!ATTLIST DefaultFundationGroup groupkey CDATA #IMPLIED >
+<!ATTLIST DefaultFundationGroup desc CDATA #IMPLIED >
+
+<!ELEMENT Fundation EMPTY >
+<!ATTLIST Fundation column NMTOKEN #IMPLIED >
+<!ATTLIST Fundation desc CDATA #IMPLIED >
+<!ATTLIST Fundation name NMTOKEN #REQUIRED >
+
+<!ELEMENT FundationPattern ( #PCDATA | Fundation )* >
+<!ATTLIST FundationPattern std-xtime-fixed ( true | false ) #IMPLIED >
+<!ATTLIST FundationPattern ptn CDATA #IMPLIED >
+<!ATTLIST FundationPattern desc CDATA #IMPLIED >
+
+<!ELEMENT Fundation-definition ( FundationPattern+, DefaultFundationGroup, FundationGroup+ ) >
+
+<!ELEMENT FundationGroup ( FundationPattern+ ) >
+<!ATTLIST FundationGroup code CDATA #REQUIRED >
+<!ATTLIST FundationGroup groupkey CDATA #IMPLIED >
+<!ATTLIST FundationGroup desc CDATA #IMPLIED >
+

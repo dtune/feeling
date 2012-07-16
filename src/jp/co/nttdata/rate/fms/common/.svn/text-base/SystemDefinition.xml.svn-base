@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<SystemDefinition>
+	<!-- システム変数 -->
+	<Variables name-prefix="sys">
+		<!-- dotでアクセス、例：sys.pの値は1と求めれる -->
+		<!-- 計算基準切替用 -->
+		<Variable name="p" value="1"/>
+		<Variable name="v" value="2"/>
+		<Variable name="h" value="3"/>
+	</Variables>
+	
+	<!--　システムファンクション -->	
+	<Functions class-ref="jp.co.nttdata.rate.fms.common.SystemFunctionUtility">
+		<!-- class-ref	javaソースのパッケージパス -->
+		
+		<!-- 
+			name	算式に使われる
+			method	javaソースのメソッド名
+			desc	説明文字（optional）
+		 -->
+  		<Function name="round" method="round" desc="四捨五入">
+  			<para>java.lang.Double</para>
+  			<para>int</para>
+  		</Function>
+  		<Function name="roundUp" method="roundUp" desc="切り上げ">
+  			<para>java.lang.Double</para>
+  			<para>int</para>			
+  		</Function>
+  		<Function name="roundDown" method="roundDown" desc="切捨て">
+  			<para>java.lang.Double</para>
+  			<para>int</para>
+  		</Function>
+  		<Function name="min" method="min">
+			<para>java.lang.Double</para>
+			<para>java.lang.Double</para>
+  		</Function>
+  		<Function name="max" method="max">
+			<para>java.lang.Double</para>
+			<para>java.lang.Double</para>
+  		</Function>
+		<Function name="celebrationPolicyYear" method="celebrationPolicyYear">
+			<para>java.lang.Double</para>
+			<para>java.lang.Double</para>
+			<para>java.lang.Double</para>
+		</Function>
+  	</Functions>
+</SystemDefinition>

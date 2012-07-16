@@ -1,0 +1,545 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+	<BizExpenses desc="事業費率の設定">
+		<formula name="gammai">
+			if(hospitalDays==60){0.025}elseIf(hospitalDays==120){0.032}else{0.038}
+		</formula> 
+		<formula name="beta" value="0.10"/>
+		<formula name="beta1" value="0.07"/>
+		<formula name="zeta">
+			if(gen==2){0.030}else{0.025}
+		</formula>
+		<formula name="epsilon" value="0.003"/>
+		<!-- 世帯7の予定がん入院率の追加（11/8/2）S -->
+		<formula name="rho_z" desc="予定がん入院率">
+			if(gen==7){0.000880}
+			else{0.000905}
+		</formula>
+		<!-- 世帯7の予定がん入院率の追加（11/8/2）E -->
+		<!-- 世帯7の入院給付日の追加（11/8/2）S -->
+		<formula name="T_z" desc="入院給付日数">
+			if(hospitalDays==60){
+				if(gen==7){22.1}
+				else{34.3}
+			}elseIf(hospitalDays==120){
+				if(gen==7){31.5}
+				else{42.6}
+			}else{
+				if(gen==7){48.1}
+				else{47.0}
+			}
+		</formula>
+		<!-- 世帯7の入院給付日の追加（11/8/2）E -->
+		
+	</BizExpenses>
+
+	<Common desc="商品内部の共通公式">
+		<!-- 保険期間  -->
+		<formula name="n1" desc="保険期間(編集後)">
+			if(n==99){omega-x+1}else{n}
+		</formula>
+		<!-- 払込期間  -->
+		<formula name="m1" desc="払込期間(編集後)">
+			if(m==99){omega-x+1}else{m}
+		</formula>
+
+		<formula name="Tx" paras="x" desc="発生率込みの基数">
+			if(hospitalDays==60){TX1[x]}
+			elseIf(hospitalDays==120){TX2[x]}
+			else{TX3[x]}
+		</formula>
+		<formula name="MS" paras="x">
+			if(hospitalDays==60){MS1[x]}
+			elseIf(hospitalDays==120){MS2[x]}
+			else{MS3[x]}
+		</formula>
+		<formula name="MT" paras="x">
+			if(hospitalDays==60){MT1[x]}
+			elseIf(hospitalDays==120){MT2[x]}
+			else{MT3[x]}
+		</formula>
+
+		<!-- これから、2010/11/23許より修正します -->
+		<formula name="q1" paras="x">
+			qx[40]+qw-qx[40]*qw
+		</formula>
+		<formula name="q2" paras="x">
+			qx[40]
+		</formula>
+
+		<!--　生命年金現価　ここから　-->
+		<formula name="a_x_n" paras="x,n" desc="生命年金現価式１" fraction="5">
+			if(n&lt;=0){0}else{(N[x]-N[x+n])/D[x]}
+		</formula>
+		
+		<formula name="a_x_n_z" paras="x,n" desc="生命年金現価式１(子部分)" fraction="5">
+			(1-(v*(1-qx[40]))^n)/(1-v*(1-qx[40]))
+		</formula>
+
+		<formula name="m_a_nashu_x_n" paras="m,x,n" desc="生命年金現価式２" fraction="5">
+			if(kaiyakuUmu==0){<!-- 解約返戻金なし -->
+				if(n==m){
+					0
+				}else{
+					(DT[x+m]/DT[x])*((N[x+m]-N[x+n])/D[x+m])
+				}
+			}else{<!-- 解約返戻金あり -->
+				(N[x+m]-N[x+n])/D[x]
+			}
+		</formula>
+		
+		<formula name="m_a_nashu_x_n_z" paras="m,x,n" desc="生命年金現価式２(子部分)" fraction="5">
+			if(kaiyakuUmu==0){<!-- 解約返戻金なし -->
+				if(n==m){
+					0
+				}else{
+					{v*(1-q1(x))}^m*((1-{v*(1-q2(x))}^(n-m))/(1-v*(1-q2(x))))
+				}
+			}else{<!-- 解約返戻金あり -->
+				{v*(1-qx[40])}^m*((1-{v*(1-qx[40])}^(n-m))/(1-v*(1-qx[40])))
+			}
+		</formula>
+
+		<formula name="m_t_a_nashu_x_n" paras="m,t,x,n" desc="生命年金現価式３" fraction="5">
+			if(kaiyakuUmu==0){
+			<!-- 解約返戻金なし -->
+				if(n==m){
+					0
+				}elseIf(n&gt;m &amp;&amp; t&lt;m){
+					(DT[x+m]/DT[x+t])*((N[x+m]-N[x+n])/D[x+m])
+				}<!-- else{0}-->else{
+				<!-- 長田さんに確認したところ：今回のデータ（払込中でｔ＝ｍ）は私のデータ作成ミスでした。
+				       暫定対策はt>=mに変更しましたけど、いったい要件定義はこのように修正必要があるかどうか
+				       は結論できませんでした。
+				 -->
+					(N[x+m]-N[x+n])/D[x+t]
+				}
+			}else{
+			<!-- 解約返戻金あり -->
+				(N[x+m]-N[x+n])/D[x+t]
+			}
+		</formula>
+		
+		<formula name="m_t_a_nashu_x_n_z" paras="m,t,x,n" desc="生命年金現価式３(子部分)" fraction="5">
+			if(kaiyakuUmu==0){
+				<!-- 解約返戻金なし -->
+				<!-- 子に相当する部分 -->
+				if(n==m){
+					0
+				}elseIf(n&gt;m &amp;&amp; t&lt;m){
+					{v*(1-q1(x))}^(m-t)*((1-{v*(1-q2(x))}^(n-m))/(1-v*(1-q2(x))))
+				}else{0}
+			}else{
+			<!-- 解約返戻金あり -->
+				<!-- 子に相当する部分 -->
+				{v*(1-qx[40])}^(m-t)*((1-{v*(1-qx[40])}^(n-m))/(1-v*(1-qx[40])))
+			}
+		</formula>
+
+		<formula name="aT_x_m" paras="x,m" fraction="5" desc="生命年金現価式４">
+			if(kaiyakuUmu==0){<!-- 解約返戻金なし -->
+				(NT[x]-NT[x+m])/DT[x]
+			}else{<!-- 解約返戻金あり -->
+				(N[x]-N[x+m])/D[x]
+			}
+		</formula>
+		
+		<formula name="aT_x_m_z" paras="x,m" fraction="5" desc="生命年金現価式４(子部分)">
+			if(kaiyakuUmu==0){<!-- 解約返戻金なし -->
+				(1-{v*(1-q1(x))}^m)/(1-v*(1-q1(x)))
+			}else{<!-- 解約返戻金あり -->
+				(1-{v*(1-qx[40])}^m)/(1-v*(1-qx[40]))
+			}
+		</formula>
+
+		<formula name="aT_x_t_m" paras="x,t,m" fraction="5" desc="生命年金現価式５">
+			if(kaiyakuUmu==0){<!-- 解約返戻金なし -->
+				(NT[x+t]-NT[x+m])/DT[x+t]
+			}else{<!-- 解約返戻金あり -->
+				(N[x+t]-N[x+m])/D[x+t]
+			}
+		</formula>
+		
+		<formula name="aT_x_t_m_z" paras="x,t,m" fraction="5" desc="生命年金現価式５(子部分)">
+			if(kaiyakuUmu==0){<!-- 解約返戻金なし -->
+				(1-{v*(1-q1(x))}^(m-t))/(1-v*(1-q1(x)))
+			}else{<!-- 解約返戻金あり -->
+				(1-{v*(1-qx[40])}^(m-t))/(1-v*(1-qx[40]))
+			}
+		</formula>
+
+		<formula name="aT12_x_n" paras="x,n" fraction="5" desc="生命年金現価式６">
+			if(kaiyakuUmu==0){<!-- 解約返戻金なし -->
+				(NT[x]-NT[x+n])/DT[x]-11/24*(1-DT[x+n]/DT[x])
+			}else{<!-- 解約返戻金あり -->
+				(N[x]-N[x+n])/D[x]-11/24*(1-D[x+n]/D[x])
+			}
+		</formula>
+		
+		<formula name="aT12_x_n_z" paras="x,n" fraction="5" desc="生命年金現価式６(子部分)">
+			if(kaiyakuUmu==0){<!-- 解約返戻金なし -->
+				(1-{v*(1-q1(x))}^n)/(1-v*(1-q1(x)))-(11/24)*(1-{v*(1-q1(x))}^n)
+			}else{<!-- 解約返戻金あり -->
+				(1-{v*(1-qx[40])}^n)/(1-v*(1-qx[40]))-(11/24)*(1-{v*(1-qx[40])}^n)
+			}
+		</formula>
+		<!--　生命年金現価　 ここまで　-->
+
+		<!--　給付現価　ここから　-->
+		<formula name="A_i_x" paras="x,n,j" fraction="6" desc="給付現価式１">
+			(MS(x+j)-MS(x+n))/D[x+j]
+		</formula>
+		<formula name="A_i_y" paras="x,n,j" fraction="6" desc="給付現価式２">
+			(MS(x+j)-MS(x+n))/D[x+j]
+		</formula>
+		<formula name="A_i_z" paras="x,n,j" desc="給付現価式３">
+			v^(1/2)*rho_z*T_z*round((1-{v*(1-qx[40])}^(n-j))/(1-{v*(1-qx[40])}),5)
+		</formula>
+
+		<formula name="s_A_i_x" paras="x,n" fraction="6" desc="給付現価式４">
+			v^(1/2)*(3/4)*rho[x]*Tx(x)
+				+
+			v*(1-qx[x])*((MS(x+1)-MS(x+n))/D[x+1])
+		</formula>
+		<formula name="s_A_i_y" paras="x,y,n" fraction="6" desc="給付現価式５">
+			v^(1/2)*(3/4)*rho[y]*Tx(y)
+				+
+			v*(1-qx[x])*((MS(x+1)-MS(x+n))/D[x+1])
+		</formula>
+		<formula name="s_A_i_z" paras="x,n" desc="給付現価式６">
+			v^(1/2)*(3/4)*rho_z*T_z
+				+
+			v*(1-qx[40])*(v^(1/2)*rho_z*T_z*round((1-{v*(1-qx[40])}^(n-1))/(1-{v*(1-qx[40])}),5))
+		</formula>
+
+		<formula name="s_AT_i_x" paras="x,n,m" fraction="6" desc="給付現価式７">
+			if(kaiyakuUmu==0){<!-- 解約返戻金なし -->
+				v^(1/2)*(3/4)*rho[x]*Tx(x)
+					+
+				v*(1-qx[x])*(1-qw)
+					*
+				((MT(x+1)-MT(x+m))/DT[x+1]+(DT[x+m]/DT[x+1])*((MS(x+m)-MS(x+n))/D[x+m]))
+			}else{<!-- 解約返戻金あり -->
+				v^(1/2)*(3/4)*rho[x]*Tx(x)
+					+
+				v*(1-qx[x])*(1-qw)*((MS(x+1)-MS(x+n))/D[x+1])
+			}
+		</formula>
+		<formula name="s_AT_i_y" paras="x,y,n,m" fraction="6" desc="給付現価式８">
+			if(kaiyakuUmu==0){
+			<!-- 解約返戻金なし -->
+				v^(1/2)*(3/4)*rho[y]*Tx(y)
+					+
+				v*(1-qx[x])*(1-qw)
+					*
+				((MT(x+1)-MT(x+m))/DT[x+1]+(DT[x+m]/DT[x+1])*((MS(x+m)-MS(x+n))/D[x+m]))
+			}else{
+			<!-- 解約返戻金あり -->
+				v^(1/2)*(3/4)*rho[y]*Tx(y)
+					+
+				v*(1-qx[x])*(1-qw)*((MS(x+1)-MS(x+n))/D[x+1])
+			}
+		</formula>
+		<formula name="s_AT_i_z" paras="x,n,m" desc="給付現価式９">
+			if(kaiyakuUmu==0){
+			<!-- 解約返戻金なし -->
+				if(n==m){
+					v^(1/2)*(3/4)*rho_z*T_z
+						+
+					v*(1-q2(x))*(1-qw)*(v^(1/2)*rho_z*T_z*round((1-{v*(1-q1(x))}^(n-1))/(1-{v*(1-q1(x))}),5))
+				}else{
+					v^(1/2)*(3/4)*rho_z*T_z
+						+
+					v*(1-q2(x))*(1-qw)*(v^(1/2)*rho_z*T_z*
+						round(
+							(1-{v*(1-q1(x))}^(m-1))/(1-{v*(1-q1(x))})
+								+
+							{v*(1-q1(x))}^(m-1)*(1-{v*(1-q2(x))}^(n-m))/(1-{v*(1-q2(x))})
+						,5)
+					)
+				}
+			}else{
+			<!-- 解約返戻金あり -->
+				v^(1/2)*(3/4)*rho_z*T_z
+					+
+				v*(1-qx[40])*(v^(1/2)*rho_z*T_z*round((1-{v*(1-qx[40])}^(n-1))/(1-{v*(1-qx[40])}),5))
+			}
+		</formula>
+
+		<formula name="AT_i_x" paras="x,n,m,t,j" fraction="6" desc="給付現価式１０">
+			if(kaiyakuUmu==0){
+			<!-- 解約返戻金なし -->
+				if(n==m){
+					(MT(x+j)-MT(x+n))/DT[x+j]
+				}elseIf(n&gt;m &amp;&amp; t&lt;m){
+					(MT(x+j)-MT(x+m))/DT[x+j]+(DT[x+m]/DT[x+j])*((MS(x+m)-MS(x+n))/D[x+m])
+				}<!-- else{0} -->else{
+					(MT(x+j)-MT(x+m))/DT[x+j]+(DT[x+m]/DT[x+j])*((MS(x+m)-MS(x+n))/D[x+m])
+				}
+			}else{<!-- 解約返戻金あり -->
+				(MS(x+j)-MS(x+n))/D[x+j]
+			}
+		</formula>
+		<formula name="AT_i_y" paras="x,n,m,t,j" fraction="6" desc="給付現価式１１">
+			if(kaiyakuUmu==0){
+			<!-- 解約返戻金なし -->
+				if(n==m){
+					(MT(x+j)-MT(x+n))/DT[x+j]
+				}elseIf(n&gt;m &amp;&amp; t&lt;m){
+					(MT(x+j)-MT(x+m))/DT[x+j]+(DT[x+m]/DT[x+j])*((MS(x+m)-MS(x+n))/D[x+m])
+				}<!-- else{0} -->else{
+					(MT(x+j)-MT(x+m))/DT[x+j]+(DT[x+m]/DT[x+j])*((MS(x+m)-MS(x+n))/D[x+m])
+				}
+			}else{<!-- 解約返戻金あり -->
+				(MS(x+j)-MS(x+n))/D[x+j]
+			}
+		</formula>
+		<formula name="AT_i_z" paras="x,n,m,t,j" desc="給付現価式１２">
+			if(kaiyakuUmu==0){
+			<!-- 解約返戻金なし -->
+				if(n==m){
+					v^(1/2)*rho_z*T_z*round((1-{v*(1-q1(x))}^(n-j))/(1-{v*(1-q1(x))}),5)
+				}elseIf(n&gt;m &amp;&amp; t&lt;m){
+					v^(1/2)*rho_z*T_z*round(
+						(1-{v*(1-q1(x))}^(m-j))/(1-{v*(1-q1(x))})
+							+
+						{v*(1-q1(x))}^(m-j)*(1-{v*(1-q2(x))}^(n-m))/(1-{v*(1-q2(x))})
+					,5)
+				}else{0}
+			}else{
+			<!-- 解約返戻金あり -->
+				v^(1/2)*rho_z*T_z*round((1-{v*(1-qx[40])}^(n-j))/(1-{v*(1-qx[40])}),5)
+			}
+		</formula>
+
+		<formula name="PrateByPaymode" paras="stdPrate,d" fraction="3" desc="払込方法別Prate">
+			<!-- 基準Prateと高額割引dより、払込方法別Prateを求める -->
+			<formula name="Discount" paras="d" desc="高額割引">
+				if(kaisu==1){0}
+				elseIf(kaisu==2){12*d}
+				elseIf(kaisu==3){6*d}
+				else{d}
+			</formula>
+			stdPrate*PayFactor(kaisu,gen,keiro)-Discount(d)
+		</formula>
+
+		<formula name="S2P" paras="SBasePrate" fraction="2" desc="S基準からP基準に変換する">
+			<!-- 普通の場合 -->
+			1/SBasePrate
+		</formula>
+	</Common>
+
+	<Premium desc="保険料">
+		<!--一時払いの保険料  -->
+		<formula name="Vp_x" paras="x,n" fraction="3" desc="本人部分">
+			1/(1-beta1)*(s_A_i_x(x,n)+gammai*a_x_n(x,n))
+		</formula>
+		<formula name="Vp_y" paras="x,n" fraction="3" desc="配偶者部分">
+			(Sy/100)/(1-beta1)*(s_A_i_y(x,x,n)+gammai*a_x_n(x,n))
+		</formula>
+		<formula name="Vp_z" paras="x,n" fraction="3" desc="子部分">
+			(Sz/100)*2/(1-beta1)*(s_A_i_z(x,n)+gammai*a_x_n_z(x,n))
+		</formula>
+
+		<!--分割払いの保険料-->
+		<formula name="mVp_x" paras="x,n,m" fraction="3" desc="本人部分">
+			(s_AT_i_x(x,n,m)+gammai*aT12_x_n(x,m)+gammai*m_a_nashu_x_n(m,x,n))
+				/
+			(12*(1-beta-zeta-epsilon)*aT12_x_n(x,m))
+		</formula>
+		<formula name="mVp_y" paras="x,n,m" fraction="3" desc="配偶者部分">
+			(Sy/100)*(s_AT_i_y(x,x,n,m)+gammai*aT12_x_n(x,m)+gammai*m_a_nashu_x_n(m,x,n))
+				/
+			(12*(1-beta-zeta-epsilon)*aT12_x_n(x,m))
+        </formula>
+        <formula name="mVp_z" paras="x,n,m" fraction="3" desc="子部分">
+			if(n==m){
+				2*(Sz/100)*(s_AT_i_z(x,15,15)+gammai*aT12_x_n_z(x,15)+gammai*m_a_nashu_x_n_z(15,x,15))/
+				(12*(1-beta-zeta-epsilon)*aT12_x_n_z(x,15))
+			}else{
+				2*(Sz/100)*(s_AT_i_z(x,n,m)+gammai*aT12_x_n_z(x,m)+gammai*m_a_nashu_x_n_z(m,x,n))/
+				(12*(1-beta-zeta-epsilon)*aT12_x_n_z(x,m))
+			}
+		</formula>
+		<formula name="stdPrate" pvh="P" accessable="false" desc="基準Ｐレート">
+			if(kaisu==1){singlePrate}else{MultiPrate}
+			<formula name="singlePrate" fraction="3" desc="一時払いPrate">
+				if(contractorType==1){Vp_x(x,n1)}
+				elseIf(contractorType==2){Vp_x(x,n1)+Vp_y(x,n1)}
+				elseIf(contractorType==3){Vp_x(x,n1)+Vp_y(x,n1)+Vp_z(40,n1)}
+				else{Vp_x(x,n1)+Vp_z(40,n1)}
+			</formula>
+			<formula name="MultiPrate" fraction="3" desc="分割払いPrate">
+				if(contractorType==1){mVp_x(x,n1,m1)}
+				elseIf(contractorType==2){mVp_x(x,n1,m1)+mVp_y(x,n1,m1)}
+				elseIf(contractorType==3){mVp_x(x,n1,m1)+mVp_y(x,n1,m1)+mVp_z(40,n1,m1)}
+				else{mVp_x(x,n1,m1)+mVp_z(40,n1,m1)}
+			</formula>
+		</formula>
+		<formula name="Prate" pvh="P" accessable="true" desc="１.保険料レート">
+			PrateByPaymode(stdPrate,0)	
+		</formula>
+		<formula name="Premium" pvh="P" accessable="true" desc="２.保険料/保険金額">
+			if(sptate==0){
+				roundDown(SA*PrateByPaymode(stdPrate,0),0)
+			}else{
+				roundUp(roundDown(SA*S2P(PrateByPaymode(stdPrate,0)),0)/1000,0)*1000
+			}
+		</formula> 
+	</Premium>
+
+	<ReserveFund desc="保険積立金">
+		<!--保険料払込期間中（保険料払込免除を含む） -->
+		<formula name="BPV_x" paras="x,n,m,t" fraction="2" desc="本人部分">
+			if(t==0){
+				0
+			}else{
+				max(
+					AT_i_x(x,n,m,t,t)+gammai*m_t_a_nashu_x_n(m,t,x,n)
+						-
+					(s_AT_i_x(x,n,m)+gammai*m_a_nashu_x_n(m,x,n))/aT_x_m(x,m)*aT_x_t_m(x,t,m)
+				,0)
+			}
+		</formula>
+		<formula name="BPV_y" paras="x,n,m,t" fraction="2" desc="配偶者部分">
+			if(t==0){
+				0
+			}else{
+				max(
+					(Sy/100)*(
+						AT_i_y(x,n,m,t,t)+gammai*m_t_a_nashu_x_n(m,t,x,n)
+							-
+						(s_AT_i_y(x,x,n,m)+gammai*m_a_nashu_x_n(m,x,n))/aT_x_m(x,m)*aT_x_t_m(x,t,m)
+					)
+				,0)
+			}
+		</formula>
+		<formula name="BPV_z" paras="x,n,m,t" fraction="2" desc="子部分">
+			if(t==0){
+				0
+			}else{
+				max(
+					(Sz/100)*2*(
+						AT_i_z(40,n,m,t,t)+gammai*m_t_a_nashu_x_n_z(m,t,40,n)
+							-
+						(s_AT_i_z(40,n,m)+gammai*m_a_nashu_x_n_z(m,40,n))/aT_x_m_z(40,m)*aT_x_t_m_z(40,t,m)
+					)
+				,0)
+			}
+		</formula>
+		<!--保険料払込期間終了後 一時払 -->
+		<formula name="BSV_x" paras="x,n,t" fraction="2" desc="本人部分">
+			if(t==0){
+				s_A_i_x(x,n)+gammai*a_x_n(x,n)
+			}else{
+				A_i_x(x,n,t)+gammai*a_x_n(x+t,n-t)
+			}
+		</formula>
+		<formula name="BSV_y" paras="x,n,t" fraction="2" desc="配偶者部分">
+			if(t==0){
+				(Sy/100)*(s_A_i_y(x,x,n)+gammai*a_x_n(x,n))
+			}else{
+				(Sy/100)*(A_i_y(x,n,t)+gammai*a_x_n(x+t,n-t))
+			}
+		</formula>
+		<formula name="BSV_z" paras="x,n,m,t" fraction="2" desc="子部分">
+			if(t==0){
+				(Sz/100)*2*(s_A_i_z(40,n)+gammai*a_x_n_z(40,n))
+			}else{
+				(Sz/100)*2*(A_i_z(40,n,t)+gammai*a_x_n_z(40,n-t))
+			}
+		</formula>
+		<formula name="BenifitPostponingV" paras="x,n,m,t" desc="保険料払込期間中">
+			if(contractorType==1){BPV_x(x,n,m,t)}
+			elseIf(contractorType==2){BPV_x(x,n,m,t)+BPV_y(x,n,m,t)}
+			elseIf(contractorType==3){BPV_x(x,n,m,t)+BPV_y(x,n,m,t)+BPV_z(40,n,m,t)}
+			else{BPV_x(x,n,m,t)+BPV_z(40,n,m,t)}
+		</formula>
+		<formula name="BenifitStartedV" paras="x,n,m,t" desc="保険料払込期間終了後">
+			if(contractorType==1){BSV_x(x,n,t)}
+			elseIf(contractorType==2){BSV_x(x,n,t)+BSV_y(x,n,t)}
+			elseIf(contractorType==3){BSV_x(x,n,t)+BSV_y(x,n,t)+BSV_z(40,n,m,t)}
+			else{BSV_x(x,n,t)+BSV_z(40,n,m,t)}
+		</formula>
+		
+		<formula name="Vrate_accu" paras="t" desc="保険年度末rate">
+			if(state==1||state==6){<!-- 保険料払込期間中（保険料払込免除を含む） -->
+				BenifitPostponingV(x,n1,m1,t)
+			}elseIf(state==2||kaisu==1){<!--保険料払込期間終了後 一時払 -->
+				BenifitStartedV(x,n1,m1,t)
+			}else{0}	
+		</formula>
+		<formula name="Vrate" accessable="true" pvh="if(gen&gt;2){H}else{V}" fraction="2" desc="１.保険年度末Ｖレート">
+			Vrate_accu(t)
+		</formula>
+		<formula name="ContractorYearV" paras="t" accessable="false" fraction="2" desc="保険年度契約者VTレート">
+			Vrate_accu(t)
+		</formula>
+		<formula name="ContractorVrate" pvh="P" fraction="2" accessable="true" desc="３.契約者用Ｖレート">
+			if(state==1||state==6){
+				<!-- 保険料払込期間中（保険料払込免除を含む） -->
+				(1-f_12(f1))*BenifitPostponingV(x,n1,m1,t1)+f_12(f1)*BenifitPostponingV(x,n1,m1,t1+1)
+			}elseIf(state==2||kaisu==1){
+				<!--保険料払込期間終了後  -->
+				(1-f_12(f))*BenifitStartedV(x,n1,m1,t)+f_12(f)*BenifitStartedV(x,n1,m1,t+1)
+			}else{0}
+		</formula>
+
+		<formula name="BizYearV" paras="t" fraction="4" accessable="false" desc="事業末Vレート">
+			if(state==1){
+				<!-- 保険料払込期間中 -->
+				BenifitPostponingV(x,n1,m1,t)
+			}elseIf(state==2||kaisu==1||state==6){
+				<!--保険料払込期間終了後 一時払 保険料払込免除-->
+				BenifitStartedV(x,n1,m1,t)
+			}else{0}
+		</formula>
+				
+		<formula name="BizYearVate" pvh="if(kisoritsu==0){P}elseIf(kisoritsu==1){V}else{H}" accessable="true" desc="２．事業年度末Vレート">
+			BizYearV(t)
+		</formula>
+		
+	</ReserveFund>
+
+	<SurrenderFee desc="解約返戻金">
+	   <formula name="tWrate" pvh="P" fraction="2" accessable="false" desc="基準Ｗレート">
+	       if(state==2||kaisu==1){ 
+	         	(1-f_12(f))*WT_inpaid_1(t)+f_12(f)*WT_inpaid_1(t+1)
+	        }elseIf(state==1||state==6){
+	        	if(PremiumAbolishSign==1){
+	        		if((12*t1+f1-12*t-f)&lt;0){ 
+	              		(1-f_12(f1))*WT_inpaid(t1)+f_12(f1)*WT_inpaid(t1+1)
+ 					}else{
+	              		(1-f_12(f))*WT_inpaid(t)+f_12(f)*WT_inpaid(t+1)
+	                }
+	            }elseIf(contractDate&gt;=20080202){
+	              	v^ve*round((1-f_12(f1))*WT_inpaid(t1)+f_12(f1)*WT_inpaid(t1+1),2)
+	            }else{ 
+	                v^ve*round((1-f_12(f1))*min(WT_inpaid(t1),V_BenifitPostponingV(t1))
+	                +f_12(f1)*min(WT_inpaid(t1+1),V_BenifitPostponingV(t1+1)),2)
+	              }  
+	        }else{0}
+	       <formula name="V_BenifitPostponingV" pvh="V" paras="t">
+	          BenifitPostponingV(x,n1,m1,t)
+	       </formula>
+	       <formula name="WT_inpaid" paras="t" fraction="2" desc="払込中または免除">
+	          max(BenifitPostponingV(x,n1,m1,t)-sigma(t),0)
+	       </formula> 
+	       <formula name="WT_inpaid_1" paras="t" desc="保険料払込期間終了後 ">
+	          max(BenifitStartedV(x,n1,m1,t),0)
+	       </formula>
+	       <formula name="sigma" paras="t" desc="解約控除率">
+	          0.14*min(n1/10,1)*max(1-t/min(m1,10),0)
+	       </formula>
+	   </formula>
+	   <formula name="Wrate" pvh="P" fraction="2" accessable="true" desc="１.解約返戻金Ｗレート">
+			if(kaiyakuUmu==0){
+				0
+			}else{
+				tWrate
+			}
+	   </formula>
+	</SurrenderFee>
+</Formula-definition>

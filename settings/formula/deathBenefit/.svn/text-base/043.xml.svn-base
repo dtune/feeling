@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+
+	<DeathBenefit desc="死亡給付金">
+		
+		<formula name="deathIndemnity" pvh="P" accessable="true"  desc="死亡給付金">
+			round(round(max(max(Wrate(t),ContractorVrate),1),6)*SA,0)
+		</formula>
+		
+	</DeathBenefit>
+	
+</Formula-definition>

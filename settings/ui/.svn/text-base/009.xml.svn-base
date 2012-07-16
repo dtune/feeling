@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Calculation-definition SYSTEM "Calculation-definition.dtd">
+<Calculation-definition>
+<Categories>
+  <Category>
+  	<name>Premium</name>
+  	<label>保険料Pレート</label>
+	<RateKeys>
+		n,m,x,y,sex,contractorSex,kaisu,keiro,sptate,SA,contractDate
+	</RateKeys>
+  </Category>
+  <Category>
+    <name>ReserveFund</name>
+  	<label>保険料積立金Vレート</label>
+  	<RateKeys>
+  		afterBenifitPay,n,m,g,x,y,sex,contractorSex,kaisu,state,
+  		t,f,t1,f1,SA,contractDate,birthday,kisoritsu,z,standardDate
+  	</RateKeys>
+  </Category>
+  <Category>
+   	<name>SurrenderFee</name>
+  	<label>解約返戻金Wレート</label>
+  	<RateKeys>
+  		afterBenifitPay,n,m,g,x,y,sex,contractorSex,kaisu,state,
+  		t,f,t1,f1,SA,contractDate,birthday,PremiumAbolishSign,standardDate
+    </RateKeys>
+  </Category>
+  <Category>
+   	<name>Paidup</name>
+  	<label>払済Ｓ</label>
+  	<RateKeys>
+  		n,m,x,sex,kaisu,t,f,SurrenderFeeS,L,contractDate
+    </RateKeys>
+  </Category>
+  <Category>
+   	<name>Dividend</name>
+  	<label>配当金</label>
+  	<RateKeys>
+  		n,m,g,x,sex,kaisu,state,l,SA,afterBenifitPay,joinAfterBirth,birthday,contractorSex,y,
+  		SA_nashu,bonusDiv,bonus_month,psi,effectBeginDate,payState,
+  		contractorState,changeState,contractDate,divEndDate,keisanPtn,
+  		SA_lastyear,Dt_lastyear,Dt_thisyear,DividendValueLastYear,youikunenkin,AnnuityBeginDate
+    </RateKeys>
+  </Category>
+    <Category>
+   	<name>UnpaidAnnuity</name>
+  	<label>未払年金</label>
+  	<RateKeys>
+  		gen,kaisu,t,f,x,n,bringUpS,contractDate
+    </RateKeys>
+  </Category>
+    <Category>
+  	<name>DeathBenefit</name>
+  	<label>死亡給付金</label>
+  	<RateKeys>
+  		gen,kaisu,t,m,state,SA,contractDate
+    </RateKeys>
+  </Category>
+</Categories>
+</Calculation-definition>

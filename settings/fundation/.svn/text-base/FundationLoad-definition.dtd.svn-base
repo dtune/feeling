@@ -1,0 +1,8 @@
+<!ELEMENT DefaultFundationLoad ( SQL+ ) >
+
+<!ELEMENT FundationLoad-definition ( DefaultFundationLoad, FundationLoad* ) >
+
+<!ELEMENT FundationLoad ( Pattern, SQL+ ) >
+
+<!ELEMENT SQL ( #PCDATA )>
+<!ELEMENT Pattern ( #PCDATA )>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE RateKey-definition SYSTEM "RateKey-definition.dtd">
+<RateKey-definition>
+  	<!-- レートキーのUI属性 -->
+    <RateKeys>
+    	<RateKey name="monthS" label="変更前の基本年金月額" type="text"
+         required="true" initValue="100" displayOrder="90">
+          <rule min="0" max="999999999" step="1"/>
+        </RateKey>
+        <RateKey name="monthS_nashu" label="変更後の基本年金月額" type="text"
+         required="true" initValue="100" displayOrder="89">
+          <rule min="0" max="999999999" step="1"/>
+        </RateKey>
+    </RateKeys>
+</RateKey-definition>

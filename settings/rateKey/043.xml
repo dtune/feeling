@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE RateKey-definition SYSTEM "RateKey-definition.dtd">
+	<!--
+		使えるレートキーを定義する（リストに保存するため、外部から変更可能） バリューデションのため、UI-def.DTDを用意する（）
+	-->
+<RateKey-definition>
+	<!-- レートキーの制御関係 -->
+
+	<!-- レートキーのUI属性 -->
+	<RateKeys>
+		<RateKey name="ij" label="契約時積立利率" type="text" required="true"
+			displayOrder="5">
+			<rule min="0" max="10000000" step="0" />
+		</RateKey>
+		<RateKey name="iw" label="解約時積立利率" type="text" required="true"
+			displayOrder="5">
+			<rule min="0" max="10000000" step="1" />
+		</RateKey>
+		<RateKey name="j" label="契約の更新回目" type="text" required="true"
+			displayOrder="5">
+			<rule min="0" max="99" step="1" />
+		</RateKey>
+		<RateKey name="nj" label="保証期間" type="combo" selectedIndex="1"
+			required="true" displayOrder="5">
+			<items>
+				<item label="1" value="1" />
+				<item label="3" value="3" />
+				<item label="5" value="5" />
+				<item label="7" value="7" />
+				<item label="10" value="10" />
+			</items>
+			<rule max="10" min="0" step="1" />
+		</RateKey>
+
+		<RateKey name="sptate" label="S/P建" type="radio" required="true"
+			displayOrder="10" selectedIndex="1">
+			<items>
+				<item label="S建" value="0" />
+				<item label="P建" value="1" />
+			</items>
+			<rule min="0" max="1" step="1" />
+		</RateKey>
+		<RateKey name="t" label="経過年" type="text" required="true"
+			displayOrder="10">
+			<rule min="0" max="111" step="1" />
+		</RateKey>
+		<RateKey name="f" label="経過月" type="text" required="true"
+			displayOrder="11">
+			<rule min="0" max="12" step="1" />
+		</RateKey>
+
+		<RateKey name="t2" label="年金開始後・経過年" type="text" required="true"
+			displayOrder="14">
+			<rule min="0" max="90" step="1" />
+		</RateKey>
+		<RateKey name="f2" label="年金開始後・経過月" type="text" required="true"
+			displayOrder="15">
+			<rule min="0" max="12" step="1" />
+		</RateKey>
+		<RateKey name="g" label="年金支払期間" type="combo" required="true"
+			selectedIndex="0" displayOrder="16">
+			<items>
+				<item label="5" value="5" />
+				<item label="10" value="10" />
+			</items>
+			<rule min="5" max="10" step="5" />
+		</RateKey>
+		<RateKey name="SA" label="基本S" type="text" required="true"
+			displayOrder="17" initValue="10000">
+			<rule min="0" max="999999999" step="1" />
+		</RateKey>
+		<RateKey name="status" label="状態" type="combo" selectedIndex="0"
+			required="true" displayOrder="18">
+			<items>
+				<item label="積立利率保証期間中" value="0" />
+				<item label="年金支払開始日以後" value="1" />
+			</items>
+			<rule max="10" min="0" step="1" />
+		</RateKey>
+
+		<RateKey name="oVnj" label="前回積立利率保証期間末V" type="text"
+			required="true" displayOrder="17" initValue="0">
+			<rule min="0" max="50000000" />
+		</RateKey>
+		<RateKey name="contractDate" label="契約日" type="text"
+			initValue="20080401" required="true" displayOrder="0">
+			<rule min="20080401" max="21001231" step="1" validateDate="true" />
+		</RateKey>
+		<RateKey name="standardDate" label="解約日" type="text"
+			initValue="20070402" required="true" displayOrder="20">
+			<rule min="19960930" max="21001231" step="1" validateDate="true" />
+		</RateKey>
+
+	</RateKeys>
+</RateKey-definition>

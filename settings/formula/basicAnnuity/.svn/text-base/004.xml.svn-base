@@ -1,0 +1,9 @@
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+	<BasicAnnuity desc="基本年金額">
+		<formula name="basicAnnuity" pvh="P" accessable="true" desc="基本年金額">
+			roundUp(F*SA*(1/BenifitPostponingV(0)),0-1)
+		</formula>
+	</BasicAnnuity>
+</Formula-definition>

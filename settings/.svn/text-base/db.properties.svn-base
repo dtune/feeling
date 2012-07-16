@@ -1,0 +1,6 @@
+##DB Connection Definition##
+driver=com.mysql.jdbc.Driver
+server=192.168.0.190
+database=rate2
+user=user
+password=user

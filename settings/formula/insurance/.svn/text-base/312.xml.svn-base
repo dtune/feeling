@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+	<BizExpenses desc="事業費率の設定">
+		<formula name="gamma" value="0.0032" desc="維持費"/>
+		<formula name="beta" value="0.01" desc="集金費beta"/>
+		<formula name="zeta" value="0.025" desc="集金費zeta"/>
+		<formula name="epsilon" desc="Ｐ免費用">
+			if(m&lt;=5){
+				0.00075
+			}elseIf(m&gt;5&amp;&amp;m&lt;=10){
+				0.0015
+			}else{
+				0.003
+			}
+		</formula>
+	</BizExpenses>
+
+	<Common desc="商品内部の共通公式">
+	<!-- ご注意: 計算公式については、レートキーや計算基礎がパラメータとして書くことは必要ない -->
+		<formula name="Ij" paras="j" desc="生存給付金割合">
+			if(j%k==0 &amp;&amp; j>0){
+				1
+			}else{
+				0
+			}
+		</formula>
+		<formula name="Aj" paras="j" fraction="6" desc="Aj">
+			v^j
+		</formula>
+		<formula name="PrateByPaymode" paras="stdPrate" fraction="4" desc="払込方法別Prate">
+			<!--払込方法別Prateを求める -->
+			stdPrate*PayFactor(kaisu,gen,keiro)
+		</formula>
+				
+	</Common>
+	
+	<Premium desc="保険料">
+		<formula name="stdPrate" fraction="4" desc="基準Ｐレート">
+			(sum(1,n){Ij(index)*Aj(index)}+gamma*f_a_k_n(0,12,n))
+						/
+			(12*(1-beta-zeta-epsilon)*f_a_k_n(0,12,n))
+		</formula>
+		
+		<formula name="Prate" pvh="P" accessable="true" desc="１．保険料レート">
+			PrateByPaymode(stdPrate)
+		</formula>
+		
+		<formula name="Premium" pvh="P" accessable="true" desc="２．保険料・保険金">
+			if(sptate==0){
+				roundDown(SA*Prate,0)
+			}else{
+				0
+			}
+		</formula>
+	</Premium>
+	
+	<ReserveFund desc="保険積立金">
+		<formula name="alpha" value="0.0199" desc="alpha"/>
+		<formula name="Vrate_accu" paras="t,z" desc="保険年度末rate">
+			max{
+				sum(t,n){Ij(index)*Aj(index-t)}
+					-
+				sum(1,n){Ij(index)*Aj(index)}/f_a_k_n(0,1,n)*f_a_k_n(0,1,n-t)
+					-
+				if(z==0){0}else{alpha/a_x_n(x,z)*a_x_n(x+t,z-t)}
+			,0}
+		</formula>
+		<!-- baseは特に指定しないと、呼び出し元の基礎をそのまま使う -->
+		<formula name="Vrate" pvh="H" fraction="4" accessable="true" desc="１．保険年度末Vレート">
+			Vrate_accu(t,0)
+		</formula>
+		
+		<formula name="yearPrate" pvh="P" fraction="4" desc="年払いPrate（P基礎）">
+			PayFactor(2,gen,1)*stdPrate
+		</formula>
+		<formula name="BizYearV" paras="t,z" accessable="false" desc="事業末Vレート">
+			if(state==1){
+				if(round(sum(1,n){Ij(index)*Aj(index)}/f_a_k_n(0,1,n),4)&lt;=yearPrate){
+					Vrate_accu(t,z)
+				}else{
+					max(
+						sum(t,n){Ij(index)*Aj(index-t)}-yearPrate*f_a_k_n(0,1,n-t)
+							-
+						if(z==0){0}else{alpha/a_x_n(x,z)*a_x_n(x+t,z-t)}
+					,0)
+				}
+			}elseIf(state==6){
+				<!-- 保険料払込免除契約 -->
+				sum(t,n){Ij(index)*Aj(index-t)}+f_a_k_n(0,1,n-t)*gamma
+			}else{0}
+		</formula>
+		<formula name="calBizYearV" fraction="4" desc="事業末用Vレート">
+			BizYearV(t,z)
+		</formula>
+		
+		<formula name="ContractorYearV" paras="t,z" pvh="P" fraction="4" desc="保険年度契約者VTレート">
+			Vrate_accu(t,z)
+		</formula>
+		<formula name="ContractorVrate" fraction="4" pvh="P" accessable="true" desc="３．契約者用Vレート">
+			(1-f_12(f1))*max((ContractorYearV(t1,z)-Ij(t1)),0)+f_12(f1)*ContractorYearV(t1+1,z)
+		</formula>
+	</ReserveFund>
+	
+	<SurrenderFee desc="解約返戻金">
+		<formula name="tsigma" paras="t">
+			0.0149*max(1-t/min(m,10),0)
+		</formula>
+
+		<formula name="tWrate" pvh="P" paras="t" fraction="4">
+			max(ContractorYearV(t,0)-Ij(t)-tsigma(t),0)
+		</formula>
+		
+		<formula name="tWrate1" pvh="P" paras="t" fraction="4">
+			max(ContractorYearV(t,0)-tsigma(t),0)
+		</formula>
+
+		<formula name="Wrate" fraction="4" pvh="P" accessable="true" desc="１．解約返戻金Wレート">
+			if(PremiumAbolishSign==1){
+				if(12*t1+f1-12*t-f&lt;0){
+					<!-- 払込年月数-経過年月数<0の場合、t,fをt1,f1に読み替え -->
+					(1-f_12(f1))*tWrate(t1)+f_12(f1)*tWrate1(t1+1)
+				}else{
+					(1-f_12(f))*tWrate(t)+f_12(f)*tWrate1(t+1)
+				}
+			}else{
+				v^ve*round((1-f_12(f1))*tWrate(t1)+f_12(f1)*tWrate1(t1+1),4)
+			}
+		</formula>
+	</SurrenderFee>
+	
+</Formula-definition>

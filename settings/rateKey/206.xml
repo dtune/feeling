@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE RateKey-definition SYSTEM "RateKey-definition.dtd">
+<RateKey-definition>
+	<!-- レートキーの制御関係 -->
+	<Constraints>
+		<Constraint keys="n,m" condition="(m&lt;99&amp;&amp;n>=m)||(m==99)"
+			desc="保険期間は払込期間より大きいで入力ください。" />
+		<Constraint keys="kaisu,m"
+			condition="(kaisu==1&amp;&amp;m==0)||(kaisu&gt;1&amp;&amp;m&gt;0)"
+			desc="一時払いの場合、払込期間は0となければならない;分割払の場合、払込期間は0以上で入力ください。" />
+	</Constraints>
+
+	<!-- レートキーのUI属性 -->
+	<RateKeys>
+		<RateKey name="n" label="保険期間" type="text" required="true"
+			initValue="10" displayOrder="2">
+			<!-- 期間・年齢範囲チェックは商品毎に異なるので、レートキーのルール定義は直さないといけない -->
+			<rule min="1" max="111" step="1" />
+		</RateKey>
+		<RateKey name="m" label="払込期間" type="text" required="true"
+			initValue="10" displayOrder="3">
+			<rule min="0" max="111" step="1" />
+		</RateKey>
+		<RateKey name="x" label="被年令" type="text" required="true"
+			initValue="30" displayOrder="3">
+			<rule min="0" max="111" step="1" />
+		</RateKey>
+		<RateKey name="sex" label="性別" type="radio" required="true"
+			displayOrder="3" selectedIndex="0">
+			<items>
+				<item label="男性" value="0" />
+				<item label="女性" value="1" />
+			</items>
+			<rule min="0" max="1" step="1" />
+		</RateKey>
+		<RateKey name="kaisu" label="払込回数" type="combo" required="true"
+			displayOrder="7" selectedIndex="1">
+			<items>
+				<item label="一時払" value="1" />
+				<item label="年払" value="2" />
+				<item label="半年払" value="3" />
+				<item label="月払" value="4" />
+			</items>
+			<rule min="1" max="4" step="1" />
+		</RateKey>
+		<RateKey name="keiro" label="払込経路" type="combo" required="true"
+			displayOrder="9" selectedIndex="1">
+			<items>
+				<item label="-" value="0" />
+				<item label="普通" value="1" />
+				<item label="口座振替" value="2" />
+				<item label="団体保険料A" value="3" />
+				<item label="団体保険料B" value="4" />
+				<item label="集団扱" value="5" />
+			</items>
+			<rule min="1" max="5" step="1" />
+		</RateKey>
+		<RateKey name="t" label="経過年" type="text" required="true"
+			displayOrder="10">
+			<rule min="0" max="111" step="1" />
+		</RateKey>
+		<RateKey name="f" label="経過月" type="text" required="true"
+			displayOrder="11">
+			<rule min="0" max="12" step="1" />
+		</RateKey>
+		<RateKey name="t1" label="払込年" type="text" required="true"
+			displayOrder="12">
+			<rule min="0" max="111" step="1" />
+		</RateKey>
+		<RateKey name="f1" label="払込月" type="text" required="true"
+			displayOrder="13">
+			<rule min="0" max="12" step="1" />
+		</RateKey>
+		<RateKey name="state" label="契約状態" type="combo" required="true"
+			displayOrder="8" selectedIndex="1">
+			<items>
+				<item label="-" value="0" />
+				<item label="保険料払込期間中" value="1" />
+				<item label="保険料払込期間終了後" value="2" />
+				<item label="払込免除" value="6" />
+			</items>
+			<rule min="0" max="6" step="1" />
+		</RateKey>
+		<RateKey name="sptate" label="S/P建" type="radio" required="true"
+			displayOrder="10" selectedIndex="0">
+			<items>
+				<item label="S建" value="0" />
+				<item label="P建" value="1" />
+			</items>
+			<rule min="0" max="1" step="1" />
+		</RateKey>
+		<RateKey name="i" label="支払限度" type="combo" required="true"
+			displayOrder="29" selectedIndex="1">
+			<items>
+				<item label="-" value="0" />
+				<item label="120" value="120" />
+				<item label="360" value="360" />
+				<item label="730" value="730" />
+			</items>
+			<rule min="0" max="730" step="10" />
+		</RateKey>
+		<RateKey name="SA" label="基本S" type="text" required="true"
+			displayOrder="14" initValue="10000">
+			<rule min="0" max="999999999" step="1" />
+		</RateKey>
+		<RateKey name="contractDate" label="契約日" type="text"
+			initValue="20100401" required="true" displayOrder="0">
+			<rule min="19960930" max="21001231" step="1" validateDate="true" />
+		</RateKey>
+
+		<RateKey name="kisoritsu" label="計算基礎" type="combo"
+			displayOrder="1" selectedIndex="0" required="true">
+			<items>
+				<item label="P" value="0" />
+				<item label="V" value="1" />
+				<item label="H" value="2" />
+			</items>
+			<rule min="0" max="2" step="1" />
+		</RateKey>
+
+		<RateKey name="z" label="チルメル期間" type="text" displayOrder="32"
+			initValue="0" required="true">
+			<rule min="0" max="110" step="1" />
+		</RateKey>
+
+		<RateKey name="PremiumAbolishSign" label="保険料不可分の撤廃の対象" type="radio"
+			displayOrder="90">
+			<items>
+				<item label="いいえ" value="0" />
+				<item label="はい" value="1" />
+			</items>
+		</RateKey>
+
+	</RateKeys>
+</RateKey-definition>

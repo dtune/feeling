@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+	<Dividend desc="配当金計算">
+		<formula name="Rs" paras="t,f" fraction="0" desc="事業年度末保険料積立金">
+			if(state==1&amp;&amp;bonusDiv==1){
+				SA*round((1-Keisankekka_Bonus(f))*DividendContractorV(t)+Keisankekka_Bonus(f)*DividendContractorV(t+1),4)
+			}else{
+				if(state==3){
+					SA*round((1-Keisankekka(f2))*(DividendContractorV(t)-(1+gamma2))
+						+
+					Keisankekka(f2)*DividendContractorV(t+1),4)
+				}else{
+					SA*round((1-Keisankekka(f))*DividendContractorV(t)+Keisankekka(f)*DividendContractorV(t+1),4)
+				}
+			}
+		</formula>
+		<formula name="DividendContractorV" paras="t">
+			if(state==3){
+				ContractorYearV(t-n-l)
+			}else{
+				ContractorYearV(t)
+			}
+		</formula>
+	</Dividend>
+</Formula-definition>

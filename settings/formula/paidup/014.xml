@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+
+	<!-- 払済　ここから -->
+	<Paidup desc="払済">
+		<formula name="gamma1_002" value="0.001"/>
+		
+		<formula name="Vrate_Paidup_002" paras="t" fraction="4">
+			A_xt_nt_D(x,t,n)+gamma1_002*a_x_n(x+t,n-t)
+		</formula>
+		
+		<formula name="Contractor_Paidup_002" fraction="4">
+			(1-f_12(f))*Vrate_Paidup_002(t)+f_12(f)*Vrate_Paidup_002(t+1)
+		</formula>
+	
+		<formula name="paidupLimitS_014" desc="014払済限度">
+			if(teizoKbn==0){
+				min(round((1+theta*(t-1))*paidupLimitS,0),roundDown(k*paidupLimitS,0))
+			}else{
+				min(round(round((1+theta)^(t-1),6)*paidupLimitS,0),roundDown(k*paidupLimitS,0))
+			}
+		</formula>
+		
+		<formula name="paidup_Premium" pvh="P" accessable="true" desc="１．払済保険金額">
+			roundUp(
+				roundDown(min((SurrenderFeeS-L)/Contractor_Paidup_002,paidupLimitS_014),0)
+			,0-3)
+		</formula>
+		
+		<formula name="paidup_SurrenderFee" pvh="P" accessable="true" desc="２．解約払戻金">
+			max(roundDown((SurrenderFeeS-L)-paidupLimitS_014*Vrate_Paidup_002,0),0)
+		</formula>
+	</Paidup>
+</Formula-definition>

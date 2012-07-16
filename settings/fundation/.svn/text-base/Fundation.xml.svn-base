@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Fundation-definition SYSTEM "Fundation-definition.dtd">
+<!-- 商品毎に使う計算基礎を定義バリューデションのため、Fundation-def.dtd.DTDを用意する（） -->
+<Fundation-definition>
+	
+	<!-- 基数作成方法通りに基数パターンの定義である -->	
+	<FundationPattern ptn="1">
+		<Fundation name="qx" column="fund1" desc="予定死亡率"/>
+		<Fundation name="D" column="fund2" desc="Dx=vx*lx"/>
+		<Fundation name="C" column="fund3" desc="vx_half*dx"/>
+		<Fundation name="N" column="fund4"/>
+		<Fundation name="M" column="fund5"/>
+		<Fundation name="R" column="fund6"/>
+		<Fundation name="lx" column="fund7"/>
+	</FundationPattern>
+			
+	<FundationPattern ptn="2">
+		<Fundation name="qx" column="fund1" desc="予定死亡率"/>
+		<Fundation name="DT" column="fund2" desc="Dx=vx*lx解約率込み"/>
+		<Fundation name="CD" column="fund3" desc="vx_half*dx解約率込み"/>
+		<Fundation name="NT" column="fund4"/>
+		<Fundation name="MD" column="fund5"/>
+		<Fundation name="RD" column="fund6"/>
+		<Fundation name="lx" column="fund7"/>
+		<Fundation name="CW" column="fund8" desc="vx_half*dx死亡分"/>
+	</FundationPattern>
+
+	<FundationPattern ptn="3">
+		<!-- qxGより基数パタン３ -->
+		<Fundation name="D" column="fund1" desc="Dx=vx*lx"/>
+		<Fundation name="C" column="fund2" desc="vx_half*dx"/>
+		<Fundation name="DTG" column="fund3"/>
+		<Fundation name="N" column="fund4"/>
+		<Fundation name="NTG" column="fund5"/>
+		<Fundation name="M" column="fund6"/>
+		<Fundation name="qxG" column="fund7" desc="がん予定事故発生率（死亡を含む）"/>
+		
+		<Fundation name="qx" column="qx" desc="死亡発生率"/>
+		<Fundation name="rhoxG" column="rhoxG" desc="がん予定事故発生率（死亡を含まない）"/>
+	</FundationPattern>
+	
+	<FundationPattern ptn="6">
+		<Fundation name="DT" column="fund1"/>
+		<Fundation name="CD" column="fund2"/>
+		<Fundation name="CW" column="fund3"/>
+		<Fundation name="NT" column="fund6"/>				
+		<Fundation name="MD" column="fund7"/>
+		<Fundation name="RD" column="fund10"/>
+		<!-- 予定災害死亡率込みの基数 -->
+		<Fundation name="CZ" column="fund4"/>		
+		<Fundation name="MZ" column="fund8"/>
+		<Fundation name="RZ" column="fund11"/>
+		<!-- 予定災害死亡率　かつ予定解約率込み 基数-->
+		<Fundation name="CZT" column="fund5"/>		
+		<Fundation name="MZT" column="fund9"/>
+		<Fundation name="RZT" column="fund12"/>
+		<!-- 予定災害死亡率 -->
+		<Fundation name="qA" column="qxDD"/>
+	</FundationPattern>
+	
+	<FundationPattern ptn="7" desc="特定疾病保障定期保険特約">
+		<!-- 基数パタン７ -->
+		<Fundation name="D" column="fund2" desc="予定広義死亡率・特定疾病予定事故発生率込み"/>
+		<Fundation name="C" column="fund3" desc="予定広義死亡率・特定疾病予定事故発生率込み"/>
+		<Fundation name="N" column="fund4" desc="予定広義死亡率・特定疾病予定事故発生率込みD"/>
+		<Fundation name="M" column="fund5" desc="予定広義死亡率・特定疾病予定事故発生率込みD"/>
+		
+		<Fundation name="qxDD1" column="fund1"/>
+		<!-- 乳がんを含まない場合の予定死亡率・予定発生率　-->		
+		<Fundation name="qxDD2" column="qxDD"/>
+		
+	</FundationPattern>
+	
+	<FundationPattern ptn="8_1" desc="退院後療養特約の基数パタン８">
+		<Fundation name="lTx" column="fund2" desc="生存者数(発生率込み)"/>
+		<Fundation name="MS" column="fund3" desc="本人・配偶給付上限60（発生率込み）"/>
+		<Fundation name="MT" column="fund4" desc="本人・配偶給付上限60（解約率込み）"/>
+		<Fundation name="tau" column="fund5" desc="予定疾病退院後療養発生率"/>
+		
+		<Fundation name="T1" column="T120" desc="予定疾病入院給付日数(1)"/>
+		<Fundation name="T2" column="T360" desc="予定疾病入院給付日数(2)"/>
+		<Fundation name="T3" column="T730" desc="予定疾病入院給付日数(3)"/>
+	</FundationPattern>
+	
+	<FundationPattern ptn="8_2">
+		<Fundation name="MS1" column="fund3" desc="本人・配偶給付上限120（発生率込み）"/>
+		<Fundation name="MS2" column="fund4" desc="本人・配偶給付上限360（発生率込み）"/>
+		<Fundation name="MS3" column="fund5" desc="本人・配偶給付上限730（発生率込み）"/>
+		<Fundation name="MT1" column="fund6" desc="本人・配偶給付上限120（解約率込み）"/>
+		<Fundation name="MT2" column="fund7" desc="本人・配偶給付上限360（解約率込み）"/>
+		<Fundation name="MT3" column="fund8" desc="本人・配偶給付上限730（解約率込み）"/>
+		
+		<!-- 本来は基数ではないですが、算式に使われるためここに追加 -->
+		<!-- 予定疾病入院給付日数 -->
+		<Fundation name="TX1" column="T120" desc="予定疾病入院給付日数上限120"/>
+		<Fundation name="TX2" column="T360" desc="予定疾病入院給付日数上限360"/>
+		<Fundation name="TX3" column="T730" desc="予定疾病入院給付日数上限730"/>		
+		<!-- 予定疾病入院率 -->
+		<Fundation name="rho" column="rou" desc="予定疾病入院率（本人・配偶者）"/>
+	</FundationPattern>
+	
+	<FundationPattern ptn="9">
+		<!-- 基数パタン９ 基数TBL126と245しかに存在しない-->
+		<Fundation name="spn_lam" column="fund1" desc="予定疾病入院無事故率"/>
+		<Fundation name="L" column="fund13" desc="疾病用基数"/>
+	</FundationPattern>
+	
+	<FundationPattern ptn="009">
+		<!-- 009と209に使われるため、保険契約者の死亡率は別で取得して提供する -->	
+		<Fundation name="maleQy" desc="男性の死亡率（保険契約者）"/>
+		<Fundation name="femaleQy" desc="女性の死亡率（保険契約者）"/>
+		<Fundation name="maleLy" desc="男性生存者数（保険契約者）"/>
+		<Fundation name="femaleLy" desc="女性生存者数（保険契約者）"/>
+		<Fundation name="maleDy" desc="男性死亡者数（保険契約者）"/>
+		<Fundation name="femaleDy" desc="女性死亡者数（保険契約者）"/>		
+	</FundationPattern>
+	
+	<FundationPattern ptn="10">
+		<!-- 基数パタン10 -->
+		<Fundation name="MS" column="fund7"/>
+		<Fundation name="MT" column="fund8"/>
+	</FundationPattern>
+	
+	<!-- ここから　新商品の基数 -->
+	<FundationPattern ptn="11_1">
+		<Fundation name="DT" column="fund1" desc="Dx=vx*lTx"/>
+		<Fundation name="NT" column="fund2"/>
+		
+		<Fundation name="SH_MT30" column="fund3" desc="給付日数30（発生率・解約率込み）"/>
+		<Fundation name="SH_MT60" column="fund4" desc="給付日数60（発生率・解約率込み）"/>
+		<Fundation name="SH_MT120" column="fund5" desc="給付日数120（発生率・解約率込み）"/>
+		
+		<Fundation name="AH_MT30" column="fund6" desc="給付日数30（発生率・解約率込み）"/>
+		<Fundation name="AH_MT60" column="fund7" desc="給付日数60（発生率・解約率込み）"/>
+		<Fundation name="AH_MT120" column="fund8" desc="給付日数120（発生率・解約率込み）"/>
+		
+		<Fundation name="O_MT" column="fund9"/>
+		
+		<Fundation name="qx" column="fund11"/>
+		
+		<!-- 予定疾病入院率 -->
+		<Fundation name="sh_rho" column="rou"/>
+		<!-- 予定疾病入院給付日数 -->
+		<Fundation name="sh_Tx30" column="T120"/>
+		<Fundation name="sh_Tx60" column="T360"/>
+		<Fundation name="sh_Tx120" column="T730"/>
+		<!-- 予定手術等発生率 -->
+		<Fundation name="o_eta" column="eta"/>
+	</FundationPattern>
+	
+	<FundationPattern ptn="11_2">
+		<Fundation name="qx" column="fund11"/>
+		<Fundation name="DT" column="fund1" desc="Dx=vx*lTx"/>
+		<Fundation name="NT" column="fund2"/>
+		
+		<Fundation name="7SH_MT30" column="fund3" desc="給付日数30（発生率・解約率込み）"/>
+		<Fundation name="7SH_MT60" column="fund4" desc="給付日数60（発生率・解約率込み）"/>
+		<Fundation name="7SH_MT120" column="fund5" desc="給付日数120（発生率・解約率込み）"/>
+		
+		<Fundation name="7O_MT" column="fund6"/>
+		
+		<!-- 予定疾病入院率 -->
+		<Fundation name="7sh_rho" column="rou"/>
+		<!-- 予定疾病入院給付日数 -->
+		<Fundation name="7sh_Tx30" column="T120"/>
+		<Fundation name="7sh_Tx60" column="T360"/>
+		<Fundation name="7sh_Tx120" column="T730"/>
+		<!-- 予定手術等発生率 -->
+		<Fundation name="7o_eta" column="eta"/>
+		
+	</FundationPattern>
+	
+	<FundationPattern ptn="11_3">
+		<Fundation name="DT" column="fund1" desc="Dx=vx*lTx"/>
+		<Fundation name="NT" column="fund2"/>
+		
+		<Fundation name="3SH_MT" column="fund3"/>
+		<Fundation name="3sh_rho" column="rou" desc="予定疾病入院率"/>
+		<Fundation name="3sh_qx" column="q" desc="予定広義死亡率"/>
+	</FundationPattern>
+	
+	<FundationPattern ptn="12_1">
+		<Fundation name="Dt" column="fund1" desc="Dx=vx*ltx"/>
+		<Fundation name="Nt" column="fund2"/>
+		
+		<Fundation name="SH_Mt30" column="fund3" desc="給付日数30（発生率・解約率込み）"/>
+		<Fundation name="SH_Mt60" column="fund4" desc="給付日数60（発生率・解約率込み）"/>
+		<Fundation name="SH_Mt120" column="fund5" desc="給付日数120（発生率・解約率込み）"/>
+		
+		<Fundation name="AH_Mt30" column="fund6" desc="給付日数30（発生率・解約率込み）"/>
+		<Fundation name="AH_Mt60" column="fund7" desc="給付日数60（発生率・解約率込み）"/>
+		<Fundation name="AH_Mt120" column="fund8" desc="給付日数120（発生率・解約率込み）"/>
+		
+		<Fundation name="O_Mt" column="fund9"/>
+		<Fundation name="Mwd" column="fund10"/>
+	</FundationPattern>
+	
+	<FundationPattern ptn="12_2">
+		<Fundation name="Dt" column="fund1" desc="Dx=vx*ltx"/>
+		<Fundation name="Nt" column="fund2"/>
+				
+		<Fundation name="7SH_Mt30" column="fund3" desc="給付日数30（発生率・解約率込み）"/>
+		<Fundation name="7SH_Mt60" column="fund4" desc="給付日数60（発生率・解約率込み）"/>
+		<Fundation name="7SH_Mt120" column="fund5" desc="給付日数120（発生率・解約率込み）"/>
+		<Fundation name="7O_Mt" column="fund6"/>
+	</FundationPattern>
+	
+	<FundationPattern ptn="12_3">	
+		<Fundation name="Dt" column="fund1" desc="Dx=vx*ltx"/>
+		<Fundation name="Nt" column="fund2"/>		
+		<Fundation name="3SH_Mt" column="fund3"/>
+	</FundationPattern>
+	
+	<FundationPattern ptn="13">
+		<Fundation name="DT" column="fund1"/>
+		<Fundation name="NT" column="fund2"/>		
+		<Fundation name="HM_MT" column="fund3"/>
+		<Fundation name="hm_rho" column="rou" desc="予定在宅治療発生率"/>
+		<Fundation name="hm_qx" column="q" desc="予定広義死亡率"/>
+	</FundationPattern>
+	
+	<!-- 
+		これから商品毎の基数グループの定義である、商品の要件定義通りにそれぞれの基数作成方法を含む 
+			1.nameは計算式定義に使われる；columnは応じるDBのコラム
+			2.属性groupkeyでは、入力のレートキーより作ること、またPVHという基礎はデフォルトに付加するため、書く必要ない
+			3.予定利率「rate」と現価率「v」は、特に書いて必要ない
+	-->	
+	
+	<!-- qx=fund11,qw=fund12 -->
+	<DefaultFundationGroup groupkey="${generation}${payment}" desc="デフォルト商品基数グループ">
+		<FundationPattern>1</FundationPattern>		
+	</DefaultFundationGroup>
+	
+	<FundationGroup code="009,209" groupkey="${generation}" desc="配当付こども保険">
+		<FundationPattern>1</FundationPattern>
+		<FundationPattern>009</FundationPattern>
+	</FundationGroup>
+	
+	<FundationGroup code="016,017,030,029,311" groupkey="${generation}${payment}${qw}"
+		desc="低W系商品">
+		<FundationPattern>1</FundationPattern>
+		<FundationPattern>2</FundationPattern>
+	</FundationGroup>
+	
+	<FundationGroup code="261" groupkey="${generation}${payment}${qw}"
+		desc="がん入院特約">
+		<FundationPattern>1</FundationPattern>
+		<FundationPattern>2</FundationPattern>
+		<FundationPattern>8_2</FundationPattern>
+	</FundationGroup>
+	
+	<FundationGroup code="027" groupkey="${generation}${payment}${qw}"
+		desc="低解約返戻金型終身保険（無選択型）">
+		<FundationPattern>1</FundationPattern>
+		<FundationPattern>6</FundationPattern>
+	</FundationGroup>
+
+	<FundationGroup code="035" groupkey="${generation}${payment}"
+	 desc="解約返戻金抑制型医療保険">
+		<FundationPattern>11_1</FundationPattern>
+		<FundationPattern>12_1</FundationPattern>		
+	</FundationGroup>
+	
+	<FundationGroup code="221" groupkey="${generation}${payment}"
+		desc="七大生活習慣病特約">
+		<FundationPattern>11_2</FundationPattern>
+		<FundationPattern>12_2</FundationPattern>		
+	</FundationGroup>
+	
+	<FundationGroup code="223" groupkey="${generation}${payment}"
+		desc="三大疾病入院一時金特約">
+	 	<FundationPattern>11_3</FundationPattern>
+		<FundationPattern>12_3</FundationPattern>		
+	</FundationGroup>
+	
+	<FundationGroup code="225" groupkey="${generation}${payment}${qw}"
+		desc="先進医療特約">
+		<FundationPattern>11_1</FundationPattern>		
+	</FundationGroup>
+
+	<FundationGroup code="226" groupkey="${generation}${payment}${qw}"
+		desc="特定在宅治療支援特約">
+		<FundationPattern>13</FundationPattern>		
+	</FundationGroup>
+	
+	<FundationGroup code="007,008,310" groupkey="${generation}${payment}"
+	 desc="特定疾病保障定期保険と５年ごと利差配当付特定疾病保障終身保険">
+		<FundationPattern>7</FundationPattern>	
+	</FundationGroup>
+	
+	<FundationGroup code="031" groupkey="${generation}${payment}${qw}" desc="医療保険">              
+       <FundationPattern std-xtime-fixed="true">1</FundationPattern>
+       <FundationPattern std-xtime-fixed="true">2</FundationPattern>
+       <FundationPattern>8_2</FundationPattern>                                                                                                                	                                                                                          
+	</FundationGroup>  
+	
+	<!-- 203疾病入院特約 -->
+	<FundationGroup code="203,206,208" groupkey="${generation}${payment}" desc="疾病入院特約">
+       <FundationPattern std-xtime-fixed="true">1</FundationPattern>
+       <FundationPattern>8_2</FundationPattern>			
+	</FundationGroup>
+	
+	<!-- 205疾病退院後療養特約 -->
+	<FundationGroup code="205" groupkey="${generation}${payment}" desc="疾病退院後療養特約">
+		<FundationPattern std-xtime-fixed="true">1</FundationPattern>
+		<FundationPattern>8_1</FundationPattern>	
+	</FundationGroup>	
+
+	<FundationGroup code="235,236,237,238" groupkey="${generation}${payment}${qw}" desc="退院後療養特約の計算基礎">
+		<FundationPattern std-xtime-fixed="true">1</FundationPattern>
+        <FundationPattern std-xtime-fixed="true">2</FundationPattern>
+		<FundationPattern>8_1</FundationPattern>
+	</FundationGroup>
+	
+	<FundationGroup code="265" groupkey="${generation}${payment}${qw}" desc="がん診断給付金特約">
+		<FundationPattern>3</FundationPattern>
+		<FundationPattern>10</FundationPattern>
+	</FundationGroup>
+	
+	<FundationGroup code="276,278" groupkey="${generation}${payment}${qw}" desc="無事故給付金特約">
+		<FundationPattern>1</FundationPattern>
+		<FundationPattern>2</FundationPattern>
+		<FundationPattern>9</FundationPattern>		
+	</FundationGroup>	
+	
+	<FundationGroup code="309" groupkey="${generation}${payment}${dividend}" desc="特定疾病保障定期保険特約">
+		<FundationPattern>7</FundationPattern>
+	</FundationGroup>
+	
+	<FundationGroup code="301,302,303,304,308" groupkey="${generation}${payment}${dividend}" desc="逓減定期保険特約の計算基礎">
+		<FundationPattern>1</FundationPattern>
+	</FundationGroup>
+	<FundationGroup code="307" groupkey="${generation}${payment}${dividend}" desc="生存給付金付定期保険特約の計算基礎">
+		<FundationPattern>1</FundationPattern>
+	</FundationGroup>
+</Fundation-definition>

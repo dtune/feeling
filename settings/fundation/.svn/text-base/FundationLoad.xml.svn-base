@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE FundationLoad-definition SYSTEM "FundationLoad-definition.dtd">
+<!-- 商品毎に使う計算基礎を定義バリューデションのため、Fundation-def.dtd.DTDを用意する（） -->
+<FundationLoad-definition>
+	<!-- デフォルトの商品の基数 -->
+	<DefaultFundationLoad>
+		<SQL>
+			select * from t_fund_table t where t.fund_table_no = ${fund_tbl_no} and t.x_times = ${x_times} order by sex,age;
+		</SQL>
+	</DefaultFundationLoad>
+	<FundationLoad>
+		<Pattern>1,2</Pattern>
+		<SQL>
+			select * from t_fund_table t where t.fund_table_no = ${fund_tbl_no} and t.x_times = ${x_times} order by sex,age;
+		</SQL>
+	</FundationLoad>
+	
+	<FundationLoad>
+		<Pattern>3,10</Pattern>
+		<SQL>select fund.*, lt1.q as rhoxG, lt2.q as qx
+		 from t_fund_table fund, life_table lt1, life_table lt2
+		 where fund.fund_table_no = ${fund_tbl_no} and fund.x_times = ${x_times}
+		 and lt1.life_table_no = ${rate_table_2} and lt1.sex = fund.sex and lt1.age = fund.age
+		 and lt2.life_table_no = ${rate_table_3} and lt2.sex = fund.sex and lt2.age = fund.age
+		 order by fund.sex, fund.age;
+		</SQL>
+	</FundationLoad>
+
+	<FundationLoad>
+		<Pattern>6,7</Pattern>
+		<SQL>select rb.*,lt.q as qxDD 
+			from t_fund_table rb, life_table lt
+		 	where rb.fund_table_no = ${fund_tbl_no} and rb.x_times = ${x_times}
+		 	and lt.life_table_no = ${rate_table_2} and lt.age = rb.age and lt.sex = rb.sex
+		 	order by rb.sex, rb.age;
+		 </SQL>
+	</FundationLoad>
+		
+	<FundationLoad>
+		<Pattern>8_1,8_2</Pattern> 
+		<SQL>
+			select fund_table_no,sex,age,
+			fund1,fund2,fund3,fund4,fund5,fund6,fund7,fund8,fund9,fund10,fund11,fund12,fund13,
+			rou,T120,T360,T730 from  
+			(select rb.* from t_fund_table rb where rb.fund_table_no = ${fund_tbl_no} and rb.x_times = ${x_times}) rm 
+					left join 
+				(select pb.age as age1,pb.rou,pd.T120,pd.T360,pd.T730 
+					from probability pb, payment_day pd 
+					where pb.tableNo = ${rate_table_2} and pd.tableNo = ${rate_table_3} and pb.age = pd.age
+				) mpp
+			on rm.age = mpp.age1 order by sex,age;
+		</SQL> 
+	</FundationLoad>
+	
+	<FundationLoad>
+		<Pattern>11_1</Pattern>
+		<SQL>
+			select fund_table_no,sex,age,
+			fund1,fund2,fund3,fund4,fund5,fund6,fund7,fund8,fund9,fund10,fund11,fund12,fund13,
+			rou,eta,T120,T360,T730 from 
+				(select rb.* from t_fund_table rb where rb.fund_table_no = ${fund_tbl_no} and rb.x_times = ${x_times}) rm 
+					left join 
+				(select pb.age as age1, pb.sex as sex1, pb.rou, pb1.rou as eta, pd.T120,pd.T360,pd.T730 
+					from probability pb, probability pb1, payment_day pd 
+					where pb.tableNo = ${rate_table_2} and pd.tableNo = ${rate_table_2}
+					and pb.age = pd.age and pb.sex = pd.sex 
+					and pb1.tableNo = ${rate_table_4} 
+	            	and pb.age = pb1.age and pb.sex = pb1.sex
+				) mpp
+					on (rm.age = mpp.age1 and rm.sex = mpp.sex1) 
+			order by sex,age;
+		</SQL>
+	</FundationLoad>
+	<FundationLoad>
+		<Pattern>11_2</Pattern>
+		<SQL>
+			select fund_table_no,sex,age,
+			fund1,fund2,fund3,fund4,fund5,fund6,fund7,fund8,fund9,fund10,fund11,fund12,fund13,
+			rou,eta,T120,T360,T730 from 
+				(select rb.* from t_fund_table rb where rb.fund_table_no = ${fund_tbl_no} and rb.x_times = ${x_times}) rm 
+					left join 
+				(select pb.age as age1, pb.sex as sex1, pb.rou, pb1.rou as eta, pd.T120,pd.T360,pd.T730 
+					from probability pb, probability pb1, payment_day pd 
+					where pb.tableNo = ${rate_table_2} and pd.tableNo = ${rate_table_2}
+					and pb.age = pd.age and pb.sex = pd.sex 
+					and pb1.tableNo = ${rate_table_3} 
+	            	and pb.age = pb1.age and pb.sex = pb1.sex
+				) as mpp
+					on (rm.age = mpp.age1 and rm.sex = mpp.sex1) 
+			order by sex,age;
+		</SQL>
+	</FundationLoad>
+	<FundationLoad>
+		<Pattern>11_3,13</Pattern>
+		<SQL>
+			select fund_table_no,sex,age,
+			fund1,fund2,fund3,rou,q from 
+				(select rb.* from t_fund_table rb where rb.fund_table_no = ${fund_tbl_no} and rb.x_times = ${x_times}) rm 
+					left join 
+				(select pb.age as age1,pb.sex as sex1,pb.rou,lt.q 
+					from probability pb, life_table lt 
+					where pb.tableNo = ${rate_table_2} and lt.life_table_no = ${rate_table_1} 
+					and pb.age = lt.age and pb.sex = lt.sex
+				) mpp
+					on (rm.age = mpp.age1 and rm.sex = mpp.sex1) 
+			order by sex,age;
+		</SQL>
+	</FundationLoad>
+	<FundationLoad>
+		<Pattern>9</Pattern>
+		<SQL>
+			select fund_table_no,sex,age,fund1,fund13
+		 	from t_fund_table lxTbl, mortality_mapping mm, t_fund_def_mapping dm 
+		 	where dm.i = 0 and dm.qw = 0 and dm.rate_table_1 = mm.life_table2_no 
+            and mm.insurance_code = '276' and mm.generation = ${generation} and mm.pvh = ${pvh}
+		  	and lxTbl.fund_table_no = dm.fund_tbl_no and lxTbl.x_times = 1 
+		  	order by sex,age;
+		</SQL>
+	</FundationLoad>
+	
+	<FundationLoad>
+		<Pattern>009,209</Pattern>
+		<SQL>
+			select mm.limit_sex,lt.sex,lt.age,lt.q from life_table lt, mortality_mapping mm
+			where lt.life_table_no = mm.life_table1_no and mm.insurance_code = ${code} and mm.generation = ${generation} and mm.pvh = ${pvh} 
+			and mm.xyz = 'y' order by sex,age;
+		</SQL>
+	</FundationLoad>
+
+</FundationLoad-definition>

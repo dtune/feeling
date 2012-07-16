@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+
+	<DeathBenefit desc="死亡給付金">
+		
+		<formula name="disaterDeathBenefits" fraction="0" desc="災害以外による死亡給付金">
+			if(kaisu==1){
+				max(ContractorVrate,1)*DP
+			}elseIf(state==3){
+				0
+			}else{
+				if(PremiumAbolishSign==1) {
+					SA*round((1-f_12(f))*ContractorYearV(t)+f_12(f)*ContractorYearV(t+1),4)
+				}else{
+					SA*ContractorVrate
+				}
+			}
+		</formula>
+		<formula name="deathIndemnity" pvh="P" accessable="true"  desc="死亡給付金">
+			if(deathReason==2||state==5){
+				<!-- 災害以外による死亡 -->
+				disaterDeathBenefits
+			}else{
+				round(disaterDeathBenefits*1.1,0)
+			}
+		</formula>
+		
+	</DeathBenefit>
+	
+</Formula-definition>

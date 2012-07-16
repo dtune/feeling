@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+	<!-- 保険料　ここから -->
+	<Premium desc="保険料">
+		<formula name="special_b_Prate_self" xtime="4" desc="4倍体本人部分疾病合計(Pレート)">
+			if(kaisu==1){
+				Honnin_b_Yj(n1,m1)
+			}else{
+				Honnin_b_Bk(n1,m1)
+			}
+		</formula>
+		<formula name="normal_b_Prate_self" xtime="1" desc="1倍体本人部分疾病合計(Pレート)">
+			if(kaisu==1){
+				Honnin_b_Yj(n1,m1)
+			}else{
+				Honnin_b_Bk(n1,m1)
+			}
+		</formula>
+		<formula name="normal_z_Prate_self" xtime="1" desc="1倍体本人災害部分合計(Pレート)">
+			if(kaisu==1){
+				Honnin_z_Yj(n1,m1)
+			}else{
+				Honnin_z_Bk(n1,m1)
+			}
+		</formula>
+		<formula name="normalPrate" desc="1倍体基準Prate">
+			normal_b_Prate_self + normal_z_Prate_self	
+		</formula>
+		<formula name="specialPrate" desc="4倍体基準Prate">
+			special_b_Prate_self + normal_z_Prate_self	
+		</formula>
+		<formula name="Special_stdPrate" desc="特別条件付基準Prate" fraction="3">
+			if(kaisu==1){
+				(specialLambda-1)*(specialPrate-normalPrate)/(specialLambda1-1)
+			}else{
+				(specialLambda-1)*(specialPrate-normalPrate)/(specialLambda1-1)
+			}
+		</formula>
+		<formula name="Special_Prate" pvh="P" desc="特別条件付Prate">
+			PrateByPaymode(Special_stdPrate,0)
+		</formula>
+		<formula name="Special_Premium" pvh="P" accessable="true" desc="特別条件付保険料/保険金額">
+			<!--Ｓ建てとして計算する -->
+			roundDown(SA*max(PrateByPaymode(Special_stdPrate,0),0),0)
+		</formula>
+	</Premium>
+
+	<!-- 責任準備金　ここから -->
+	<ReserveFund desc="責任準備金">
+		<formula name="x4ContractorVrate" xtime="4" desc="4倍体契約者用レート">
+			<!--配偶者、子部分は0-->
+			set{contractorType=1}
+			ContractorVrate
+		</formula>
+		
+		<formula name="x1ContractorVrate" xtime="1" desc="1倍体契約者用レート">
+			<!--配偶者、子部分は0-->
+			set{contractorType=1}
+			ContractorVrate
+		</formula>
+		<formula name="Special_ContractorVrate" pvh="P" accessable="true" fraction="2" paras="t" desc="特体契約者レート">
+			(specialLambda-1)*(x4ContractorVrate-x1ContractorVrate)/(specialLambda1-1)
+		</formula>
+		<formula name="Special_Valuation" accessable="true" fraction="0" pvh="P" desc="特体契約者実額">
+			max(SA*Special_ContractorVrate,0)
+		</formula>
+		<formula name="x4BizYear" xtime="4" fraction="2" accessable="false" desc="4倍体事業年度末用Vレート">
+			<!--配偶者、子部分は0-->
+			set{contractorType=1}
+			BizYearV(t)
+		</formula>
+		<formula name="x1BizYear" xtime="1" fraction="2" accessable="false" desc="1倍体事業年度末用Vレート">
+			<!--配偶者、子部分は0-->
+			set{contractorType=1}
+			BizYearV(t)
+		</formula>
+		<formula name="Special_BizYearVate" pvh="if(kisoritsu==0){P}elseIf(kisoritsu==1){V}else{H}" fraction="2" accessable="true" desc="特体事業年度末レート">
+			(specialLambda-1)*(x4BizYear-x1BizYear)/(specialLambda1-1)
+		</formula>
+		<formula name="Special_BizYearValuation" fraction="0" pvh="if(kisoritsu==0){P}elseIf(kisoritsu==1){V}else{H}" accessable="true" desc="特体業年度末実額">
+			SA*Special_BizYearVate
+		</formula>		
+	</ReserveFund>
+</Formula-definition>

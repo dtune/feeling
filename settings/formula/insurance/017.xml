@@ -1,0 +1,598 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+	<BizExpenses desc="事業費率の設定">
+		<formula name="code" value="017"/>
+		<formula name="alpha" value="0.02"/>
+		<formula name="delta" fraction="8">
+			if(kaisu==1){
+				0
+			}else{
+				roundDown(0.02*min(max(m,10)/20,1),8)
+			}
+		</formula>
+		<formula name="gamma" value="0.00205"/>
+		<formula name="gamma1" value="0.001"/>
+		<formula name="gamma_nashu" value="0.002"/>
+		<formula name="gamma2" value="0.001"/>
+		<formula name="beta" value="0.03"/>
+		<formula name="zeta">
+			if(gen==2){0.03}else{0.025}
+		</formula>
+		<formula name="epsilon" desc="払込免除">
+			if(m&lt;=5){
+				0.0005
+			}elseIf(m&gt;5&amp;&amp;m&lt;=10){
+				0.001
+			}else{
+				0.002
+			}
+		</formula>
+	</BizExpenses>
+	
+	<Common desc="商品内部の共通公式">
+		<formula name="R_t" paras="t" desc="第ｔ保険年度の保険料割引">
+			if(t&lt;=9){
+				1.0
+			}elseIf(t&gt;=15){
+				1.3
+			}else{
+			  if(step==10){1.3}else{1.0}
+			}
+		</formula>
+		<!-- CR037 低解約返戻金割合wt-->
+		<formula name="wt" desc="低解約返戻金割合wt">
+			if(gen==2){0.75}
+			else{0.70}
+		</formula>
+		<formula name="ht" paras="par" desc="解約返戻金割合ht">
+			if(par&gt;=0 &amp;&amp; par&lt;u){
+				wt
+			}else{1}
+		</formula>
+		<formula name="m1" paras="state" desc="保険料払込期間">
+			if(state==7){
+				if(m==99 || m+x &gt; 80){
+					80-x
+				}else{m}
+			}else{
+				if(m==99){
+					omega-x+1
+				}else{
+					m
+				}
+			}
+		</formula>
+		
+		<!-- 年金現価公式　ここから -->
+		<formula name="M_a_x_t_m_t" paras="x,m,t"  desc="期始払生命現価1">
+	        if(m&lt;=step){
+	        	round((N[x+t]-N[x+m])/D[x+t],5)
+	        }else{
+			     if(t&lt;step){
+			         round((N[x+t]-N[x+step])/D[x+t],5)
+			         	+
+			         round(round((N[x+step]-N[x+m])/D[x+t],5)*1.3,5)
+			     }else{
+			         round(round((N[x+t]-N[x+m])/D[x+t],5)*1.3,5)
+			     }
+			}
+		</formula>
+		<formula name="M_a_x_m" paras="x,m" desc="期始払生命現価2">
+			 if(m&lt;=step){
+				round((N[x]-N[x+m])/D[x],5)
+			 }else{
+				round((N[x]-N[x+step])/D[x],5)
+					+
+				round(round((N[x+step]-N[x+m])/D[x],5)*1.3,5)
+			 }
+		</formula>
+		<formula name="M_a_T_x_t_m_t" paras="x,m,t" fraction="5" desc="期始払生命現価5">
+			if(m&lt;=step){
+				round((NT[x+t]-NT[x+m])/DT[x+t],5)
+			}else{
+				if(t&lt;step){
+				    round((NT[x+t]-NT[x+step])/DT[x+t],5)
+				    	+
+				    round(round((NT[x+step]-NT[x+m])/DT[x+t],5)*1.3,5)
+				}else{
+				    round(round((NT[x+t]-NT[x+m])/DT[x+t],5)*1.3,5)
+				}
+			}
+		</formula>
+		<formula name="M_a_T_x_t_m" paras="x,m" fraction="5" desc="期始払生命現価6">
+			 if(m&lt;=step){
+			 	round((NT[x]-NT[x+m])/DT[x],5)
+			 }else{
+			    round((NT[x]-NT[x+step])/DT[x],5)
+			    	+
+			    round(round((NT[x+step]-NT[x+m])/DT[x],5)*1.3,5)
+			 }
+		</formula>
+		
+		<formula name="M_a_T_x" paras="x" fraction="5" desc="期始払生命現価7">
+			 if((omega-x+1)&gt;=step){
+			 	NT[x]/DT[x]
+			 }else{
+			    round((NT[x]-NT[x+step])/DT[x],5)
+			 		+
+			 	round(round(NT[x+step]/DT[x],5)*1.3,5)
+			 }
+		</formula>
+
+		<formula name="M_a_T_x_t" paras="x,t" fraction="5" desc="期始払生命現価8">
+			 if(t&lt;=step){
+			 	round((NT[x+t]-NT[x+step])/DT[x+t],5)
+			 		+
+			 	round(round(NT[x+step]/DT[x+t],5)*1.3,5)
+			 }else{
+			    round(round(NT[x+t]/DT[x+t],5)*1.3,5)
+			 }
+		</formula>
+
+		<formula name="f_aT12_x" paras="f,x" fraction="5">
+			NT[x+f]/DT[x]-11/24*(DT[x+f]/DT[x])
+		</formula>
+		<formula name="f_aT12_x_n" paras="f,x,n" fraction="5">
+			(NT[x+f]-NT[x+n])/DT[x]-11/24*((DT[x+f]-DT[x+n])/DT[x])
+		</formula>
+		
+		<!--死亡保障解約給付現価 -->
+		<formula name="tWx_nashu" paras="t,x" desc="死亡保障解約給付現価">
+			if(kaisu==1){
+				(M[x+t]+gamma_nashu*N[x+t])/D[x+t]
+			}else{
+				<!-- システム上の計算式 -->
+				if(step==0){
+				<!-- 平準払い -->
+					if(m==99){
+					<!-- 終身払い -->
+						M[x+t]/D[x+t]+{A_x(x)/a_x_n(x,m1(0))*N[x+t]-alpha/a_x_n(x,m1(0))*N[x+t]}/D[x+t]
+					}else{
+						if(t&gt;=0 &amp;&amp; t&lt;m1(0)){
+							M[x+t]/D[x+t]
+								+
+							{gamma_nashu*N[x+t]-(A_x(x)+gamma_nashu*a_x(x))/a_x_n(x,m1(0))
+							*(N[x+t]-N[x+m1(0)])-alpha/a_x_n(x,m1(0))*(N[x+t]-N[x+m1(0)])}
+							/D[x+t]
+						}elseIf(t&gt;=m &amp;&amp; t&lt;=(omega-x)){
+							(M[x+t]+gamma_nashu*N[x+t])/D[x+t]
+						}else{0}
+					}
+				}else{
+				<!-- ステップ払い -->
+					if(m==99){
+					<!-- 終身払い -->
+						if(t&lt;=step){
+						<!-- ステップ期間中 -->
+							{M[x+t]+gamma*N[x+t]
+							-{A_x(x)+alpha+gamma*a_x_n(x,m1(0))}/M_a_x_m(x,m1(0))
+							*{(N[x+t]-N[x+step])+N[x+step]*1.3}
+							}/D[x+t]
+						}else{
+						<!-- ステップ期間終了後 -->
+							{M[x+t]+gamma*N[x+t]-(A_x(x)+alpha+gamma*a_x_n(x,m1(0)))/M_a_x_m(x,m1(0))
+							*(N[x+t]*1.3)}/D[x+t]
+						}
+					}else{
+						if(t&gt;=0 &amp;&amp; t&lt;m1(0)){
+							if(t&lt;=step){
+								(M[x+t]+gamma_nashu*N[x+m1(0)]+gamma*(N[x+t]-N[x+m1(0)])
+								-(A_x(x)+gamma_nashu*f_a_x(m1(0),x)+alpha+gamma*a_x_n(x,m1(0)))/M_a_x_m(x,m1(0))
+								*{(N[x+t]-N[x+step])+(N[x+step]-N[x+m1(0)])*1.3}
+								)/D[x+t]
+							}else{
+								{M[x+t]+gamma_nashu*N[x+m1(0)]+gamma*(N[x+t]-N[x+m1(0)])
+								-(A_x(x)+gamma_nashu*f_a_x(m1(0),x)+alpha+gamma*a_x_n(x,m1(0)))/M_a_x_m(x,m1(0))
+								*((N[x+t]-N[x+m1(0)])*1.3)
+								}/D[x+t]
+							}
+						}elseIf(t&gt;=m &amp;&amp; t&lt;=(omega-x)){
+							(M[x+t]+gamma_nashu*N[x+t])/D[x+t]
+						}else{0}
+					}
+				}
+			}
+		</formula>
+		
+		<formula name="Wx1" paras="x,t" pvh="P" desc="連続2年の解約給付現価の平均値">
+			if(t==(omega-x)){
+		 		(tWx_nashu(t,x)*ht(t)+1)/2
+			}elseIf(t&gt;=0 &amp;&amp; t&lt;(omega-x)){
+				(tWx_nashu(t,x)*ht(t)+tWx_nashu(t+1,x)*ht(t))/2
+			}else(0)
+		</formula>
+		<formula name="Wx" paras="x" desc="解約給付現価">
+			sum(0,omega-x){CW[x+index]*Wx1(x,index)}/DT[x]
+		</formula>
+		<formula name="Wx_t" paras="x,t" desc="解約給付現価（経過年あり）">
+			sum(t,omega-x){CW[x+index]*Wx1(x,index)}/DT[x+t]
+		</formula>	
+		<formula name="d" desc="高額割引率">
+			if(xtime&gt;0){
+				0
+			}else{
+				if(gen==3||gen==4){
+					if(SA&lt;10000000){0}
+					elseIf(SA&gt;=10000000 &amp;&amp; SA&lt;30000000){0.00002}
+					else{0.00003}
+				}else{
+					if(SA&lt;10000000){0}
+					else{0.00002}
+				}
+			}
+		</formula>
+		
+		<formula name="S2P" paras="SBasePrate" desc="S基準からP基準に変換する">
+			<!-- 普通の場合 -->
+			if(kaisu==1){
+				round(1/SBasePrate,4)
+			}else{
+				round(1/SBasePrate,2)
+			}
+		</formula>
+		
+		<formula name="PrateByPaymode" paras="stdPrate,d" fundCode="017" fraction="6" desc="保険料レート">
+			<!-- 基準Prateと高額割引dより、払込方法別Prateを求める -->
+			<formula name="Discount" paras="d" desc="高額割引">
+				if(kaisu==1){0}
+				elseIf(kaisu==2){12*d}
+				elseIf(kaisu==3){6*d}
+				else{d}
+			</formula>
+			stdPrate*PayFactor(kaisu,gen,keiro)-Discount(d)
+		</formula>
+		
+	</Common>
+	
+	<Premium desc="保険料">
+		<formula name="stdPrate" pvh="P" desc="基準Ｐレート">
+			if(kaisu==1){
+				round(AT_x(x)+Wx(x)+alpha+gamma_nashu*aT_x(x),5)
+			}else{
+				if(step==0){
+			    <!-- 平準払 -->
+			    	if(m==99){
+			    		round(
+			    			(AT_x(x)+Wx(x)+alpha+gamma*aT12_x(x))/(12*(1-beta-zeta-delta-epsilon)*aT12_x(x))
+			    		,6)
+			    	}else{
+						round(
+				        	(AT_x(x)+Wx(x)+alpha+gamma*aT12_x_n(x,m1(0))+gamma_nashu*f_aT_x(m1(0),x))
+					 	       /
+						(12*(1-beta-zeta-delta-epsilon)*aT12_x_n(x,m1(0)))
+						,6)
+			    	}		        
+			    }else{
+			    <!-- ステップ払 -->
+			  		if(stepTime==1){
+			  			mPaiStep
+			  		}elseIf(stepTime==2){
+			  			round(mPaiStep*R_t(m1(0)),6)
+			  		}else{0}
+			    }
+			}
+			<formula name="mPaiStep" fraction="6" desc="πStepX">
+				if(m==99){
+					(AT_x(x)+Wx(x)+alpha+gamma*aT12_x(x))
+						/
+					(12*(1-beta-zeta-delta-epsilon)*round(aT12_x_n(x,step)+R_t(m1(0))*f_aT12_x(step,x),5))
+		    	}else{
+					(AT_x(x)+Wx(x)+alpha+gamma*aT12_x_n(x,m1(0))+gamma_nashu*f_aT_x(m1(0),x))
+						/
+					(12*(1-beta-zeta-delta-epsilon)*round(aT12_x_n(x,step)+R_t(m1(0))*f_aT12_x_n(step,x,m1(0)),5))
+		    	}
+		  	</formula>
+
+		</formula>
+		
+		<formula name="Prate" fundCode="017" accessable="true" pvh="P" desc="１．保険料レート">
+			PrateByPaymode(stdPrate,d)
+		</formula>
+		
+		<formula name="Premium" pvh="P" fundCode="017" paras="stdPrate" accessable="true" desc="２．保険料・保険金">
+			<!-- 高額割引がゼロ 100円の位を切り上げ-->
+			if(sptate==0){
+			<!-- Ｐレートはゼロより小さい場合、ゼロとする -->
+			   roundDown(SA*max{PrateByPaymode(stdPrate,d),0},0)
+			}else{
+			   roundUp(roundDown(SA*S2P(PrateByPaymode(stdPrate,d)),0)/1000,0)*1000
+			}
+		</formula>
+	</Premium>
+	
+	<ReserveFund desc="責任準備金">
+      	<formula name="yearPrate" pvh="P" fraction="6" desc="年払いPrate（P基礎）">
+			PayFactor(2,gen,1)*stdPrate-12*d
+		</formula>		
+		
+		<formula name="live" paras="t,tEX" fraction="6" desc="契約日からの保険期間nEX生存部分">
+			A_xt_nt_l(x,tEX,t)+gamma2*a_x_n(x+t,tEX-t)
+		</formula>
+		
+		<formula name="dead_sub1" paras="t,tEX" fraction="6" desc="契約日からの保険期間nEX死亡部分">
+	     	A_xt_nt_D(x,t,tEX)+gamma1*a_x_n(x+t,tEX-t) 
+		</formula>
+		<formula name="dead" paras="t,tEX,fEX" fraction="6" desc="契約日からの保険期間nEX死亡部分">
+			if(t&lt;tEX){
+				round(1-fEX/12,5)*dead_sub1(t,tEX)+round(fEX/12,5)*dead_sub1(t,tEX+1)
+			}elseIf(t==tEX){
+				round(fEX/12,5)*dead_sub1(t,tEX+1)
+			}else{0}
+		</formula>
+
+		<!-- 保険年度末保険料積立金レート(期間中) -->
+		<formula name="Vrate_endofYear_kkc" paras="t,z" desc="保険年度積立金レート(期間中)">
+			if(step==0){
+				if(m==99){
+					max{
+					AT_x(x+t)+Wx_t(x,t)-(AT_x(x)+Wx(x))/aT_x(x)*aT_x(x+t)
+					-if(z==0){0}else{alpha/aT_x_n(x,z)*aT_xt_nt(x,z,t)}
+					,0}
+				}else{
+					max{
+					AT_x(x+t)+Wx_t(x,t)+gamma_nashu*aT_x(x+t)-(AT_x(x)+Wx(x)+gamma_nashu*aT_x(x))
+					/aT_x_n(x,m1(state))*aT_xt_nt(x,m1(state),t)-if(z==0){0}else{alpha/aT_x_n(x,z)*aT_xt_nt(x,z,t)}
+					,0}
+				}
+			}else{
+				if(m==99){
+					max{
+					AT_x(x+t)+Wx_t(x,t)-(AT_x(x)+Wx(x)+alpha+gamma_nashu*aT_x(x))
+						/
+					M_a_T_x_t_m(x,m1(state))*M_a_T_x_t_m_t(x,m1(state),t)
+						+
+					(alpha+gamma*aT_x(x))/aT_x(x)*aT_x(x+t)
+						-
+					if(z==0){0}else{alpha/aT_x_n(x,z)*aT_xt_nt(x,z,t)}
+					,0}
+				}else{
+				max{
+				AT_x(x+t)+Wx_t(x,t)+gamma_nashu*ft_aT_xf(m1(state),t,x)
+				-M_a_T_x_t_m_t(x,m1(state),t)*
+				(AT_x(x)+Wx(x)+gamma_nashu*f_aT_x(m1(state),x)+alpha+gamma*aT_x_n(x,m1(state)))
+				/M_a_T_x_t_m(x,m1(state))
+				+aT_xt_nt(x,m1(state),t)*(alpha+gamma*aT_x_n(x,m1(state)))/aT_x_n(x,m1(state))
+				-if(z==0){0}else{alpha/aT_x_n(x,z)*aT_xt_nt(x,z,t)}
+				,0}
+				}
+			}
+	  </formula>
+		<!-- 保険年度末保険料積立金レート(期間終了)/一時払 -->
+	  <formula name="Vrate_endofYear_kksl" paras="t" desc="保険年度末保険料積立金レート(期間終了)/一時払">
+        	AT_x(x+t)+Wx_t(x,t)+gamma_nashu*aT_x(x+t)
+	  </formula>
+	  <!-- 払済保険-->
+	  <formula name="Vrate_endofYear_zumi" paras="t" desc="払済保険">
+        	A_x(x+t)+gamma_nashu*a_x(x+t)
+	  </formula>
+		
+		<formula name="Vrate_accu" paras="t,z" fundCode="017" desc="保険年度末rate">
+			if(state==1||state==6){
+                Vrate_endofYear_kkc(t,z)
+			}elseIf(state==2 || kaisu==1){
+			    Vrate_endofYear_kksl(t)
+			}elseIf{state==4}{
+			    Vrate_endofYear_zumi(t)
+			}elseIf{state==7}{
+				if(SAS!=0){
+					live(t,tEX)
+				}else{
+					dead(t,tEX,fEX)
+				}
+			}else{0}
+		</formula>
+		<!-- 保険年度末保険料積立金レート -->		
+		<formula name="Vrate" pvh="H" fraction="6" fundCode="017" accessable="true" desc="１．保険年度末VTレート">
+			Vrate_accu(t,0)
+		</formula>
+		<!-- 契約者用Vレート -->
+		<formula name="ContractorYearV" paras="t,z" pvh="P" fundCode="017" fraction="6" desc="契約者用Vレート">
+			Vrate_accu(t,z)
+		</formula>
+		<formula name="ContractorVrate" pvh="P" accessable="true" desc="３．契約者用Vレート">
+			if(state==1||state==6){
+				if(f1==0){
+					ContractorYearV(t1,z)
+				}else{
+					round((1-f_12(f1))*ContractorYearV(t1,z)+f_12(f1)*ContractorYearV(t1+1,z),4)
+				}
+			}else{
+				if(f==0){
+					ContractorYearV(t,z)
+				}else{
+					round((1-f_12(f))*ContractorYearV(t,z)+f_12(f)*ContractorYearV(t+1,z),4)
+				}
+			}
+		</formula>
+		
+		<formula name="Vratebiz_endofYear" paras="t,z" desc="事業年度末用保険年度末Vレート">
+			<!-- 保険料払込期間中 -->
+			if(state==1){
+				if(step==0){
+					if(m==99){
+						if(round((AT_x(x)+Wx(x))/aT_x_n(x,m1(state)),6)&lt;=yearPrate){
+							Vrate_endofYear_kkc(t,z)
+						}else{
+							max{(AT_x(x+t)+Wx_t(x+t)-yearPrate
+						*aT_x_n(x+t,m1(state)-t)-if(z==0){0}else{alpha/aT_x_n(x,z)*aT_xt_nt(x,z,t)}),0}
+						}
+					}else{
+						if(round((AT_x(x)+Wx(x)+gamma_nashu*f_aT_x(m1(state),x))/aT_x_n(x,m1(state)),6)&lt;=yearPrate){
+							Vrate_endofYear_kkc(t,z)
+						}else{
+							max{(AT_x(x+t)+Wx_t(x+t)+gamma_nashu*aT_x(x+t)-(yearPrate+gamma_nashu)*aT_x_n(x+t,m1(state)-t)
+							-if(z==0){0}else{alpha/aT_x_n(x,z)*aT_xt_nt(x,z,t)}),0}
+						}
+					}
+				}else{
+					if(m==99){
+					    if(round((AT_x(x)+Wx(x))/M_a_T_x(x),6)&lt;=yearPrate){
+					    	Vrate_endofYear_kkc(t,z)
+					    }else{
+						max{
+						AT_x(x+t)+Wx_t(x,t)-M_a_T_x_t(x,t)*{
+						    yearPrate+(alpha+gamma*aT_x(x))/M_a_T_x(x)
+						}+(alpha+gamma*aT_x(x))/aT_x(x)*aT_x(x+t)
+						-if(z==0){0}else{alpha/aT_x_n(x,z)*aT_xt_nt(x,z,t)}
+						,0}
+					    }
+					}else{
+						if(round((AT_x(x)+Wx(x)+gamma_nashu*f_aT_x(m1(state),x))/M_a_T_x_t_m(x,m1(state)),6)&lt;=yearPrate){
+							Vrate_endofYear_kkc(t,z)
+					}else{
+						max{
+						AT_x(x+t)+Wx_t(x,t)+gamma_nashu*ft_aT_xf(m1(state),t,x)
+						-M_a_T_x_t_m_t(x,m1(state),t)*
+						    {yearPrate+(alpha+gamma*aT_x_n(x,m1(state)))/M_a_T_x_t_m(x,m1(state))}
+						+aT_xt_nt(x,m1(state),t)*(alpha+gamma*aT_x_n(x,m1(state)))/aT_x_n(x,m1(state))
+						-if(z==0){0}else{alpha/aT_x_n(x,z)*aT_xt_nt(x,z,t)}
+						,0}
+					}
+				}
+				}
+			  <!-- 保険料払込期間終了後 (一時払,払込免除を含む)-->
+			}elseIf(state==2 || kaisu==1||state==6){
+			  Vrate_endofYear_kksl(t)
+			  <!-- 延長定期保険 -->
+			}elseIf(state==4){
+			  Vrate_endofYear_zumi(t)
+			}elseIf(state==7){
+			  	if(SAS!=0){
+					live(t,tEX)
+				}else{
+					dead(t,tEX,fEX)
+				}
+			}else{0}
+		</formula>
+		
+		<formula name="BizYearV" paras="t,z" accessable="false" desc="事業末Vレート">
+            Vratebiz_endofYear(t,z)
+		</formula>
+		
+		<formula name="calBizYearV" fraction="6" desc="事業末用Vレート">
+			BizYearV(t,z)
+		</formula>
+
+	</ReserveFund>
+	
+	
+	<SurrenderFee desc="解約返戻金">
+		<formula name="htWrate" paras="t,f" desc="解約返戻金期間中、免除の割合">
+			if(t&gt;=0 &amp;&amp; t&lt;u || (t==u &amp;&amp; f==0)){
+				wt
+			}else{1}
+		</formula>
+		
+		<!--５年ごと利差配当付終身保険(011)の契約 -->
+		<formula name="Vrate_endofYear_zumi_011" paras="t" fraction="4" desc="払済_011">
+			A_x(x+t)+gamma_nashu*a_x(x+t)
+		</formula>
+		<formula name="Vrate_endofYear_kkc_011" fraction="4" paras="t,z" desc="保険年度積立金レート(期間中)_011">
+			if(step==0){
+				if(m==99){
+					max{
+						A_x(x+t)-A_x(x)/a_x(x)*a_x(x+t)
+						-if(z==0){0}else{alpha/a_x_n(x,z)*a_x_n(x+t,z-t)}
+					,0}
+				}else {
+					max{
+						A_x(x+t)+gamma_nashu*a_x(x+t)
+						-(A_x(x)+gamma_nashu*a_x(x))/a_x_n(x,m1(state))*a_x_n(x+t,m1(state)-t)
+						-if(z==0){0}else{alpha/a_x_n(x,z)*a_x_n(x+t,z-t)}
+					,0}
+				}
+			}else{
+				if(m==99){
+					max{
+						A_x(x+t)-M_a_x_t_m_t(x,m1(state),t)
+						*(A_x(x)+alpha+gamma*a_x_n(x,m1(state)))/M_a_x_m(x,m1(state))
+						+a_x_n(x+t,m1(state)-t)*(alpha+gamma*a_x_n(x,m1(state)))/a_x_n(x,m1(state))
+						-if(z==0){0}else{alpha/a_x_n(x,z)*a_x_n(x+t,z-t)}
+					,0}
+				}else{
+					max{
+						A_x(x+t)+gamma_nashu*f_a_x(m1(state)-t,x+t)
+						-M_a_x_t_m_t(x,m1(state),t)*(A_x(x)+gamma_nashu*f_a_x(m1(state),x)
+						+alpha+gamma*a_x_n(x,m1(state)))/M_a_x_m(x,m1(state))
+						+a_x_n(x+t,m1(state)-t)*(alpha+gamma*a_x_n(x,m1(state)))/a_x_n(x,m1(state))
+						-if(z==0){0}else{alpha/a_x_n(x,z)*a_x_n(x+t,z-t)}
+					,0}
+				}
+			}
+		</formula>
+		
+	    <formula name="live_011" paras="t,tEX" fundCode="011" fraction="4" desc="契約日からの保険期間nEXに端月数がない場合生存部分">
+			A_xt_nt_l(x,tEX,t)+gamma2*a_x_n(x+t,tEX-t)
+		</formula>
+		<formula name="dead_sub1_011" paras="t,tEX" fraction="4" desc="契約日からの保険期間nEXに端月数がない場合死亡部分">
+	     	A_xt_nt_D(x,t,tEX)+gamma1*a_x_n(x+t,tEX-t) 
+		</formula>
+		 <formula name="dead_011" paras="t,tEX,fEX" fundCode="011" fraction="4" desc="契約日からの保険期間nEXに端月数がある場合死亡部分">
+			if(t&lt;tEX){
+				(1-fEX/12)*dead_sub1_011(t,tEX)+fEX/12*dead_sub1_011(t,tEX+1)
+			}elseIf(t==tEX){
+				fEX/12*dead_sub1_011(t,tEX+1)
+			}else{0}
+		</formula>
+
+		<formula name="tWrate" paras="t" pvh="P" fraction="4" fundCode="011" desc="Wrate">
+			<formula name="sigma" paras="t">
+				0.015*max{1-t/min(m1(state),10),0}
+			</formula>						
+			if(state==1||state==6){
+				<!-- 払込期間中　または　免除 -->
+				max{Vrate_endofYear_kkc_011(t,0)-sigma(t),0}
+			}elseIf(state==2||kaisu==1||state==4){
+				<!-- 保険料払込期間終了後 -->
+				Vrate_endofYear_zumi_011(t)
+			}elseIf(state==7){
+				<!-- 延長定期保険 -->
+				if(SAS!=0){
+					live_011(t,tEX)
+				}else{
+					dead_011(t,tEX,fEX)
+				}
+			}else{0}
+		</formula>
+		<formula name="Wrate" fraction="4" pvh="P" fundCode="011" accessable="true" desc="１．解約返戻金Wレート">
+			<formula name="Wrate_Sub4" paras="t,z">
+				min{tWrate(t),Wrate_Sub5(t,z)}
+			</formula>
+			<formula name="Wrate_Sub5" pvh="V" paras="t,z">
+				Vrate_endofYear_kkc_011(t,z)
+			</formula>
+			if(state==1||state==6){
+				if(PremiumAbolishSign==1){
+					if((12*t1+f1-12*t-f)&lt;0){
+						<!-- 払込年月数-経過年月数<0の場合、t,fをt1,f1に読み替え -->
+						round(((1-f_12(f1))*tWrate(t1)+f_12(f1)*tWrate(t1+1)),4)*htWrate(t1,f1)
+					}else{
+						round(((1-f_12(f))*tWrate(t)+f_12(f)*tWrate(t+1)),4)*htWrate(t,f)
+					}
+				}elseIf(contractDate&gt;=20080202){
+					round(v^ve*
+					round(((1-f_12(f1))*tWrate(t1)+f_12(f1)*tWrate(t1+1)),4),4)*htWrate(t,f)
+				}else{
+					round(v^ve*round(((1-f_12(f1))*Wrate_Sub4(t1,min(m1(state),5))
+						+
+					f_12(f1)*Wrate_Sub4(t1+1,min(m1(state),5))),4),4)*htWrate(t1,f1)
+				}
+			}elseIf(kaisu==1){
+				round(((1-f_12(f))*tWrate(t)+f_12(f)*tWrate(t+1)),4)*htWrate(t,f)
+			}elseIf(state==2){
+				round(((1-f_12(f))*tWrate(t)+f_12(f)*tWrate(t+1)),4)*ht(t)
+			}elseIf(state==4||state==7){
+				(1-f_12(f))*tWrate(t)+f_12(f)*tWrate(t+1)
+			}else{0}
+		</formula>
+		
+		<formula name="Wrate_live" paras="t" fraction="4" fundCode="011" pvh="P" desc="解約返戻金レート(生存)">	
+			(1-f_12(f))*live_011(t,tEX)+f_12(f)*live_011(t+1,tEX)
+		</formula>
+		<formula name="Wrate_dead" paras="t" fraction="4" fundCode="011" pvh="P" desc="解約返戻金レート(死亡)">	
+			(1-f_12(f))*dead_011(t,tEX,fEX)+f_12(f)*dead_011(t+1,tEX,fEX)
+		</formula>
+	</SurrenderFee>
+</Formula-definition>

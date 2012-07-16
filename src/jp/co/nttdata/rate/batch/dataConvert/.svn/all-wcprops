@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 158
+/svn/nttd/!svn/ver/27655/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/src/jp/co/nttdata/rate/batch/dataConvert
+END
+BatchDataLayoutDeclaration.java
+K 25
+svn:wc:ra_dav:version-url
+V 190
+/svn/nttd/!svn/ver/23231/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/src/jp/co/nttdata/rate/batch/dataConvert/BatchDataLayoutDeclaration.java
+END
+BatchDataLayoutFactory.java
+K 25
+svn:wc:ra_dav:version-url
+V 186
+/svn/nttd/!svn/ver/20807/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/src/jp/co/nttdata/rate/batch/dataConvert/BatchDataLayoutFactory.java
+END
+RateKeyLayout.java
+K 25
+svn:wc:ra_dav:version-url
+V 177
+/svn/nttd/!svn/ver/20807/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/src/jp/co/nttdata/rate/batch/dataConvert/RateKeyLayout.java
+END
+IRateKeyConverter.java
+K 25
+svn:wc:ra_dav:version-url
+V 181
+/svn/nttd/!svn/ver/20807/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/src/jp/co/nttdata/rate/batch/dataConvert/IRateKeyConverter.java
+END
+BatchDataLayoutBeanFactory.java
+K 25
+svn:wc:ra_dav:version-url
+V 190
+/svn/nttd/!svn/ver/20807/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/src/jp/co/nttdata/rate/batch/dataConvert/BatchDataLayoutBeanFactory.java
+END
+BatchDataLayout.java
+K 25
+svn:wc:ra_dav:version-url
+V 179
+/svn/nttd/!svn/ver/20807/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/src/jp/co/nttdata/rate/batch/dataConvert/BatchDataLayout.java
+END
+Dat2RateKeyConverterImpl.java
+K 25
+svn:wc:ra_dav:version-url
+V 188
+/svn/nttd/!svn/ver/27655/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/src/jp/co/nttdata/rate/batch/dataConvert/Dat2RateKeyConverterImpl.java
+END
+Csv2RateKeyConverterImpl.java
+K 25
+svn:wc:ra_dav:version-url
+V 188
+/svn/nttd/!svn/ver/27638/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/src/jp/co/nttdata/rate/batch/dataConvert/Csv2RateKeyConverterImpl.java
+END

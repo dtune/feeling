@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+	<BizExpenses desc="事業費率の設定">
+		<formula name="AD_eta" value="0.00097" desc="予定先進医療発生率"/>
+		<formula name="AD_tau" value="812846" desc="予定先進医療支払額"/>
+		<formula name="AD_gamma" value="0.1" desc="維持費γ"/>
+		<formula name="beta" value="0.15" desc="集金費β"/>
+		<formula name="zeta" value="0.025" desc="集金費ζ"/>
+		<formula name="epsilon" value="0.003" desc="Ｐ免費用ε"/>
+		
+	</BizExpenses>
+	<Common desc="商品内部の共通公式">
+		<formula name="q1" paras="x">
+			qx[x]+qw-qx[x]*qw
+		</formula>
+		<formula name="vq" paras="x">
+			1-v*(1-q1(x))
+		</formula>
+		<formula name="vqe" paras="x,n">
+			{v*(1-q1(x))}^n
+		</formula>
+		<formula name="aT_x_n" paras="x,n" fraction="5">
+			(1-vqe(x,n))/vq(x)
+		</formula>
+		<formula name="aT12_x_n" paras="x,n" fraction="5">
+			(1-vqe(x,n))/vq(x)-11/24*(1-vqe(x,n))
+		</formula>
+		<formula name="ad_A_x_n" paras="x,n">
+			v^(1/2)*AD_eta*AD_tau*aT_x_n(x,n)
+		</formula>
+			
+		<formula name="PrateByPaymode" paras="stdPrate,d" fraction="0"
+			desc="払込方法別Prate">
+			<!-- 基準Prateと高額割引dより、払込方法別Prateを求める -->
+			<formula name="Discount" paras="d" desc="高額割引">
+				if(kaisu==1){
+					0
+				}elseIf(kaisu==2){
+					12*d
+				}elseIf(kaisu==3){
+					6*d
+				}else{
+					d
+				}
+			</formula>
+			round(stdPrate*PayFactor(kaisu,gen,keiro)-Discount(d),0-1)
+		</formula>
+
+		<formula name="S2P" paras="SBasePrate" desc="S基準からP基準に変換する">
+			round(1/SBasePrate,2)
+		</formula>
+	</Common>
+
+	<Premium desc="保険料">		
+		<formula name="stdPrate" pvh="P" accessable="false" fraction="0" desc="基準Ｐレート">
+			ad_A_x_n(40,n)/{12*(1-AD_gamma-beta-zeta-epsilon)*aT12_x_n(40,n)}
+		</formula>
+		
+		<formula name="Prate" pvh="P" accessable="true" desc="１.保険料レート">
+			PrateByPaymode(stdPrate,0)
+		</formula>		
+		<formula name="Premium" pvh="P" accessable="true" desc="２.保険料/保険金額">
+			if(sptate==0){
+				Prate
+			}else{
+			   roundUp(roundDown(SA*S2P(PrateByPaymode(stdPrate,0)),0)/1000,0)*1000
+			}
+			
+		</formula>
+	</Premium>
+	
+	<ReserveFund desc="保険積立金">
+		<formula name="MultiV" paras="t" desc="払込中VTレート">
+			0
+		</formula>
+		<formula name="WaiverV" paras="t" fraction="0" desc="払込免除のVTレート">
+			ad_A_x_n(40,n-t)+AD_gamma*ad_A_x_n(40,n)*aT_x_n(40,n-t)/((1-AD_gamma-beta-zeta-epsilon)*aT_x_n(40,n))
+		</formula>
+		<formula name="Vrate_accu" paras="t" desc="保険年度Vrate">
+			if(state==1){
+				<!-- 払込期間中 -->
+				MultiV(t)
+			}elseIf(state==6){
+				<!-- 払込免除 -->
+				WaiverV(t)
+			}else{
+				0
+			}		
+		</formula>
+		<formula name="Vrate" pvh="H" accessable="true" desc="１.保険年度末Ｖレート">
+			Vrate_accu(t)
+		</formula>
+		
+		<formula name="BizYearV" paras="t" fraction="0" desc="事業末Vレート">
+			Vrate_accu(t)
+		</formula>
+		
+		<formula name="BizYearVate" pvh="if(kisoritsu==0){P}elseIf(kisoritsu==1){V}else{H}" accessable="true" desc="２．事業年度末Vレート">
+			BizYearV(t)
+		</formula>
+		
+		<formula name="ContractorYearV" fraction="0" pvh="P" paras="t" desc="保険年度契約者VTレート">
+			Vrate_accu(t)
+		</formula>
+
+		<formula name="ContractorVrate" fraction="0" pvh="P" accessable="true" desc="３．契約者用Ｖレート">
+			if(state==1){
+				<!-- 払込期間中 -->
+				0
+			}elseIf(state==6){
+				<!-- 払込免除 -->
+				if (f==0){
+					<!-- 保険年度末Ｖレート -->
+					ContractorYearV(t)
+				}else{
+					<!-- 契約者用Ｖレート -->
+					(1-(2*f-1)/24)*ContractorYearV(t)+((2*f-1)/24)*ContractorYearV(t+1)
+				}
+			}else{
+				0
+			}
+		</formula>
+		<formula name="VrateValuation" pvh="H" fraction="0" accessable="true" desc="４．保険年度末V実額">
+			Vrate
+		</formula>
+		<formula name="Valuation" pvh="P" fraction="0" accessable="true" desc="５．契約者責任準備金実額">
+			ContractorVrate
+		</formula>
+		<formula name="BizYearValuation" pvh="if(kisoritsu==0){P}elseIf(kisoritsu==1){V}else{H}" fraction="0" accessable="true" desc="６．事業年度末V実額">
+			BizYearVate
+		</formula>
+
+	</ReserveFund>
+
+	<SurrenderFee desc="解約返戻金">
+		<formula name="tWrate">
+			0
+		</formula>
+		<formula name="Wrate" pvh="P" accessable="true" desc="１.解約返戻金Ｗレート">
+			0
+		</formula>
+	</SurrenderFee>
+</Formula-definition>

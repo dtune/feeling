@@ -1,0 +1,53 @@
+ ### set rootLogger levels ###
+log4j.rootLogger = INFO,stdout,logFile,E,TA
+
+### Batch Category ###
+log4j.category.BTLogger = INFO,stdout,BT
+
+### set fms&dbConnection log-level to debug ###
+#log4j.logger.jp.co.nttdata.rate.fms.core=debug
+#log4j.logger.jp.co.nttdata.rate.rateFundation.dbConnection=debug
+log4j.logger.org.apache.commons=off
+
+### output all to console ###
+log4j.appender.stdout = org.apache.log4j.ConsoleAppender
+log4j.appender.stdout.Target = System.out
+log4j.appender.stdout.layout = org.apache.log4j.PatternLayout
+log4j.appender.stdout.layout.ConversionPattern = %d{ABSOLUTE} [%-5p] - [%t]%m%n
+#log4j.appender.stdout.layout = org.apache.log4j.TTCCLayout
+
+### output the info to UI textarea ###
+log4j.appender.TA = jp.co.nttdata.rate.log.TextUIAppender
+log4j.appender.TA.layout = org.apache.log4j.PatternLayout
+log4j.appender.TA.layout.ConversionPattern = [RCT] [%p] %m%n
+
+### Batch Calculate Report ###
+log4j.appender.BT = org.apache.log4j.RollingFileAppender
+log4j.appender.BT.File = log/BatchReport.html
+log4j.appender.BT.MaxFileSize= 500KB
+log4j.appender.BT.MaxBackupIndex=3
+log4j.appender.BT.Append = true
+log4j.appender.BT.Threshold = INFO
+log4j.appender.BT.layout = org.apache.log4j.HTMLLayout
+
+
+### output the info to log file ###
+log4j.appender.logFile = org.apache.log4j.RollingFileAppender
+log4j.appender.logFile.File = log/log.txt
+log4j.appender.logFile.MaxFileSize= 50000KB
+log4j.appender.logFile.MaxBackupIndex=3
+log4j.appender.logFile.Append = true
+#log4j.appender.logFile.Threshold = INFO
+log4j.appender.logFile.layout = org.apache.log4j.PatternLayout
+log4j.appender.logFile.layout.ConversionPattern = %-d{yyyy-MM-dd HH:mm:ss} [%-5p] - %m%n
+
+### output the error to error file ###
+log4j.appender.E = org.apache.log4j.RollingFileAppender
+log4j.appender.E.File = log/error.txt
+log4j.appender.E.MaxFileSize= 5000KB
+log4j.appender.logFile.MaxBackupIndex=3
+log4j.appender.E.Append = true
+log4j.appender.E.Threshold = ERROR 
+log4j.appender.E.layout = org.apache.log4j.PatternLayout
+log4j.appender.E.layout.ConversionPattern = %-d{yyyy-MM-dd HH:mm:ss} [%-5p] - [%t] %m%n
+

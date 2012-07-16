@@ -1,0 +1,83 @@
+K 25
+svn:wc:ra_dav:version-url
+V 124
+/svn/nttd/!svn/ver/24739/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/dbDump
+END
+rate2_life_table.sql
+K 25
+svn:wc:ra_dav:version-url
+V 145
+/svn/nttd/!svn/ver/24194/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/dbDump/rate2_life_table.sql
+END
+rate2_rate_master.sql
+K 25
+svn:wc:ra_dav:version-url
+V 146
+/svn/nttd/!svn/ver/24205/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/dbDump/rate2_rate_master.sql
+END
+rate2_t_fund_table.sql
+K 25
+svn:wc:ra_dav:version-url
+V 147
+/svn/nttd/!svn/ver/24209/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/dbDump/rate2_t_fund_table.sql
+END
+rate2_rate_ij_master.sql
+K 25
+svn:wc:ra_dav:version-url
+V 149
+/svn/nttd/!svn/ver/24203/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/dbDump/rate2_rate_ij_master.sql
+END
+rate2_t_fund_def_mapping.sql
+K 25
+svn:wc:ra_dav:version-url
+V 153
+/svn/nttd/!svn/ver/24208/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/dbDump/rate2_t_fund_def_mapping.sql
+END
+rate2_payment_day.sql
+K 25
+svn:wc:ra_dav:version-url
+V 146
+/svn/nttd/!svn/ver/24196/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/dbDump/rate2_payment_day.sql
+END
+rate2_rate_dividend_master.sql
+K 25
+svn:wc:ra_dav:version-url
+V 155
+/svn/nttd/!svn/ver/24201/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/dbDump/rate2_rate_dividend_master.sql
+END
+rate2_rate_term_master.sql
+K 25
+svn:wc:ra_dav:version-url
+V 151
+/svn/nttd/!svn/ver/24206/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/dbDump/rate2_rate_term_master.sql
+END
+rate2_views.sql
+K 25
+svn:wc:ra_dav:version-url
+V 140
+/svn/nttd/!svn/ver/24550/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/dbDump/rate2_views.sql
+END
+rate2_mortality_mapping.sql
+K 25
+svn:wc:ra_dav:version-url
+V 152
+/svn/nttd/!svn/ver/24195/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/dbDump/rate2_mortality_mapping.sql
+END
+rate2_probability.sql
+K 25
+svn:wc:ra_dav:version-url
+V 146
+/svn/nttd/!svn/ver/24197/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/dbDump/rate2_probability.sql
+END
+rate2_insurance_master.sql
+K 25
+svn:wc:ra_dav:version-url
+V 151
+/svn/nttd/!svn/ver/24191/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/dbDump/rate2_insurance_master.sql
+END
+rate2_qw_master.sql
+K 25
+svn:wc:ra_dav:version-url
+V 144
+/svn/nttd/!svn/ver/24198/%E6%A4%9C%E8%A8%BC%E3%83%84%E3%83%BC%E3%83%AB/99_%E3%82%BD%E3%83%BC%E3%82%B9/branches/FMS_NP/dbDump/rate2_qw_master.sql
+END

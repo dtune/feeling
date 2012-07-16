@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Formula-definition SYSTEM "Formula-definition.dtd">
+<!-- 商品毎に計算公式はここに定義する -->
+<Formula-definition>
+	<!-- 延長　ここから -->
+	<Extend desc="延長">
+		<formula name="maxN" desc="限度保期">
+			n
+		</formula>
+	</Extend>
+</Formula-definition>

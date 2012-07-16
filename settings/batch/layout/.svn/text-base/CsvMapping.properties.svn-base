@@ -1,0 +1,156 @@
+########\u3053\u308c\u304b\u3089 \u8a08\u7b97\u306etype########
+## special   normal    extend   paidup  partLumpSum   bringUp  deathBenefit###
+batch.ratekey.calculate=extend
+
+#####\u3053\u308c\u304b\u3089\u666e\u901a\u306e\u5834\u5408############
+ratekey.iCurrentDate.normal.label=\u5f53\u6708\u7d4c\u904e\u5e74\u6708
+ratekey.t.transfer=iCurrentDate/100
+ratekey.f.transfer=iCurrentDate%100
+ratekey.t1.transfer=iCurrentDate/100
+ratekey.f1.transfer=iCurrentDate%100
+
+ratekey.deathIndex.label=\u7279\u4f53\u6b7b\u4ea1\u6307\u6570
+
+ratekey.buzYearSign.label=\u4e8b\u696d\u5e74\u5ea6\u672b\u30b5\u30a4\u30f3
+
+ratekey.periodKbn.label=\u4fdd\u671f\u533a\u5206CN
+
+ratekey.paymentKbn.label=\u6255\u671f\u533a\u5206CN
+
+ratekey.kaisu.label=\u6255\u65b9CN
+
+ratekey.payup.label=\u6255\u8fbc\u6e08\u7a2e\u985eCN
+
+ratekey.payment.label=\u6255\u8fbc\u72b6\u614bCN
+
+ratekey.state.transfer=if((payup==1&&payment==2)||(payup==2&&payment==2)){2}\
+                              elseIf(payup==6&&payment==2){3}\
+                              elseIf(payup==0&&payment==1){1}\
+                              elseIf(payup==4&&payment==2){4}\
+                              else{5}
+
+ratekey.keiro.label=P\u6271\u65b9\u6cd5CN
+ratekey.keiro.transfer=if(keiro==1){1}\
+                        elseIf(keiro==2){3}\
+                        elseIf(keiro==3){4}\
+                        elseIf{keiro==4}{5}\
+                        elseIf(keiro==6){2}\
+                        else{0}
+
+ratekey.ownersex.label=\u5951\u7d04\u8005\u6027\u5225
+ratekey.contractorSex.label=\u5951\u7d04\u8005\u6027\u5225CN
+
+ratekey.sex.label=\u88ab\u4fdd\u6027\u5225CN
+ratekey.sex.transfer=sex-1
+
+ratekey.x.label=X\u5e74\u9f62
+ratekey.y.label=Y\u5e74\u9f62
+
+ratekey.Sy.label=\u30d5\u30a1\u30df\u30ea\u30fc\u914d\u5076\u8005\u4fdd\u969c\u5272\u5408
+
+ratekey.Sz.label=\u30d5\u30a1\u30df\u30ea\u30fc\u5b50\u4fdd\u969c\u5272\u5408
+
+ratekey.I.label=\u707d\u75be\u4fdd\u969c\u671f\u9593
+ratekey.contractorType.transfer=if(I==19){1}\
+                               elseIf(I==21){2}\
+                               elseIf(I==20){20}\
+                               elseIf(I==22){4}\
+                               else{0}
+
+ratekey.step.label=\u4fee\u6b63\u6255\u8fbc\u8efd\u6e1b\u671f\u9593
+
+ratekey.n.label=\u4fdd\u671f\u5e74
+ratekey.n.transfer=if(periodKbn==2){n-x}\
+                   elseIf(periodKbn==3){99}\
+                   else{n}
+
+ratekey.m.label=\u6255\u671f\u5e74
+ratekey.m.transfer=if(paymentKbn==2){m-x}\
+                    elseIf(paymentKbn==3){99}\
+                    else{m}
+
+ratekey.g.label=\u5e74\u91d1\u652f\u6255\u5e74
+ratekey.g.transfer=if(annuityType==5){h}else{g}
+ratekey.t2.transfer=t-n-l
+ratekey.t3.transfer=t-n
+
+ratekey.l.label=\u7e70\u308a\u4e0b\u3052\u5e74\u6570
+
+ratekey.sptate.label=P\u5efa\u30b5\u30a4\u30f3
+
+ratekey.VrateUnit.label=VT\u30ec\u30fc\u30c8\u5358\u4f4d
+
+ratekey.contractDate.label=\u59cb\u671f\u5e74\u6708\u65e5
+ratekey.gen.transfer=if((annuityType==16||annuityType==17)&&kaisu==1){2}\
+						elseIf(contractDate<=19990401){1}\
+                        elseIf(contractDate<=20010401){2}\
+                        elseIf(contractDate<=20070331){3}\
+                        elseIf(contractDate<=20090401){4}\
+                        elseIf(contractDate<=20100930&&annuityType==11){4}\
+                        elseIf(contractDate<=20100930){5}\
+                        else{6}
+
+ratekey.k.label=\u5e74\u91d1\u652f\u6255\u6e80\u4e86\u671f\u9593
+ratekey.k.transfer=if(periodKbn==2){k-x}else{k}
+
+ratekey.h.label=\u5e74\u91d1\u652f\u6255\u4fdd\u8a3c\u5e74
+
+ratekey.u.label=\u4f4e\u89e3\u8fd4\u671f\u9593
+ratekey.u.transfer=if(periodKbn==2){u-m}else{m}
+
+ratekey.i.label=\u6599\u7387\u8b58\u5225\u533a\u5206CN
+
+ratekey.kk1.label=\u6599\u7387\u8b58\u5225\u533a\u5206CN
+ratekey.k1.transfer=if(kk1==72){2}elseIf(kk1==73){3}else{0}
+
+ratekey.aliveS.label=\u5ef6\u9577\u751f\u5b58\uff33
+
+ratekey.f1.label=\u6255\u671f\u6708
+
+ratekey.WrateUnit.label=W\u30ec\u30fc\u30c8\u5358\u4f4d
+
+ratekey.PrateUnit.label=P\u30ec\u30fc\u30c8\u5358\u4f4d
+
+ratekey.SA.label=\u57fa\u6e96S
+
+ratekey.CompareDt.label=\u5f53\u5e74\u5ea6\u672b\u672a\u5272\u5f53\u6b8b\u9ad8
+
+ratekey.Dt_lastyear.label=\u524d\u5e74\u5ea6\u672b\u672a\u5272\u5f53\u6b8b\u9ad8
+
+ratekey.divEndDate.label=\u914d\u5f53\u57fa\u6e96\u65e5
+
+ratekey.contractUpdType.label=\u66f4\u65b0\u5951\u7d04\u30b5\u30a4\u30f3
+
+ratekey.annuityType.label=\u6599\u7387\u4fdd\u7a2eCN
+ratekey.policyCode.label=\u57fa\u790e\u6599\u7387\u4fdd\u7a2eCN
+ratekey.policyCode.transfer=if(policyCode==5){4}else{policyCode}
+ratekey.dividend.label=\u4e88\u5b9a\u5229\u7387\u8b58\u5225CN
+ratekey.dividend.transfer=if(dividend==0||dividend==2||dividend==3){0}\
+							else{1}
+ratekey.partOnetime.transfer=if(dividend==0||dividend==2||dividend==4){0}\
+							else{1}
+
+ratekey.contractorState.label=\u5951\u7d04\u73fe\u6cc1CN
+ratekey.contractorState.transfer=if(contractorState==30){0}else{1}
+ratekey.bonusDiv.transfer=0
+ratekey.theta.transfer=0
+ratekey.annuityY.transfer=if(periodKbn==2){n+l}else{x+n+l}
+ratekey.accCalculation.transfer=0
+ratekey.finalPercent.transfer=if(kk1==31){0}elseIf(kk1==34){1}else{2}
+ratekey.teizoKbn.transfer=if(kk1==40){0}else{1}
+ratekey.afterBenifitPay.transfer=0
+ratekey.CompareAllocation.label=\u7fcc\u671f\u914d\u5f53\u6240\u8981\u984d
+ratekey.changeState.transfer=2
+ratekey.SD.label=\u57fa\u790e\u5951\u7d04\u6255\u6e08\u6642\u6b7b\u4ea1\u7d66\u4ed8\u91d1\u984d
+ratekey.paidupS.transfer=SA
+ratekey.birthday.label=\u88ab\u4fdd\u751f\u5e74\u6708\u65e5
+
+batch.ratekey=gen,sex,kaisu,x,iCurrentDate,paymentKbn,payup,periodKbn,payment,contractUpdType,sptate,\
+               n,m,g,state,keiro,SA,t,f,t1,f1,t2,t3,l,contractDate,k,h,u,step,k1,deathIndex,\
+              Sy,Sz,i,contractorType,VrateUnit,buzYearSign,Wrate,WrateUnit,aliveS,PrateUnit,kk1,\
+              CompareDt,Dt_lastyear,divEndDate,contractUpdType,annuityType,dividend,policyCode,\
+              afterBenifitPay,y,contractorSex,CompareAllocation,SD,birthday
+
+batch.ratekey.transfer=n,m,t,f,t1,f1,state,keiro,sex,contractorType,t2,t3,gen,k1,k,u,\
+						contractorState,bonusDiv,theta,annuityY,accCalculation,g,dividend,\
+						finalPercent,teizoKbn,afterBenifitPay,policyCode,partOnetime,changeState,paidupS

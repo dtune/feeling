@@ -1,0 +1,11 @@
+<!ELEMENT RateKeys ( #PCDATA ) >
+
+<!ELEMENT Category ( name, label, RateKeys ) >
+
+<!ELEMENT Categories ( Category+ ) >
+
+<!ELEMENT Calculation-definition ( Categories ) >
+
+<!ELEMENT label ( #PCDATA ) >
+
+<!ELEMENT name ( #PCDATA ) >
